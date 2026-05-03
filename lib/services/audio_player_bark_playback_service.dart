@@ -15,12 +15,44 @@ class AudioPlayerBarkPlaybackService implements BarkPlaybackService {
       '${Directory.systemTemp.path}\\dog_translator_bark_${DateTime.now().microsecondsSinceEpoch}.wav',
     );
     await file.writeAsBytes(wavBytes, flush: true);
-    await _player.stop();
-    await _player.play(DeviceFileSource(file.path));
+    try {
+      await _player.stop();
+      await _player
+          .play(DeviceFileSource(file.path))
+          .timeout(const Duration(seconds: 2));
+    } catch (_) {
+      await _playWithWindowsSoundPlayer(file.path);
+    }
   }
 
   @override
   Future<void> dispose() {
     return _player.dispose();
+  }
+
+  Future<void> _playWithWindowsSoundPlayer(String path) async {
+    final escapedPath = path.replaceAll("'", "''");
+    final command =
+        "\$player = New-Object System.Media.SoundPlayer('$escapedPath'); "
+        '\$player.Load(); '
+        '\$player.PlaySync();';
+
+    final result = await Process.run('powershell', [
+      '-NoProfile',
+      '-NonInteractive',
+      '-WindowStyle',
+      'Hidden',
+      '-Command',
+      command,
+    ], runInShell: false).timeout(const Duration(seconds: 10));
+
+    if (result.exitCode != 0) {
+      throw ProcessException(
+        'powershell',
+        ['-Command', command],
+        '${result.stdout}\n${result.stderr}',
+        result.exitCode,
+      );
+    }
   }
 }
