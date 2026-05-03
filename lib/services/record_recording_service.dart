@@ -4,23 +4,25 @@ import 'package:dog_translator/services/recording_service.dart';
 import 'package:record/record.dart';
 
 class RecordRecordingService implements RecordingService {
-  final AudioRecorder _recorder = AudioRecorder();
+  AudioRecorder? _recorder;
   String? _activePath;
   bool _isRecording = false;
 
   @override
   bool get isRecording => _isRecording;
 
+  AudioRecorder get _instance => _recorder ??= AudioRecorder();
+
   @override
   Future<bool> hasPermission() {
-    return _recorder.hasPermission();
+    return _instance.hasPermission();
   }
 
   @override
   Future<void> start() async {
     final path =
         '${Directory.systemTemp.path}\\dog_translator_${DateTime.now().microsecondsSinceEpoch}.wav';
-    await _recorder.start(
+    await _instance.start(
       const RecordConfig(
         encoder: AudioEncoder.wav,
         sampleRate: 16000,
@@ -34,7 +36,13 @@ class RecordRecordingService implements RecordingService {
 
   @override
   Future<String?> stop() async {
-    final path = await _recorder.stop();
+    final recorder = _recorder;
+    if (recorder == null) {
+      _isRecording = false;
+      return _activePath;
+    }
+
+    final path = await recorder.stop();
     final resolved = path ?? _activePath;
     _activePath = null;
     _isRecording = false;
@@ -42,7 +50,11 @@ class RecordRecordingService implements RecordingService {
   }
 
   @override
-  Future<void> dispose() {
-    return _recorder.dispose();
+  Future<void> dispose() async {
+    final recorder = _recorder;
+    _recorder = null;
+    if (recorder != null) {
+      await recorder.dispose();
+    }
   }
 }
