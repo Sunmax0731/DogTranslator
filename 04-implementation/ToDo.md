@@ -11,10 +11,10 @@
 - [x] Implement reverse translation UI and state
 - [x] Implement history panel
 - [x] Add unit and widget tests
-- [ ] Add live waveform visualization during recording
-- [ ] Add microphone input selection UI and service support
-- [ ] Replace forward output phrasing with richer Japanese emotional labels
-- [ ] Design a separate breed-aware reverse expansion task instead of forcing it into the current release
+- [x] Add live waveform visualization during recording
+- [x] Add microphone input selection UI and service support
+- [x] Replace forward output phrasing with richer Japanese emotional labels
+- [x] Add breed-aware reverse translation presets and selection UI
 
 ## Follow-up Candidates
 - [ ] Replace heuristic rules with model provider interface

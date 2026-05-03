@@ -7,21 +7,25 @@ Validate the Windows MVP across domain logic, primary UI flows, and Windows desk
 ### Unit Tests
 - Intent classification from derived audio features
 - Reverse text to dog-expression mapping
+- Breed-aware reverse preset mapping
 - Low-confidence and fallback handling
 
 ### Widget Tests
 - Tab switching
 - Reverse translation flow
+- Breed selector rendering
 - Session history rendering
 
 ## 3. Manual Tests
 1. Launch app on Windows.
 2. Confirm forward translation screen opens.
 3. Start and stop microphone recording.
-4. Confirm analysis result appears.
-5. Enter Japanese text in reverse mode.
-6. Confirm dog-style output and emotion tag appear.
-7. Confirm history panel contains both interactions.
+4. Confirm waveform appears during recording.
+5. Confirm analysis result appears with Japanese emotion label.
+6. Switch or confirm the selected microphone device.
+7. Enter Japanese text in reverse mode.
+8. Confirm dog-style output, selected breed, and emotion tag appear.
+9. Confirm history panel contains both interactions.
 
 ## 4. Validation Commands
 - Working directory: repository root
@@ -40,7 +44,7 @@ Validate the Windows MVP across domain logic, primary UI flows, and Windows desk
 
 ## 7. Observed Results
 - `flutter analyze`: passed
-- `flutter test`: passed with 6 tests
+- `flutter test`: passed with 8 tests
 - `flutter doctor -v`: passed with Windows desktop toolchain healthy
 - `flutter build windows`: passed
 - Release executable generated at `build/windows/x64/runner/Release/dog_translator.exe`

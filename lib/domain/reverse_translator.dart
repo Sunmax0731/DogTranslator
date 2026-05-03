@@ -7,36 +7,20 @@ class ReverseTranslator {
 
   final DogBarkSynthesizer _synthesizer;
 
-  ReverseTranslationResult translate(String input) {
+  ReverseTranslationResult translate(
+    String input, {
+    DogBreed breed = DogBreed.mixed,
+  }) {
     final trimmed = input.trim();
     final normalized = trimmed.toLowerCase();
     final style = _detectStyle(normalized);
 
-    final dogText = switch (style) {
-      ReverseEmotionStyle.playful => 'wan! wan! yip-yip!',
-      ReverseEmotionStyle.friendly => 'woof... wan wan!',
-      ReverseEmotionStyle.requesting => 'wan? wan? kuun...',
-      ReverseEmotionStyle.alert => 'woof! woof! grr-ruff!',
-      ReverseEmotionStyle.anxious => 'kuuun... wan...',
-      ReverseEmotionStyle.neutral => 'wan... woof.',
-    };
-
-    final explanation = switch (style) {
-      ReverseEmotionStyle.playful => '遊びに誘う雰囲気の犬語表現です。',
-      ReverseEmotionStyle.friendly => '親しみや安心感を出す犬語表現です。',
-      ReverseEmotionStyle.requesting => '相手に何かを求める雰囲気の犬語表現です。',
-      ReverseEmotionStyle.alert => '相手に気づいてほしい警戒寄りの犬語表現です。',
-      ReverseEmotionStyle.anxious => '不安や甘えをにじませる犬語表現です。',
-      ReverseEmotionStyle.neutral => '中立的で軽い犬語表現です。',
-    };
-
     return ReverseTranslationResult(
       style: style,
-      dogText: dogText,
-      explanation: trimmed.isEmpty
-          ? '$explanation 入力が空だったため中立表現を使いました。'
-          : explanation,
-      audioBytes: _synthesizer.createWav(style),
+      breed: breed,
+      dogText: _dogTextFor(style, breed),
+      explanation: _explanationFor(style, breed, trimmed.isEmpty),
+      audioBytes: _synthesizer.createWav(style, breed),
     );
   }
 
@@ -67,6 +51,44 @@ class ReverseTranslator {
       return ReverseEmotionStyle.friendly;
     }
     return ReverseEmotionStyle.neutral;
+  }
+
+  String _dogTextFor(ReverseEmotionStyle style, DogBreed breed) {
+    final base = switch (style) {
+      ReverseEmotionStyle.playful => 'wan! wan! yip-yip!',
+      ReverseEmotionStyle.friendly => 'woof... wan wan!',
+      ReverseEmotionStyle.requesting => 'wan? wan? kuun...',
+      ReverseEmotionStyle.alert => 'woof! woof! grr-ruff!',
+      ReverseEmotionStyle.anxious => 'kuuun... wan...',
+      ReverseEmotionStyle.neutral => 'wan... woof.',
+    };
+
+    return switch (breed) {
+      DogBreed.shiba => '$base kyan!',
+      DogBreed.chihuahua => 'kyan! kyan! $base',
+      DogBreed.toyPoodle => '$base yap-yap!',
+      DogBreed.goldenRetriever => 'bow-wow... $base',
+      DogBreed.husky => '$base awooo!',
+      DogBreed.mixed => base,
+    };
+  }
+
+  String _explanationFor(
+    ReverseEmotionStyle style,
+    DogBreed breed,
+    bool isEmptyInput,
+  ) {
+    final styleText = switch (style) {
+      ReverseEmotionStyle.playful => '遊びに誘う雰囲気',
+      ReverseEmotionStyle.friendly => '親しみのある雰囲気',
+      ReverseEmotionStyle.requesting => 'お願いを伝える雰囲気',
+      ReverseEmotionStyle.alert => '警戒して知らせる雰囲気',
+      ReverseEmotionStyle.anxious => '不安や甘えが混じる雰囲気',
+      ReverseEmotionStyle.neutral => '中立的で軽い雰囲気',
+    };
+
+    final emptyNote = isEmptyInput ? ' 入力が空だったため、いちばん無難な表現に寄せています。' : '';
+    return '$styleTextを ${breed.labelJa} プリセットで表現します。${breed.descriptionJa}$emptyNote';
   }
 
   bool _containsAny(String source, List<String> keywords) {

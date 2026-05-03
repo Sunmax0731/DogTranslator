@@ -33,4 +33,19 @@ void main() {
 
     expect(result.intent, DogIntent.anxiousWhine);
   });
+
+  test('maps gentle low energy audio to sleepy', () {
+    final result = interpreter.interpret(
+      const AudioFeatures(
+        durationSeconds: 1.8,
+        rms: 0.03,
+        peak: 0.14,
+        zeroCrossingRate: 0.02,
+        burstCount: 0,
+      ),
+    );
+
+    expect(result.intent, DogIntent.sleepy);
+    expect(result.explanation, contains('眠そう'));
+  });
 }

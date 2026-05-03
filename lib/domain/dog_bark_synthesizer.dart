@@ -6,8 +6,110 @@ import 'package:dog_translator/domain/models.dart';
 class DogBarkSynthesizer {
   const DogBarkSynthesizer();
 
-  Uint8List createWav(ReverseEmotionStyle style) {
-    final bursts = switch (style) {
+  Uint8List createWav(ReverseEmotionStyle style, DogBreed breed) {
+    final profile = _profileFor(breed);
+    final bursts = _burstsFor(style, profile);
+    final sampleRate = profile.sampleRate;
+    final samples = <int>[];
+    final random = Random(profile.seed);
+
+    for (final burst in bursts) {
+      final total = (sampleRate * burst.durationSeconds).round();
+      for (var i = 0; i < total; i++) {
+        final progress = i / total;
+        final freq =
+            burst.startFrequency +
+            ((burst.endFrequency - burst.startFrequency) * progress);
+        final envelope =
+            sin(pi * progress) * (1.0 - (progress * 0.35)) * burst.amplitude;
+        final tone = sin(2 * pi * freq * i / sampleRate);
+        final noise = (random.nextDouble() * 2.0) - 1.0;
+        final value = (tone * profile.toneMix) + (noise * profile.noiseMix);
+        samples.add((value * envelope * 32767).round().clamp(-32768, 32767));
+      }
+
+      final pause = (sampleRate * profile.pauseSeconds).round();
+      for (var i = 0; i < pause; i++) {
+        samples.add(0);
+      }
+    }
+
+    return _buildWav(samples, sampleRate);
+  }
+
+  _BreedProfile _profileFor(DogBreed breed) {
+    switch (breed) {
+      case DogBreed.shiba:
+        return const _BreedProfile(
+          seed: 11,
+          sampleRate: 16000,
+          pitchScale: 1.05,
+          durationScale: 0.9,
+          amplitudeScale: 0.9,
+          toneMix: 0.76,
+          noiseMix: 0.24,
+          pauseSeconds: 0.05,
+        );
+      case DogBreed.chihuahua:
+        return const _BreedProfile(
+          seed: 17,
+          sampleRate: 18000,
+          pitchScale: 1.35,
+          durationScale: 0.72,
+          amplitudeScale: 0.65,
+          toneMix: 0.72,
+          noiseMix: 0.28,
+          pauseSeconds: 0.045,
+        );
+      case DogBreed.toyPoodle:
+        return const _BreedProfile(
+          seed: 23,
+          sampleRate: 17000,
+          pitchScale: 1.18,
+          durationScale: 0.88,
+          amplitudeScale: 0.74,
+          toneMix: 0.75,
+          noiseMix: 0.25,
+          pauseSeconds: 0.05,
+        );
+      case DogBreed.goldenRetriever:
+        return const _BreedProfile(
+          seed: 29,
+          sampleRate: 16000,
+          pitchScale: 0.82,
+          durationScale: 1.18,
+          amplitudeScale: 0.95,
+          toneMix: 0.8,
+          noiseMix: 0.2,
+          pauseSeconds: 0.06,
+        );
+      case DogBreed.husky:
+        return const _BreedProfile(
+          seed: 37,
+          sampleRate: 18000,
+          pitchScale: 0.94,
+          durationScale: 1.3,
+          amplitudeScale: 0.88,
+          toneMix: 0.83,
+          noiseMix: 0.17,
+          pauseSeconds: 0.07,
+        );
+      case DogBreed.mixed:
+        return const _BreedProfile(
+          seed: 73,
+          sampleRate: 16000,
+          pitchScale: 1.0,
+          durationScale: 1.0,
+          amplitudeScale: 1.0,
+          toneMix: 0.78,
+          noiseMix: 0.22,
+          pauseSeconds: 0.055,
+        );
+    }
+  }
+
+  List<_Burst> _burstsFor(ReverseEmotionStyle style, _BreedProfile profile) {
+    final base = switch (style) {
       ReverseEmotionStyle.playful => const [
         _Burst(560, 420, 0.18, 0.85),
         _Burst(620, 480, 0.16, 0.8),
@@ -36,32 +138,16 @@ class DogBarkSynthesizer {
       ],
     };
 
-    const sampleRate = 16000;
-    final samples = <int>[];
-    final random = Random(73);
-
-    for (final burst in bursts) {
-      final total = (sampleRate * burst.durationSeconds).round();
-      for (var i = 0; i < total; i++) {
-        final progress = i / total;
-        final freq =
-            burst.startFrequency +
-            ((burst.endFrequency - burst.startFrequency) * progress);
-        final envelope =
-            sin(pi * progress) * (1.0 - (progress * 0.35)) * burst.amplitude;
-        final tone = sin(2 * pi * freq * i / sampleRate);
-        final noise = (random.nextDouble() * 2.0) - 1.0;
-        final value = (tone * 0.78) + (noise * 0.22);
-        samples.add((value * envelope * 32767).round().clamp(-32768, 32767));
-      }
-
-      final pause = (sampleRate * 0.055).round();
-      for (var i = 0; i < pause; i++) {
-        samples.add(0);
-      }
-    }
-
-    return _buildWav(samples, sampleRate);
+    return base
+        .map(
+          (burst) => _Burst(
+            burst.startFrequency * profile.pitchScale,
+            burst.endFrequency * profile.pitchScale,
+            burst.durationSeconds * profile.durationScale,
+            burst.amplitude * profile.amplitudeScale,
+          ),
+        )
+        .toList(growable: false);
   }
 
   Uint8List _buildWav(List<int> samples, int sampleRate) {
@@ -101,6 +187,28 @@ class DogBarkSynthesizer {
 
     return bytes.takeBytes();
   }
+}
+
+class _BreedProfile {
+  const _BreedProfile({
+    required this.seed,
+    required this.sampleRate,
+    required this.pitchScale,
+    required this.durationScale,
+    required this.amplitudeScale,
+    required this.toneMix,
+    required this.noiseMix,
+    required this.pauseSeconds,
+  });
+
+  final int seed;
+  final int sampleRate;
+  final double pitchScale;
+  final double durationScale;
+  final double amplitudeScale;
+  final double toneMix;
+  final double noiseMix;
+  final double pauseSeconds;
 }
 
 class _Burst {

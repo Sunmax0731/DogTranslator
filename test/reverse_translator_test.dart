@@ -13,6 +13,15 @@ void main() {
     expect(result.audioBytes.length, greaterThan(44));
   });
 
+  test('applies breed specific text flavor', () {
+    final result = translator.translate('遊ぼう', breed: DogBreed.husky);
+
+    expect(result.style, ReverseEmotionStyle.playful);
+    expect(result.breed, DogBreed.husky);
+    expect(result.dogText, contains('awooo!'));
+    expect(result.explanation, contains('ハスキー'));
+  });
+
   test('falls back to neutral for empty text', () {
     final result = translator.translate('');
 

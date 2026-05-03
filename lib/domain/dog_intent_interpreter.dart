@@ -8,6 +8,12 @@ class DogIntentInterpreter {
       return _result(DogIntent.uncertain, ConfidenceLevel.low, features);
     }
 
+    if (features.durationSeconds > 1.4 &&
+        features.rms < 0.045 &&
+        features.peak < 0.16) {
+      return _result(DogIntent.sleepy, ConfidenceLevel.medium, features);
+    }
+
     if (features.peak > 0.82 &&
         features.rms > 0.22 &&
         features.durationSeconds < 0.9) {
