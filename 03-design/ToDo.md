@@ -12,6 +12,7 @@
 - [x] Define pre-release expansion approach for waveform, device selection, and richer labels
 - [x] Define Dog2vec local-process integration architecture and fallback strategy
 - [x] Define feature-extraction and score-calibration refinements for accuracy improvements
+- [x] Define requested-vs-active inference model selection and fallback behavior
 
 ## Follow-up Candidates
 - [ ] Plugin architecture for future ML model providers

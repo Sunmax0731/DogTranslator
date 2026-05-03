@@ -7,13 +7,12 @@ import 'package:flutter/material.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final inferenceProvider = await const InferenceProviderFactory().create();
   runApp(
     DogTranslatorApp(
       recordingService: RecordRecordingService(),
       playbackService: AudioPlayerBarkPlaybackService(),
       repository: JsonFileAppRepository(),
-      inferenceProvider: inferenceProvider,
+      inferenceProviderFactory: const InferenceProviderFactory(),
     ),
   );
 }

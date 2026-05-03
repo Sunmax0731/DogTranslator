@@ -33,6 +33,7 @@
 - [x] Rework forward inference for Dog2vec-ready staged interpretation
 - [x] Add local process inference bridge and resilient fallback path
 - [x] Improve forward accuracy with richer audio features, calibrated scoring, and clean Japanese labels
+- [x] Add selectable inference model settings with runtime-aware fallback
 - [ ] Prepare release package plan
 
 ## Branch Policy

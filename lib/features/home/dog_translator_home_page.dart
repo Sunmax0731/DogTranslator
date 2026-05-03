@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:dog_translator/domain/inference_provider.dart';
 import 'package:dog_translator/features/home/home_controller.dart';
 import 'package:dog_translator/features/home/widgets/dashboard_tab.dart';
 import 'package:dog_translator/features/home/widgets/forward_translator_tab.dart';
@@ -8,6 +7,7 @@ import 'package:dog_translator/features/home/widgets/history_panel.dart';
 import 'package:dog_translator/features/home/widgets/reverse_translator_tab.dart';
 import 'package:dog_translator/services/app_repository.dart';
 import 'package:dog_translator/services/bark_playback_service.dart';
+import 'package:dog_translator/services/inference_provider_factory.dart';
 import 'package:dog_translator/services/recording_service.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +16,7 @@ class DogTranslatorHomePage extends StatefulWidget {
     required this.recordingService,
     required this.playbackService,
     required this.repository,
-    required this.inferenceProvider,
+    required this.inferenceProviderFactory,
     this.initialTabIndex = 0,
     super.key,
   });
@@ -24,7 +24,7 @@ class DogTranslatorHomePage extends StatefulWidget {
   final RecordingService recordingService;
   final BarkPlaybackService playbackService;
   final AppRepository repository;
-  final InferenceProvider inferenceProvider;
+  final InferenceProviderFactory inferenceProviderFactory;
   final int initialTabIndex;
 
   @override
@@ -41,7 +41,7 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
       recordingService: widget.recordingService,
       playbackService: widget.playbackService,
       repository: widget.repository,
-      inferenceProvider: widget.inferenceProvider,
+      inferenceProviderFactory: widget.inferenceProviderFactory,
     );
     unawaited(_controller.initialize());
   }
@@ -153,6 +153,12 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
                                   inputDevices: _controller.inputDevices,
                                   selectedInputDeviceId:
                                       _controller.selectedInputDeviceId,
+                                  selectedInferenceModel:
+                                      _controller.selectedInferenceModel,
+                                  activeInferenceModel:
+                                      _controller.activeInferenceModel,
+                                  inferenceStatusMessage:
+                                      _controller.inferenceStatusMessage,
                                   profiles: _controller.profiles,
                                   selectedProfileId:
                                       _controller.selectedProfileId,
@@ -164,6 +170,8 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
                                   onSceneModeChanged: _controller.setSceneMode,
                                   onInputDeviceSelected:
                                       _controller.selectInputDevice,
+                                  onInferenceModelSelected:
+                                      _controller.setInferenceModel,
                                   onRefreshInputDevices:
                                       _controller.loadInputDevices,
                                   onRecordPressed: _controller.toggleRecording,

@@ -12,6 +12,7 @@
 - [x] Define pre-release expansion behavior for waveform, microphone selection, and richer labels
 - [x] Define staged forward inference behavior and local model JSON contract
 - [x] Define richer audio-feature inputs and calibrated heuristic scoring rules
+- [x] Define user-selectable inference model behavior and fallback rules
 
 ## Follow-up Candidates
 - [ ] Replace heuristic thresholds with learned model interface

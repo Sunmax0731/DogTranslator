@@ -30,6 +30,7 @@ This document tracks the Windows MVP+ implementation status.
 - pure Dart WAV feature extraction with extended metrics
 - richer audio metrics including crest factor, activity ratio, and pitch estimation
 - async inference-provider boundary with raw-audio support
+- inference-model selection with persisted requested mode and resolved active mode
 - staged heuristic forward inference for:
   - dog-vocal detection
   - vocal type estimation
@@ -39,6 +40,7 @@ This document tracks the Windows MVP+ implementation status.
 - calibrated forward ranking with softmax normalization and vocal-type/context consistency adjustments
 - optional local process inference provider with JSON mapping
 - resilient fallback from local inference to heuristic inference
+- runtime-aware provider factory returning selected-vs-active inference state
 - richer Japanese emotion labels and ranked forward candidates
 - repaired Japanese enum labels and explanation text across forward-mode output
 - recording-quality guidance

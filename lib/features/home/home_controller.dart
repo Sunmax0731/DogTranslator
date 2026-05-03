@@ -10,6 +10,7 @@ import 'package:dog_translator/domain/reverse_translator.dart';
 import 'package:dog_translator/features/home/widgets/create_profile_dialog.dart';
 import 'package:dog_translator/services/app_repository.dart';
 import 'package:dog_translator/services/bark_playback_service.dart';
+import 'package:dog_translator/services/inference_provider_factory.dart';
 import 'package:dog_translator/services/recording_service.dart';
 import 'package:flutter/material.dart';
 
@@ -19,14 +20,15 @@ class HomeController extends ChangeNotifier {
     required BarkPlaybackService playbackService,
     required AppRepository repository,
     AudioFeatureExtractor? featureExtractor,
-    InferenceProvider? inferenceProvider,
+    InferenceProviderFactory? inferenceProviderFactory,
     ReverseTranslator? reverseTranslator,
     AnalyticsService? analyticsService,
   }) : _recordingService = recordingService,
        _playbackService = playbackService,
        _repository = repository,
        _featureExtractor = featureExtractor ?? const AudioFeatureExtractor(),
-       _inferenceProvider = inferenceProvider ?? const DogIntentInterpreter(),
+       _inferenceProviderFactory =
+           inferenceProviderFactory ?? const InferenceProviderFactory(),
        _reverseTranslator = reverseTranslator ?? ReverseTranslator(),
        _analyticsService = analyticsService ?? const AnalyticsService() {
     _selectedInputDeviceId = _recordingService.selectedInputDeviceId;
@@ -36,9 +38,11 @@ class HomeController extends ChangeNotifier {
   final BarkPlaybackService _playbackService;
   final AppRepository _repository;
   final AudioFeatureExtractor _featureExtractor;
-  final InferenceProvider _inferenceProvider;
+  final InferenceProviderFactory _inferenceProviderFactory;
   final ReverseTranslator _reverseTranslator;
   final AnalyticsService _analyticsService;
+  static const InferenceProvider _defaultInferenceProvider =
+      DogIntentInterpreter();
 
   final TextEditingController reverseTextController = TextEditingController();
   final List<double> _waveformSamples = <double>[];
@@ -47,6 +51,7 @@ class HomeController extends ChangeNotifier {
   StreamSubscription<double>? _amplitudeSubscription;
   TranslationResult? _translationResult;
   ReverseTranslationResult? _reverseResult;
+  InferenceProvider _inferenceProvider = _defaultInferenceProvider;
   String? _latestForwardRecordId;
   List<RecordingInputDevice> _inputDevices = const <RecordingInputDevice>[];
   List<DogProfile> _profiles = const <DogProfile>[];
@@ -54,6 +59,10 @@ class HomeController extends ChangeNotifier {
   List<ReverseRecord> _reverseRecords = const <ReverseRecord>[];
   String? _selectedInputDeviceId;
   String? _selectedProfileId;
+  InferenceModelSelection _selectedInferenceModel =
+      InferenceModelSelection.auto;
+  InferenceModelSelection _activeInferenceModel =
+      InferenceModelSelection.heuristic;
   DogBreed _selectedBreed = DogBreed.mixed;
   DogAgeStage _selectedAgeStage = DogAgeStage.adult;
   DogSizeClass _selectedSizeClass = DogSizeClass.medium;
@@ -63,8 +72,10 @@ class HomeController extends ChangeNotifier {
   bool _reverseBusy = false;
   bool _loadingInputDevices = true;
   bool _loadingAppData = true;
+  bool _loadingInferenceModel = true;
   String? _forwardStatusMessage;
   String? _reverseStatusMessage;
+  String? _inferenceStatusMessage;
 
   TranslationResult? get translationResult => _translationResult;
   ReverseTranslationResult? get reverseResult => _reverseResult;
@@ -74,6 +85,8 @@ class HomeController extends ChangeNotifier {
   List<ReverseRecord> get reverseRecords => _reverseRecords;
   String? get selectedInputDeviceId => _selectedInputDeviceId;
   String? get selectedProfileId => _selectedProfileId;
+  InferenceModelSelection get selectedInferenceModel => _selectedInferenceModel;
+  InferenceModelSelection get activeInferenceModel => _activeInferenceModel;
   DogBreed get selectedBreed => _selectedBreed;
   DogAgeStage get selectedAgeStage => _selectedAgeStage;
   DogSizeClass get selectedSizeClass => _selectedSizeClass;
@@ -83,9 +96,11 @@ class HomeController extends ChangeNotifier {
   bool get reverseBusy => _reverseBusy;
   bool get loadingInputDevices => _loadingInputDevices;
   bool get loadingAppData => _loadingAppData;
+  bool get loadingInferenceModel => _loadingInferenceModel;
   bool get isRecording => _recordingService.isRecording;
   String? get forwardStatusMessage => _forwardStatusMessage;
   String? get reverseStatusMessage => _reverseStatusMessage;
+  String? get inferenceStatusMessage => _inferenceStatusMessage;
   List<double> get waveformSamples =>
       List<double>.unmodifiable(_waveformSamples);
   Set<String> get comparisonSelection =>
@@ -116,7 +131,8 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> initialize() async {
-    await Future.wait([loadAppData(), loadInputDevices()]);
+    await loadAppData();
+    await Future.wait([loadInferenceProvider(), loadInputDevices()]);
   }
 
   @override
@@ -136,6 +152,7 @@ class HomeController extends ChangeNotifier {
     _selectedProfileId = data.settings.selectedProfileId;
     _selectedInputDeviceId =
         data.settings.selectedInputDeviceId ?? _selectedInputDeviceId;
+    _selectedInferenceModel = data.settings.selectedInferenceModel;
     _selectedBreed = data.settings.selectedBreed;
     _selectedAgeStage = data.settings.selectedAgeStage;
     _selectedSizeClass = data.settings.selectedSizeClass;
@@ -154,6 +171,7 @@ class HomeController extends ChangeNotifier {
         settings: AppSettings(
           selectedProfileId: _selectedProfileId,
           selectedInputDeviceId: _selectedInputDeviceId,
+          selectedInferenceModel: _selectedInferenceModel,
           selectedBreed: _selectedBreed,
           selectedAgeStage: _selectedAgeStage,
           selectedSizeClass: _selectedSizeClass,
@@ -186,6 +204,31 @@ class HomeController extends ChangeNotifier {
     }
   }
 
+  Future<void> loadInferenceProvider() async {
+    _loadingInferenceModel = true;
+    notifyListeners();
+
+    try {
+      final resolution = await _inferenceProviderFactory.create(
+        selection: _selectedInferenceModel,
+      );
+      _inferenceProvider = resolution.provider;
+      _activeInferenceModel = resolution.activeModel;
+      _inferenceStatusMessage = resolution.statusMessage;
+      if (resolution.requestedModel != _selectedInferenceModel) {
+        _selectedInferenceModel = resolution.requestedModel;
+      }
+      await persistState();
+    } catch (error) {
+      _inferenceProvider = _defaultInferenceProvider;
+      _activeInferenceModel = InferenceModelSelection.heuristic;
+      _inferenceStatusMessage = '推論モデルの初期化に失敗したため、標準ヒューリスティック推論を使用します: $error';
+    } finally {
+      _loadingInferenceModel = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> selectInputDevice(String? deviceId) async {
     if (_recordingBusy || _recordingService.isRecording) {
       return;
@@ -198,6 +241,15 @@ class HomeController extends ChangeNotifier {
         : '入力マイクを切り替えました。';
     notifyListeners();
     await persistState();
+  }
+
+  Future<void> setInferenceModel(InferenceModelSelection? selection) async {
+    if (selection == null || _recordingBusy || _recordingService.isRecording) {
+      return;
+    }
+
+    _selectedInferenceModel = selection;
+    await loadInferenceProvider();
   }
 
   Future<void> toggleRecording() async {

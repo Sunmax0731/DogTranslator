@@ -8,6 +8,7 @@ class AppSettings {
   const AppSettings({
     required this.selectedProfileId,
     required this.selectedInputDeviceId,
+    required this.selectedInferenceModel,
     required this.selectedBreed,
     required this.selectedAgeStage,
     required this.selectedSizeClass,
@@ -17,6 +18,7 @@ class AppSettings {
 
   final String? selectedProfileId;
   final String? selectedInputDeviceId;
+  final InferenceModelSelection selectedInferenceModel;
   final DogBreed selectedBreed;
   final DogAgeStage selectedAgeStage;
   final DogSizeClass selectedSizeClass;
@@ -27,6 +29,7 @@ class AppSettings {
     return {
       'selectedProfileId': selectedProfileId,
       'selectedInputDeviceId': selectedInputDeviceId,
+      'selectedInferenceModel': selectedInferenceModel.name,
       'selectedBreed': selectedBreed.name,
       'selectedAgeStage': selectedAgeStage.name,
       'selectedSizeClass': selectedSizeClass.name,
@@ -39,6 +42,9 @@ class AppSettings {
     return AppSettings(
       selectedProfileId: json['selectedProfileId'] as String?,
       selectedInputDeviceId: json['selectedInputDeviceId'] as String?,
+      selectedInferenceModel: InferenceModelSelectionText.fromKey(
+        json['selectedInferenceModel'] as String?,
+      ),
       selectedBreed: DogBreedText.fromKey(json['selectedBreed'] as String?),
       selectedAgeStage: DogAgeStageText.fromKey(
         json['selectedAgeStage'] as String?,
@@ -58,6 +64,7 @@ class AppSettings {
   static const defaults = AppSettings(
     selectedProfileId: null,
     selectedInputDeviceId: null,
+    selectedInferenceModel: InferenceModelSelection.auto,
     selectedBreed: DogBreed.mixed,
     selectedAgeStage: DogAgeStage.adult,
     selectedSizeClass: DogSizeClass.medium,

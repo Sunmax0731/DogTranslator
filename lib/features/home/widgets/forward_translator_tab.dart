@@ -14,6 +14,9 @@ class ForwardTranslatorTab extends StatelessWidget {
     required this.waveformSamples,
     required this.inputDevices,
     required this.selectedInputDeviceId,
+    required this.selectedInferenceModel,
+    required this.activeInferenceModel,
+    required this.inferenceStatusMessage,
     required this.profiles,
     required this.selectedProfileId,
     required this.selectedSceneMode,
@@ -21,6 +24,7 @@ class ForwardTranslatorTab extends StatelessWidget {
     required this.onCreateProfilePressed,
     required this.onSceneModeChanged,
     required this.onInputDeviceSelected,
+    required this.onInferenceModelSelected,
     required this.onRefreshInputDevices,
     required this.onRecordPressed,
     required this.onFeedbackChanged,
@@ -36,6 +40,9 @@ class ForwardTranslatorTab extends StatelessWidget {
   final List<double> waveformSamples;
   final List<RecordingInputDevice> inputDevices;
   final String? selectedInputDeviceId;
+  final InferenceModelSelection selectedInferenceModel;
+  final InferenceModelSelection activeInferenceModel;
+  final String? inferenceStatusMessage;
   final List<DogProfile> profiles;
   final String? selectedProfileId;
   final SceneMode selectedSceneMode;
@@ -43,6 +50,7 @@ class ForwardTranslatorTab extends StatelessWidget {
   final VoidCallback onCreateProfilePressed;
   final ValueChanged<SceneMode?> onSceneModeChanged;
   final ValueChanged<String?> onInputDeviceSelected;
+  final ValueChanged<InferenceModelSelection?> onInferenceModelSelected;
   final VoidCallback onRefreshInputDevices;
   final VoidCallback onRecordPressed;
   final ValueChanged<UserFeedbackLabel?> onFeedbackChanged;
@@ -161,6 +169,32 @@ class ForwardTranslatorTab extends StatelessWidget {
                           : const Icon(Icons.refresh),
                     ),
                   ],
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<InferenceModelSelection>(
+                  initialValue: selectedInferenceModel,
+                  decoration: const InputDecoration(
+                    labelText: '推論モデル',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: InferenceModelSelection.values
+                      .map(
+                        (selection) =>
+                            DropdownMenuItem<InferenceModelSelection>(
+                              value: selection,
+                              child: Text(selection.labelJa),
+                            ),
+                      )
+                      .toList(growable: false),
+                  onChanged: busy || isRecording
+                      ? null
+                      : onInferenceModelSelected,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  inferenceStatusMessage ??
+                      '現在の有効モデル: ${activeInferenceModel.labelJa}',
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 16),
                 WaveformPanel(

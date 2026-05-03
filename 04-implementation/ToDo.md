@@ -30,6 +30,7 @@
 - [x] Add crest factor, activity ratio, and pitch features to WAV analysis
 - [x] Recalibrate heuristic forward inference with softmax candidate ranking and consistency adjustments
 - [x] Repair Japanese label and explanation text in domain enums and forward explanation output
+- [x] Add persisted inference model selection and runtime-aware provider resolution
 
 ## Follow-up Candidates
 - [ ] Add local model provider implementation behind the inference interface

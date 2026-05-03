@@ -115,9 +115,16 @@
 - The app looks for an optional `dog2vec_runtime.json`.
 - If absent, it stays on heuristic inference.
 - If present and valid, it launches the configured local command.
+- User selection is persisted separately from runtime availability so the controller can resolve:
+  - requested model
+  - effective active model
+  - human-readable fallback status
 
 ## 10. State Ownership
 - `HomeController` owns:
+  - selected inference model
+  - effective active inference model
+  - inference runtime status message
   - active profile
   - active scene mode
   - selected microphone

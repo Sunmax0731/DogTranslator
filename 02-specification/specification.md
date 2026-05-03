@@ -6,6 +6,7 @@
 - Session history: persistent local history for recent interactions
 - Live waveform / level trace during recording
 - Input microphone selection for Windows
+- Inference model selection between auto, heuristic, and Dog2vec-local preference
 - Dog profile selection and persistence
 - Scene tagging
 - Dashboard summaries
@@ -16,6 +17,7 @@
 - The user starts recording manually.
 - The user stops recording manually.
 - The user can choose a microphone input before recording.
+- The user can choose the inference model policy before recording.
 - The user can optionally choose a dog profile and scene mode before recording.
 
 ### Analysis Pipeline
@@ -152,6 +154,11 @@
 - No config: use heuristic provider.
 - Process failure: use heuristic provider.
 - Weak or likely non-dog input: return uncertain with guidance.
+
+### Model Selection Rules
+- `auto`: prefer Dog2vec local runtime when configured, otherwise heuristic.
+- `heuristic`: always use the in-app heuristic pipeline.
+- `dog2vec_local`: prefer the local Dog2vec runtime; if unavailable, fall back to heuristic and surface that fallback in UI status text.
 
 ## 9A. Accuracy Improvement Rules
 - Heuristic forward scoring should combine classic amplitude features with activity and pitch-related features.

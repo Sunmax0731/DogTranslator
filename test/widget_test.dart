@@ -6,6 +6,7 @@ import 'package:dog_translator/domain/inference_provider.dart';
 import 'package:dog_translator/domain/models.dart';
 import 'package:dog_translator/services/app_repository.dart';
 import 'package:dog_translator/services/bark_playback_service.dart';
+import 'package:dog_translator/services/inference_provider_factory.dart';
 import 'package:dog_translator/services/recording_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,7 +21,9 @@ void main() {
         recordingService: _FakeRecordingService(),
         playbackService: playbackService,
         repository: _InMemoryAppRepository(),
-        inferenceProvider: _FakeInferenceProvider(),
+        inferenceProviderFactory: const InferenceProviderFactory.fixed(
+          _FakeInferenceProvider(),
+        ),
         initialTabIndex: 1,
       ),
     );
@@ -103,6 +106,8 @@ class _InMemoryAppRepository implements AppRepository {
 }
 
 class _FakeInferenceProvider implements InferenceProvider {
+  const _FakeInferenceProvider();
+
   @override
   Future<TranslationResult> analyze(
     AudioFeatures features, {

@@ -16,6 +16,7 @@
 - [x] Add manual regression checklist for profiles and feedback labeling
 - [x] Add automated tests for local process inference mapping
 - [x] Extend tests for richer audio features and recalibrated inference outputs
+- [x] Add automated tests for inference model selection and runtime fallback
 
 ## Follow-up Candidates
 - [ ] Real microphone regression pack with curated sample audio

@@ -369,6 +369,39 @@ extension SceneModeText on SceneMode {
   }
 }
 
+enum InferenceModelSelection { auto, heuristic, dog2vecLocal }
+
+extension InferenceModelSelectionText on InferenceModelSelection {
+  String get labelJa {
+    switch (this) {
+      case InferenceModelSelection.auto:
+        return '自動';
+      case InferenceModelSelection.heuristic:
+        return '標準ヒューリスティック';
+      case InferenceModelSelection.dog2vecLocal:
+        return 'Dog2vec ローカル';
+    }
+  }
+
+  String get descriptionJa {
+    switch (this) {
+      case InferenceModelSelection.auto:
+        return '利用可能なら Dog2vec ローカル推論を使い、使えない場合は標準推論に戻します。';
+      case InferenceModelSelection.heuristic:
+        return 'アプリ内の標準推論を使います。外部ランタイムは不要です。';
+      case InferenceModelSelection.dog2vecLocal:
+        return '外部の Dog2vec ローカル推論を優先して使います。未設定時は標準推論へ戻します。';
+    }
+  }
+
+  static InferenceModelSelection fromKey(String? key) {
+    return InferenceModelSelection.values.firstWhere(
+      (value) => value.name == key,
+      orElse: () => InferenceModelSelection.auto,
+    );
+  }
+}
+
 enum UserFeedbackLabel { matched, close, off }
 
 extension UserFeedbackLabelText on UserFeedbackLabel {
