@@ -9,3 +9,4 @@
 - [ ] Prepare installer or zip packaging steps
 - [ ] Draft user-facing release notes
 - [ ] Define post-release backlog for mobile expansion
+- [ ] Complete Windows build prerequisite task before packaging
