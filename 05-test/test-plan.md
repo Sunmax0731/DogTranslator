@@ -26,6 +26,7 @@ Validate the Windows MVP across domain logic, primary UI flows, and Windows desk
 ## 4. Validation Commands
 - Working directory: repository root
 - `flutter test`
+- `flutter analyze`
 - `flutter build windows`
 
 ## 5. Expected Results
@@ -36,3 +37,15 @@ Validate the Windows MVP across domain logic, primary UI flows, and Windows desk
 ## 6. Known Risk Areas
 - Real microphone device behavior may differ by hardware.
 - Heuristic interpretation is intentionally approximate.
+
+## 7. Observed Results
+- `flutter analyze`: passed
+- `flutter test`: passed with 6 tests
+- `flutter build windows`: could not complete in the current environment
+
+## 8. Current Blocker
+- `flutter doctor -v` reports missing Visual Studio components for Windows desktop builds:
+  - Desktop development with C++
+  - MSVC build tools
+  - C++ CMake tools for Windows
+  - Windows 10 SDK
