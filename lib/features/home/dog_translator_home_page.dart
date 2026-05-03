@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dog_translator/domain/audio_feature_extractor.dart';
@@ -35,7 +36,8 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
   ReverseTranslationResult? _reverseResult;
   bool _recordingBusy = false;
   bool _reverseBusy = false;
-  String? _statusMessage;
+  String? _forwardStatusMessage;
+  String? _reverseStatusMessage;
 
   @override
   void dispose() {
@@ -49,9 +51,10 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
     if (_recordingBusy) {
       return;
     }
+
     setState(() {
       _recordingBusy = true;
-      _statusMessage = null;
+      _forwardStatusMessage = null;
     });
 
     try {
@@ -59,7 +62,7 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
         final path = await widget.recordingService.stop();
         if (path == null || !await File(path).exists()) {
           setState(() {
-            _statusMessage = '録音ファイルを取得できませんでした。';
+            _forwardStatusMessage = '録音ファイルを取得できませんでした。';
           });
           return;
         }
@@ -79,28 +82,29 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
               timestamp: DateTime.now(),
             ),
           );
-          _statusMessage = '録音を解析しました。';
+          _forwardStatusMessage = '録音を解析しました。';
         });
       } else {
         final hasPermission = await widget.recordingService.hasPermission();
         if (!hasPermission) {
           setState(() {
-            _statusMessage = 'マイクへのアクセスが許可されていません。';
+            _forwardStatusMessage = 'マイクへのアクセスが許可されていません。';
           });
           return;
         }
+
         await widget.recordingService.start();
         setState(() {
-          _statusMessage = '録音中です。もう一度押すと解析します。';
+          _forwardStatusMessage = '録音中です。もう一度押すと解析します。';
         });
       }
     } on FormatException catch (error) {
       setState(() {
-        _statusMessage = '録音の解析に失敗しました: ${error.message}';
+        _forwardStatusMessage = '録音の解析に失敗しました: ${error.message}';
       });
     } catch (error) {
       setState(() {
-        _statusMessage = '録音処理でエラーが発生しました: $error';
+        _forwardStatusMessage = '録音処理でエラーが発生しました: $error';
       });
     } finally {
       if (mounted) {
@@ -118,12 +122,11 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
 
     setState(() {
       _reverseBusy = true;
-      _statusMessage = null;
+      _reverseStatusMessage = null;
     });
 
     try {
       final result = _reverseTranslator.translate(_textController.text);
-      await widget.playbackService.play(result.audioBytes);
       setState(() {
         _reverseResult = result;
         _history.insert(
@@ -135,11 +138,13 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
             timestamp: DateTime.now(),
           ),
         );
-        _statusMessage = '犬語っぽい音声を再生しました。';
+        _reverseStatusMessage = '犬語っぽい結果を生成しました。音声再生を試みています。';
       });
+
+      unawaited(_playReverseAudio(result));
     } catch (error) {
       setState(() {
-        _statusMessage = '逆変換の再生でエラーが発生しました: $error';
+        _reverseStatusMessage = '逆変換の生成でエラーが発生しました: $error';
       });
     } finally {
       if (mounted) {
@@ -147,6 +152,27 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
           _reverseBusy = false;
         });
       }
+    }
+  }
+
+  Future<void> _playReverseAudio(ReverseTranslationResult result) async {
+    try {
+      await widget.playbackService
+          .play(result.audioBytes)
+          .timeout(const Duration(seconds: 5));
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _reverseStatusMessage = '犬語っぽい音声を再生しました。';
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _reverseStatusMessage = '犬語っぽい結果は生成しましたが、音声再生は完了しませんでした: $error';
+      });
     }
   }
 
@@ -158,7 +184,7 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final historyPanel = _HistoryPanel(history: _history);
-          final main = Column(
+          final mainContent = Column(
             children: [
               Container(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
@@ -228,14 +254,14 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
                         result: _translationResult,
                         isRecording: widget.recordingService.isRecording,
                         busy: _recordingBusy,
-                        statusMessage: _statusMessage,
+                        statusMessage: _forwardStatusMessage,
                         onRecordPressed: _toggleRecording,
                       ),
                       _ReverseTranslatorTab(
                         controller: _textController,
                         result: _reverseResult,
                         busy: _reverseBusy,
-                        statusMessage: _statusMessage,
+                        statusMessage: _reverseStatusMessage,
                         onTranslatePressed: _runReverseTranslation,
                       ),
                     ],
@@ -249,7 +275,7 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
             return Scaffold(
               body: Row(
                 children: [
-                  Expanded(flex: 3, child: main),
+                  Expanded(flex: 3, child: mainContent),
                   SizedBox(
                     width: 360,
                     child: Padding(
@@ -265,7 +291,7 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
           return Scaffold(
             body: Column(
               children: [
-                Expanded(child: main),
+                Expanded(child: mainContent),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                   child: SizedBox(height: 240, child: historyPanel),
