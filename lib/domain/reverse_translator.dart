@@ -10,6 +10,9 @@ class ReverseTranslator {
   ReverseTranslationResult translate(
     String input, {
     DogBreed breed = DogBreed.mixed,
+    DogAgeStage ageStage = DogAgeStage.adult,
+    DogSizeClass sizeClass = DogSizeClass.medium,
+    TensionLevel tension = TensionLevel.normal,
   }) {
     final trimmed = input.trim();
     final normalized = trimmed.toLowerCase();
@@ -18,9 +21,25 @@ class ReverseTranslator {
     return ReverseTranslationResult(
       style: style,
       breed: breed,
-      dogText: _dogTextFor(style, breed),
-      explanation: _explanationFor(style, breed, trimmed.isEmpty),
-      audioBytes: _synthesizer.createWav(style, breed),
+      ageStage: ageStage,
+      sizeClass: sizeClass,
+      tension: tension,
+      dogText: _dogTextFor(style, breed, ageStage, sizeClass, tension),
+      explanation: _explanationFor(
+        style,
+        breed,
+        ageStage,
+        sizeClass,
+        tension,
+        trimmed.isEmpty,
+      ),
+      audioBytes: _synthesizer.createWav(
+        style,
+        breed,
+        ageStage: ageStage,
+        sizeClass: sizeClass,
+        tension: tension,
+      ),
     );
   }
 
@@ -53,7 +72,13 @@ class ReverseTranslator {
     return ReverseEmotionStyle.neutral;
   }
 
-  String _dogTextFor(ReverseEmotionStyle style, DogBreed breed) {
+  String _dogTextFor(
+    ReverseEmotionStyle style,
+    DogBreed breed,
+    DogAgeStage ageStage,
+    DogSizeClass sizeClass,
+    TensionLevel tension,
+  ) {
     final base = switch (style) {
       ReverseEmotionStyle.playful => 'wan! wan! yip-yip!',
       ReverseEmotionStyle.friendly => 'woof... wan wan!',
@@ -63,7 +88,7 @@ class ReverseTranslator {
       ReverseEmotionStyle.neutral => 'wan... woof.',
     };
 
-    return switch (breed) {
+    final breedFlavor = switch (breed) {
       DogBreed.shiba => '$base kyan!',
       DogBreed.chihuahua => 'kyan! kyan! $base',
       DogBreed.toyPoodle => '$base yap-yap!',
@@ -71,11 +96,32 @@ class ReverseTranslator {
       DogBreed.husky => '$base awooo!',
       DogBreed.mixed => base,
     };
+
+    final ageFlavor = switch (ageStage) {
+      DogAgeStage.puppy => 'yip! $breedFlavor',
+      DogAgeStage.adult => breedFlavor,
+      DogAgeStage.senior => '$breedFlavor ...woof',
+    };
+
+    final sizeFlavor = switch (sizeClass) {
+      DogSizeClass.small => ageFlavor.replaceAll('woof', 'yap'),
+      DogSizeClass.medium => ageFlavor,
+      DogSizeClass.large => 'ruff... $ageFlavor',
+    };
+
+    return switch (tension) {
+      TensionLevel.calm => '$sizeFlavor ...',
+      TensionLevel.normal => sizeFlavor,
+      TensionLevel.excited => '$sizeFlavor! $sizeFlavor',
+    };
   }
 
   String _explanationFor(
     ReverseEmotionStyle style,
     DogBreed breed,
+    DogAgeStage ageStage,
+    DogSizeClass sizeClass,
+    TensionLevel tension,
     bool isEmptyInput,
   ) {
     final styleText = switch (style) {
@@ -86,9 +132,8 @@ class ReverseTranslator {
       ReverseEmotionStyle.anxious => '不安や甘えが混じる雰囲気',
       ReverseEmotionStyle.neutral => '中立的で軽い雰囲気',
     };
-
-    final emptyNote = isEmptyInput ? ' 入力が空だったため、いちばん無難な表現に寄せています。' : '';
-    return '$styleTextを ${breed.labelJa} プリセットで表現します。${breed.descriptionJa}$emptyNote';
+    final emptyNote = isEmptyInput ? ' 入力が空だったため、もっとも無難な表現に寄せています。' : '';
+    return '$styleTextを ${breed.labelJa} / ${ageStage.labelJa} / ${sizeClass.labelJa} / ${tension.labelJa} で表現します。${breed.descriptionJa}$emptyNote';
   }
 
   bool _containsAny(String source, List<String> keywords) {

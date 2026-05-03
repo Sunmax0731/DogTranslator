@@ -29,6 +29,7 @@
 - [x] Resolve Windows build environment prerequisites and run desktop build
 - [x] Expand pre-release scope with waveform, mic selection, and richer Japanese emotion labels
 - [x] Add breed-aware reverse mode controls and synthesis presets
+- [x] Implement MVP+ persistence, profiles, dashboard, ranked candidates, and inference abstraction
 - [ ] Prepare release package plan
 
 ## Branch Policy

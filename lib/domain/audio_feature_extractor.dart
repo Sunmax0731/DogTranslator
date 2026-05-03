@@ -34,10 +34,14 @@ class AudioFeatureExtractor {
         peak: 0,
         zeroCrossingRate: 0,
         burstCount: 0,
+        dynamicRange: 0,
+        spectralCentroid: 0,
+        highBandRatio: 0,
       );
     }
 
     final values = List<double>.filled(sampleCount, 0);
+    final magnitudes = List<double>.filled(sampleCount, 0);
     var peak = 0.0;
     var sumSquares = 0.0;
     var zeroCrossings = 0;
@@ -54,8 +58,10 @@ class AudioFeatureExtractor {
         mix += raw / 32768.0;
       }
       final sample = mix / channels;
+      final magnitude = sample.abs();
       values[i] = sample;
-      peak = max(peak, sample.abs());
+      magnitudes[i] = magnitude;
+      peak = max(peak, magnitude);
       sumSquares += sample * sample;
       if (previous != null &&
           ((sample >= 0 && previous < 0) || (sample < 0 && previous >= 0))) {
@@ -64,10 +70,14 @@ class AudioFeatureExtractor {
       previous = sample;
     }
 
+    magnitudes.sort();
     final rms = sqrt(sumSquares / sampleCount);
     final durationSeconds = sampleCount / sampleRate;
     final zeroCrossingRate = zeroCrossings / sampleCount;
     final burstCount = _estimateBursts(values, rms);
+    final dynamicRange =
+        _percentile(magnitudes, 0.95) - _percentile(magnitudes, 0.20);
+    final spectrum = _estimateSpectrum(values, sampleRate);
 
     return AudioFeatures(
       durationSeconds: durationSeconds,
@@ -75,6 +85,9 @@ class AudioFeatureExtractor {
       peak: peak,
       zeroCrossingRate: zeroCrossingRate,
       burstCount: burstCount,
+      dynamicRange: dynamicRange,
+      spectralCentroid: spectrum.$1,
+      highBandRatio: spectrum.$2,
     );
   }
 
@@ -115,5 +128,52 @@ class AudioFeatureExtractor {
     }
 
     return bursts;
+  }
+
+  double _percentile(List<double> sorted, double ratio) {
+    if (sorted.isEmpty) {
+      return 0;
+    }
+    final index = ((sorted.length - 1) * ratio).round().clamp(
+      0,
+      sorted.length - 1,
+    );
+    return sorted[index];
+  }
+
+  (double, double) _estimateSpectrum(List<double> samples, int sampleRate) {
+    final sampleWindow = min(samples.length, 512);
+    if (sampleWindow < 32) {
+      return (0, 0);
+    }
+
+    final offset = (samples.length - sampleWindow) ~/ 2;
+    var weightedFrequency = 0.0;
+    var totalEnergy = 0.0;
+    var highBandEnergy = 0.0;
+    final half = sampleWindow ~/ 2;
+
+    for (var bin = 1; bin < half; bin++) {
+      var real = 0.0;
+      var imag = 0.0;
+      for (var n = 0; n < sampleWindow; n++) {
+        final sample = samples[offset + n];
+        final angle = (2 * pi * bin * n) / sampleWindow;
+        real += sample * cos(angle);
+        imag -= sample * sin(angle);
+      }
+      final energy = sqrt((real * real) + (imag * imag));
+      final frequency = (bin * sampleRate) / sampleWindow;
+      totalEnergy += energy;
+      weightedFrequency += frequency * energy;
+      if (frequency > sampleRate / 4) {
+        highBandEnergy += energy;
+      }
+    }
+
+    if (totalEnergy == 0) {
+      return (0, 0);
+    }
+    return (weightedFrequency / totalEnergy, highBandEnergy / totalEnergy);
   }
 }

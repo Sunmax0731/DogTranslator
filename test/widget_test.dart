@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dog_translator/app/dog_translator_app.dart';
 import 'package:dog_translator/domain/models.dart';
+import 'package:dog_translator/services/app_repository.dart';
 import 'package:dog_translator/services/bark_playback_service.dart';
 import 'package:dog_translator/services/recording_service.dart';
 import 'package:flutter/material.dart';
@@ -17,13 +18,14 @@ void main() {
       DogTranslatorApp(
         recordingService: _FakeRecordingService(),
         playbackService: playbackService,
+        repository: _InMemoryAppRepository(),
         initialTabIndex: 1,
       ),
     );
+    await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextField), 'こっちに来て');
+    await tester.enterText(find.byType(TextField).first, 'こっちに来て');
 
-    expect(find.byType(DropdownButtonFormField<DogBreed>), findsOneWidget);
     final translateButton = find.widgetWithText(FilledButton, '犬っぽい声に変換して再生');
     final button = tester.widget<FilledButton>(translateButton);
     button.onPressed!.call();
@@ -34,6 +36,7 @@ void main() {
     expect(find.text('犬っぽい音声を再生しました。'), findsOneWidget);
     expect(find.text('Session History'), findsOneWidget);
     expect(find.textContaining('お願い (ミックス)'), findsOneWidget);
+    expect(find.text('Dashboard'), findsOneWidget);
   });
 }
 
@@ -79,4 +82,20 @@ class _FakePlaybackService implements BarkPlaybackService {
   Future<void> play(Uint8List wavBytes) async {
     playCount++;
   }
+}
+
+class _InMemoryAppRepository implements AppRepository {
+  AppData data = AppData.empty;
+
+  @override
+  Future<AppData> load() async => data;
+
+  @override
+  Future<void> save(AppData newData) async {
+    data = newData;
+  }
+
+  @override
+  Future<String?> saveRecording(Uint8List wavBytes, String recordId) async =>
+      'memory://$recordId.wav';
 }

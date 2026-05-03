@@ -6,15 +6,21 @@ import 'package:dog_translator/domain/models.dart';
 class DogBarkSynthesizer {
   const DogBarkSynthesizer();
 
-  Uint8List createWav(ReverseEmotionStyle style, DogBreed breed) {
-    final profile = _profileFor(breed);
+  Uint8List createWav(
+    ReverseEmotionStyle style,
+    DogBreed breed, {
+    DogAgeStage ageStage = DogAgeStage.adult,
+    DogSizeClass sizeClass = DogSizeClass.medium,
+    TensionLevel tension = TensionLevel.normal,
+  }) {
+    final profile = _profileFor(breed, ageStage, sizeClass, tension);
     final bursts = _burstsFor(style, profile);
     final sampleRate = profile.sampleRate;
     final samples = <int>[];
     final random = Random(profile.seed);
 
     for (final burst in bursts) {
-      final total = (sampleRate * burst.durationSeconds).round();
+      final total = max(1, (sampleRate * burst.durationSeconds).round());
       for (var i = 0; i < total; i++) {
         final progress = i / total;
         final freq =
@@ -37,78 +43,127 @@ class DogBarkSynthesizer {
     return _buildWav(samples, sampleRate);
   }
 
-  _BreedProfile _profileFor(DogBreed breed) {
-    switch (breed) {
-      case DogBreed.shiba:
-        return const _BreedProfile(
-          seed: 11,
-          sampleRate: 16000,
-          pitchScale: 1.05,
-          durationScale: 0.9,
-          amplitudeScale: 0.9,
-          toneMix: 0.76,
-          noiseMix: 0.24,
-          pauseSeconds: 0.05,
-        );
-      case DogBreed.chihuahua:
-        return const _BreedProfile(
-          seed: 17,
-          sampleRate: 18000,
-          pitchScale: 1.35,
-          durationScale: 0.72,
-          amplitudeScale: 0.65,
-          toneMix: 0.72,
-          noiseMix: 0.28,
-          pauseSeconds: 0.045,
-        );
-      case DogBreed.toyPoodle:
-        return const _BreedProfile(
-          seed: 23,
-          sampleRate: 17000,
-          pitchScale: 1.18,
-          durationScale: 0.88,
-          amplitudeScale: 0.74,
-          toneMix: 0.75,
-          noiseMix: 0.25,
-          pauseSeconds: 0.05,
-        );
-      case DogBreed.goldenRetriever:
-        return const _BreedProfile(
-          seed: 29,
-          sampleRate: 16000,
-          pitchScale: 0.82,
-          durationScale: 1.18,
-          amplitudeScale: 0.95,
-          toneMix: 0.8,
-          noiseMix: 0.2,
-          pauseSeconds: 0.06,
-        );
-      case DogBreed.husky:
-        return const _BreedProfile(
-          seed: 37,
-          sampleRate: 18000,
-          pitchScale: 0.94,
-          durationScale: 1.3,
-          amplitudeScale: 0.88,
-          toneMix: 0.83,
-          noiseMix: 0.17,
-          pauseSeconds: 0.07,
-        );
-      case DogBreed.mixed:
-        return const _BreedProfile(
-          seed: 73,
-          sampleRate: 16000,
-          pitchScale: 1.0,
-          durationScale: 1.0,
-          amplitudeScale: 1.0,
-          toneMix: 0.78,
-          noiseMix: 0.22,
-          pauseSeconds: 0.055,
-        );
+  _BarkProfile _profileFor(
+    DogBreed breed,
+    DogAgeStage ageStage,
+    DogSizeClass sizeClass,
+    TensionLevel tension,
+  ) {
+    final base = switch (breed) {
+      DogBreed.shiba => const _BarkProfile(
+        seed: 11,
+        sampleRate: 16000,
+        pitchScale: 1.05,
+        durationScale: 0.9,
+        amplitudeScale: 0.9,
+        toneMix: 0.76,
+        noiseMix: 0.24,
+        pauseSeconds: 0.05,
+      ),
+      DogBreed.chihuahua => const _BarkProfile(
+        seed: 17,
+        sampleRate: 18000,
+        pitchScale: 1.35,
+        durationScale: 0.72,
+        amplitudeScale: 0.65,
+        toneMix: 0.72,
+        noiseMix: 0.28,
+        pauseSeconds: 0.045,
+      ),
+      DogBreed.toyPoodle => const _BarkProfile(
+        seed: 23,
+        sampleRate: 17000,
+        pitchScale: 1.18,
+        durationScale: 0.88,
+        amplitudeScale: 0.74,
+        toneMix: 0.75,
+        noiseMix: 0.25,
+        pauseSeconds: 0.05,
+      ),
+      DogBreed.goldenRetriever => const _BarkProfile(
+        seed: 29,
+        sampleRate: 16000,
+        pitchScale: 0.82,
+        durationScale: 1.18,
+        amplitudeScale: 0.95,
+        toneMix: 0.8,
+        noiseMix: 0.2,
+        pauseSeconds: 0.06,
+      ),
+      DogBreed.husky => const _BarkProfile(
+        seed: 37,
+        sampleRate: 18000,
+        pitchScale: 0.94,
+        durationScale: 1.3,
+        amplitudeScale: 0.88,
+        toneMix: 0.83,
+        noiseMix: 0.17,
+        pauseSeconds: 0.07,
+      ),
+      DogBreed.mixed => const _BarkProfile(
+        seed: 73,
+        sampleRate: 16000,
+        pitchScale: 1.0,
+        durationScale: 1.0,
+        amplitudeScale: 1.0,
+        toneMix: 0.78,
+        noiseMix: 0.22,
+        pauseSeconds: 0.055,
+      ),
+    };
+
+    var pitchScale = base.pitchScale;
+    var durationScale = base.durationScale;
+    var amplitudeScale = base.amplitudeScale;
+    var pauseSeconds = base.pauseSeconds;
+
+    switch (ageStage) {
+      case DogAgeStage.puppy:
+        pitchScale *= 1.15;
+        durationScale *= 0.82;
+      case DogAgeStage.adult:
+        break;
+      case DogAgeStage.senior:
+        pitchScale *= 0.92;
+        durationScale *= 1.15;
     }
+
+    switch (sizeClass) {
+      case DogSizeClass.small:
+        pitchScale *= 1.12;
+        amplitudeScale *= 0.82;
+      case DogSizeClass.medium:
+        break;
+      case DogSizeClass.large:
+        pitchScale *= 0.86;
+        amplitudeScale *= 1.1;
+    }
+
+    switch (tension) {
+      case TensionLevel.calm:
+        durationScale *= 1.1;
+        pauseSeconds *= 1.35;
+      case TensionLevel.normal:
+        break;
+      case TensionLevel.excited:
+        durationScale *= 0.92;
+        pauseSeconds *= 0.7;
+        amplitudeScale *= 1.08;
+    }
+
+    return _BarkProfile(
+      seed: base.seed,
+      sampleRate: base.sampleRate,
+      pitchScale: pitchScale,
+      durationScale: durationScale,
+      amplitudeScale: amplitudeScale,
+      toneMix: base.toneMix,
+      noiseMix: base.noiseMix,
+      pauseSeconds: pauseSeconds,
+    );
   }
 
-  List<_Burst> _burstsFor(ReverseEmotionStyle style, _BreedProfile profile) {
+  List<_Burst> _burstsFor(ReverseEmotionStyle style, _BarkProfile profile) {
     final base = switch (style) {
       ReverseEmotionStyle.playful => const [
         _Burst(560, 420, 0.18, 0.85),
@@ -154,6 +209,7 @@ class DogBarkSynthesizer {
     final dataLength = samples.length * 2;
     final bytes = BytesBuilder();
     void writeAscii(String text) => bytes.add(text.codeUnits);
+
     void writeUint32(int value) {
       bytes.add([
         value & 0xFF,
@@ -189,8 +245,8 @@ class DogBarkSynthesizer {
   }
 }
 
-class _BreedProfile {
-  const _BreedProfile({
+class _BarkProfile {
+  const _BarkProfile({
     required this.seed,
     required this.sampleRate,
     required this.pitchScale,

@@ -11,6 +11,9 @@
 - [x] Execute Windows build validation
 - [x] Record observed results and residual risks
 - [x] Document Windows build environment blocker and manual resolution path
+- [x] Add persistence, dashboard, and comparison automated tests
+- [x] Add reverse preset variation tests
+- [x] Add manual regression checklist for profiles and feedback labeling
 
 ## Follow-up Candidates
 - [ ] Real microphone regression pack with curated sample audio

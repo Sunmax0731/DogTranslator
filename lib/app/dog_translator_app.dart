@@ -1,4 +1,5 @@
 import 'package:dog_translator/features/home/dog_translator_home_page.dart';
+import 'package:dog_translator/services/app_repository.dart';
 import 'package:dog_translator/services/bark_playback_service.dart';
 import 'package:dog_translator/services/recording_service.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +8,14 @@ class DogTranslatorApp extends StatelessWidget {
   const DogTranslatorApp({
     required this.recordingService,
     required this.playbackService,
+    required this.repository,
     this.initialTabIndex = 0,
     super.key,
   });
 
   final RecordingService recordingService;
   final BarkPlaybackService playbackService;
+  final AppRepository repository;
   final int initialTabIndex;
 
   @override
@@ -43,6 +46,7 @@ class DogTranslatorApp extends StatelessWidget {
       home: DogTranslatorHomePage(
         recordingService: recordingService,
         playbackService: playbackService,
+        repository: repository,
         initialTabIndex: initialTabIndex,
       ),
     );

@@ -16,6 +16,8 @@ void main() {
     expect(result.durationSeconds, greaterThan(0));
     expect(result.peak, closeTo(0.8, 0.05));
     expect(result.zeroCrossingRate, greaterThan(0.2));
+    expect(result.dynamicRange, greaterThanOrEqualTo(0));
+    expect(result.spectralCentroid, greaterThanOrEqualTo(0));
   });
 }
 

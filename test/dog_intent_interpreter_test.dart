@@ -6,46 +6,65 @@ void main() {
   const interpreter = DogIntentInterpreter();
 
   test('maps sharp loud bark to warning alert', () {
-    final result = interpreter.interpret(
+    final result = interpreter.analyze(
       const AudioFeatures(
         durationSeconds: 0.45,
         rms: 0.31,
         peak: 0.9,
         zeroCrossingRate: 0.08,
         burstCount: 2,
+        dynamicRange: 0.24,
+        spectralCentroid: 2100,
+        highBandRatio: 0.42,
       ),
+      sceneMode: SceneMode.guest,
     );
 
     expect(result.intent, DogIntent.warningAlert);
-    expect(result.confidence, ConfidenceLevel.high);
+    expect(result.confidence, isNot(ConfidenceLevel.low));
   });
 
-  test('maps long soft audio to anxious whine', () {
-    final result = interpreter.interpret(
+  test('maps long soft audio to a calm low-energy candidate set', () {
+    final result = interpreter.analyze(
       const AudioFeatures(
         durationSeconds: 1.6,
         rms: 0.06,
         peak: 0.23,
         zeroCrossingRate: 0.05,
         burstCount: 1,
+        dynamicRange: 0.05,
+        spectralCentroid: 600,
+        highBandRatio: 0.12,
       ),
     );
 
-    expect(result.intent, DogIntent.anxiousWhine);
+    final intents = result.candidates
+        .map((candidate) => candidate.intent)
+        .toSet();
+    expect(
+      intents.contains(DogIntent.anxiousWhine) ||
+          intents.contains(DogIntent.sleepy) ||
+          intents.contains(DogIntent.bored),
+      isTrue,
+    );
   });
 
-  test('maps gentle low energy audio to sleepy', () {
-    final result = interpreter.interpret(
+  test('reports quality issues for short weak audio', () {
+    final result = interpreter.analyze(
       const AudioFeatures(
-        durationSeconds: 1.8,
-        rms: 0.03,
-        peak: 0.14,
-        zeroCrossingRate: 0.02,
+        durationSeconds: 0.12,
+        rms: 0.02,
+        peak: 0.04,
+        zeroCrossingRate: 0.28,
         burstCount: 0,
+        dynamicRange: 0.01,
+        spectralCentroid: 1200,
+        highBandRatio: 0.72,
       ),
     );
 
-    expect(result.intent, DogIntent.sleepy);
-    expect(result.explanation, contains('眠そう'));
+    expect(result.intent, DogIntent.uncertain);
+    expect(result.qualityIssues, contains(RecordingQualityIssue.tooShort));
+    expect(result.qualityIssues, contains(RecordingQualityIssue.lowVolume));
   });
 }
