@@ -49,3 +49,4 @@ Validate the Windows MVP across domain logic, primary UI flows, and Windows desk
   - MSVC build tools
   - C++ CMake tools for Windows
   - Windows 10 SDK
+- Detailed recovery task: `05-test/task-windows-build-prerequisites.md`
