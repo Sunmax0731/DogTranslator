@@ -35,7 +35,7 @@ void main() {
     expect(playbackService.playCount, 1);
     expect(find.text('犬っぽい音声を再生しました。'), findsOneWidget);
     expect(find.text('Session History'), findsOneWidget);
-    expect(find.textContaining('お願い (ミックス)'), findsOneWidget);
+    expect(find.textContaining('要求 (ミックス)'), findsOneWidget);
     expect(find.text('Dashboard'), findsOneWidget);
   });
 }

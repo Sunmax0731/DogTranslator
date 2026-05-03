@@ -48,10 +48,10 @@ class ReverseTranslator {
       return ReverseEmotionStyle.neutral;
     }
 
-    const playfulKeywords = ['遊ぼ', 'play', 'fun', 'いこう', 'run'];
+    const playfulKeywords = ['遊ぼう', 'play', 'fun', 'こっち', 'run'];
     const friendlyKeywords = ['好き', 'hello', 'hi', 'ありがとう', 'friend'];
     const requestingKeywords = ['来て', 'please', 'ちょうだい', 'want', 'help'];
-    const alertKeywords = ['危険', 'danger', 'stop', 'だめ', 'watch'];
+    const alertKeywords = ['危ない', 'danger', 'stop', 'だめ', 'watch'];
     const anxiousKeywords = ['寂しい', 'sad', 'こわい', '不安', 'miss you'];
 
     if (_containsAny(normalized, alertKeywords)) {
@@ -125,15 +125,17 @@ class ReverseTranslator {
     bool isEmptyInput,
   ) {
     final styleText = switch (style) {
-      ReverseEmotionStyle.playful => '遊びに誘う雰囲気',
-      ReverseEmotionStyle.friendly => '親しみのある雰囲気',
-      ReverseEmotionStyle.requesting => 'お願いを伝える雰囲気',
-      ReverseEmotionStyle.alert => '警戒して知らせる雰囲気',
-      ReverseEmotionStyle.anxious => '不安や甘えが混じる雰囲気',
-      ReverseEmotionStyle.neutral => '中立的で軽い雰囲気',
+      ReverseEmotionStyle.playful => '遊びに誘う雰囲気の犬語表現です。',
+      ReverseEmotionStyle.friendly => '親しみのある犬語表現です。',
+      ReverseEmotionStyle.requesting => '何かを求める犬語表現です。',
+      ReverseEmotionStyle.alert => '警戒して知らせる犬語表現です。',
+      ReverseEmotionStyle.anxious => '不安や甘えがにじむ犬語表現です。',
+      ReverseEmotionStyle.neutral => '中立的で軽い犬語表現です。',
     };
-    final emptyNote = isEmptyInput ? ' 入力が空だったため、もっとも無難な表現に寄せています。' : '';
-    return '$styleTextを ${breed.labelJa} / ${ageStage.labelJa} / ${sizeClass.labelJa} / ${tension.labelJa} で表現します。${breed.descriptionJa}$emptyNote';
+    final emptyNote = isEmptyInput ? ' 入力が空だったため、最も無難な表現に寄せています。' : '';
+    return '$styleText ${breed.labelJa} / ${ageStage.labelJa} / '
+        '${sizeClass.labelJa} / ${tension.labelJa} を反映しました。'
+        '${breed.descriptionJa}$emptyNote';
   }
 
   bool _containsAny(String source, List<String> keywords) {

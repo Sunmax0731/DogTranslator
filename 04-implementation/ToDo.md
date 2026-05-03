@@ -22,6 +22,8 @@
 - [x] Add analytics dashboard and comparison workflow
 - [x] Add reverse age / size / tension controls
 - [x] Add pluggable inference provider boundary
+- [x] Refactor home screen to presentation controller + widget composition
+- [x] Split domain models into smaller files behind a barrel export
 
 ## Follow-up Candidates
 - [ ] Add local model provider implementation behind the inference interface

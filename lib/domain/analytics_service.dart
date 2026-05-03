@@ -25,14 +25,7 @@ class AnalyticsService {
         ifAbsent: () => 1,
       );
       if (record.profileId != null && record.profileId!.isNotEmpty) {
-        DogProfile? profile;
-        for (final item in profiles) {
-          if (item.id == record.profileId) {
-            profile = item;
-            break;
-          }
-        }
-        final label = profile?.name ?? '不明プロフィール';
+        final label = _profileNameFor(record.profileId!, profiles);
         profileCounts.update(label, (value) => value + 1, ifAbsent: () => 1);
       }
       if (record.feedbackLabel != null) {
@@ -47,14 +40,7 @@ class AnalyticsService {
         ifAbsent: () => 1,
       );
       if (record.profileId != null && record.profileId!.isNotEmpty) {
-        DogProfile? profile;
-        for (final item in profiles) {
-          if (item.id == record.profileId) {
-            profile = item;
-            break;
-          }
-        }
-        final label = profile?.name ?? '不明プロフィール';
+        final label = _profileNameFor(record.profileId!, profiles);
         profileCounts.update(label, (value) => value + 1, ifAbsent: () => 1);
       }
     }
@@ -67,5 +53,14 @@ class AnalyticsService {
       sceneCounts: sceneCounts,
       profileCounts: profileCounts,
     );
+  }
+
+  String _profileNameFor(String profileId, List<DogProfile> profiles) {
+    for (final item in profiles) {
+      if (item.id == profileId) {
+        return item.name;
+      }
+    }
+    return '未登録プロフィール';
   }
 }

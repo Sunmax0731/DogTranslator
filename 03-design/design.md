@@ -17,26 +17,72 @@
 - Chosen stack: Flutter
 - Reason: best balance of Windows MVP delivery speed and future mobile reuse
 
-## 3. Architecture
-- Presentation layer: Flutter screens, widgets, state orchestration
-- Application layer: controllers / repositories for forward analysis, reverse generation, persistence
-- Domain layer: audio feature extraction, inference provider, reverse translator, analytics summarizer
-- Platform adapter layer: recording, local file access, Windows playback integration
+## 3. Adopted Design Patterns
+### Presentation Controller
+- `HomeController` owns screen state, async flows, and persistence triggers.
+- Widgets read state and invoke callbacks only.
+- Reason:
+  - keeps side effects out of widget build methods
+  - makes the page easier to test and refactor
+  - allows future split into additional controllers per tab
 
-## 4. New Modules for MVP+
-- `lib/domain/inference_provider.dart`
-- `lib/domain/heuristic_inference_provider.dart`
-- `lib/domain/analytics_service.dart`
-- `lib/services/local_app_repository.dart`
-- `lib/services/app_storage_service.dart`
+### Widget Composition
+- The former monolithic home page is split into:
+  - `ForwardTranslatorTab`
+  - `ReverseTranslatorTab`
+  - `DashboardTab`
+  - `HistoryPanel`
+  - `WaveformPanel`
+  - `CreateProfileDialog`
+- Reason:
+  - each file maps to one visible responsibility
+  - UI changes stay localized
+  - long build methods are avoided
 
-## 5. State Additions
-- Active dog profile
-- Active scene mode
-- Saved history list
-- Compare selection state
-- Dashboard metrics
-- Forward feedback label
+### Barrel Export for Domain Models
+- `lib/domain/models.dart` now exports smaller files under `lib/domain/models/`.
+- Model responsibilities are separated into:
+  - enums and labels
+  - audio features
+  - translation models
+  - profile models
+  - history models
+  - app state models
+  - analytics summary
+- Reason:
+  - keeps import surface stable
+  - reduces single-file growth
+  - makes future domain expansion manageable
+
+## 4. Layered Architecture
+- Presentation layer:
+  - Flutter pages and widgets
+  - view-only rendering logic
+- Application layer:
+  - `HomeController`
+  - orchestration of recording, inference, persistence, playback
+- Domain layer:
+  - audio feature extraction
+  - inference provider
+  - reverse translator
+  - analytics summarizer
+  - domain models
+- Platform adapter layer:
+  - recording service
+  - local file persistence
+  - Windows playback integration
+
+## 5. State Ownership
+- `HomeController` owns:
+  - active profile
+  - active scene mode
+  - selected microphone
+  - reverse preset selections
+  - waveform buffer
+  - current forward/reverse results
+  - saved history
+  - dashboard comparison selection
+- Widgets do not mutate shared state directly.
 
 ## 6. Persistence Strategy
 - Store app state in local JSON under app-support directory.
@@ -75,14 +121,13 @@
   - timestamp
   - primary label
   - confidence
-  - profile
   - scene
   - feature chips
   - candidate list
 
 ## 10. Dashboard Design
 - Summary chips
-- Bar-list style counts by emotion and scene
+- Count lists by emotion and scene
 - Feedback summary
 - Recent activity list
 
