@@ -18,6 +18,9 @@ void main() {
     expect(result.zeroCrossingRate, greaterThan(0.2));
     expect(result.dynamicRange, greaterThanOrEqualTo(0));
     expect(result.spectralCentroid, greaterThanOrEqualTo(0));
+    expect(result.crestFactor, greaterThan(0));
+    expect(result.activityRatio, greaterThan(0));
+    expect(result.pitchHz, greaterThanOrEqualTo(0));
   });
 }
 

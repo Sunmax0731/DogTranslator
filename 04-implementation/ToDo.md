@@ -27,6 +27,9 @@
 - [x] Add async inference provider contract for external local model execution
 - [x] Add local process inference provider with JSON mapping and fallback
 - [x] Extend forward results with vocal type, context, valence, and arousal
+- [x] Add crest factor, activity ratio, and pitch features to WAV analysis
+- [x] Recalibrate heuristic forward inference with softmax candidate ranking and consistency adjustments
+- [x] Repair Japanese label and explanation text in domain enums and forward explanation output
 
 ## Follow-up Candidates
 - [ ] Add local model provider implementation behind the inference interface

@@ -37,6 +37,9 @@ class AudioFeatureExtractor {
         dynamicRange: 0,
         spectralCentroid: 0,
         highBandRatio: 0,
+        crestFactor: 0,
+        activityRatio: 0,
+        pitchHz: 0,
       );
     }
 
@@ -78,6 +81,9 @@ class AudioFeatureExtractor {
     final dynamicRange =
         _percentile(magnitudes, 0.95) - _percentile(magnitudes, 0.20);
     final spectrum = _estimateSpectrum(values, sampleRate);
+    final activityRatio = _estimateActivityRatio(values, rms);
+    final pitchHz = _estimatePitch(values, sampleRate);
+    final crestFactor = rms == 0 ? 0.0 : peak / rms;
 
     return AudioFeatures(
       durationSeconds: durationSeconds,
@@ -88,6 +94,9 @@ class AudioFeatureExtractor {
       dynamicRange: dynamicRange,
       spectralCentroid: spectrum.$1,
       highBandRatio: spectrum.$2,
+      crestFactor: crestFactor,
+      activityRatio: activityRatio,
+      pitchHz: pitchHz,
     );
   }
 
@@ -130,6 +139,21 @@ class AudioFeatureExtractor {
     return bursts;
   }
 
+  double _estimateActivityRatio(List<double> samples, double rms) {
+    if (samples.isEmpty) {
+      return 0;
+    }
+
+    final threshold = max(0.02, rms * 0.85);
+    var active = 0;
+    for (final sample in samples) {
+      if (sample.abs() >= threshold) {
+        active++;
+      }
+    }
+    return active / samples.length;
+  }
+
   double _percentile(List<double> sorted, double ratio) {
     if (sorted.isEmpty) {
       return 0;
@@ -139,6 +163,36 @@ class AudioFeatureExtractor {
       sorted.length - 1,
     );
     return sorted[index];
+  }
+
+  double _estimatePitch(List<double> samples, int sampleRate) {
+    final sampleWindow = min(samples.length, 1024);
+    if (sampleWindow < 128 || sampleRate <= 0) {
+      return 0;
+    }
+
+    final offset = (samples.length - sampleWindow) ~/ 2;
+    final window = samples.sublist(offset, offset + sampleWindow);
+    final minLag = max(1, sampleRate ~/ 1200);
+    final maxLag = min(sampleWindow ~/ 2, max(minLag + 1, sampleRate ~/ 80));
+    var bestLag = 0;
+    var bestScore = 0.0;
+
+    for (var lag = minLag; lag <= maxLag; lag++) {
+      var correlation = 0.0;
+      for (var i = 0; i < sampleWindow - lag; i++) {
+        correlation += window[i] * window[i + lag];
+      }
+      if (correlation > bestScore) {
+        bestScore = correlation;
+        bestLag = lag;
+      }
+    }
+
+    if (bestLag == 0 || bestScore <= 0) {
+      return 0;
+    }
+    return sampleRate / bestLag;
   }
 
   (double, double) _estimateSpectrum(List<double> samples, int sampleRate) {

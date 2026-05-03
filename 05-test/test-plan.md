@@ -7,6 +7,7 @@ Validate the Windows MVP+ across domain logic, persistence, primary UI flows, lo
 ### Unit Tests
 - Audio feature extraction from WAV bytes
 - Intent classification from derived audio features
+- Confidence and candidate ranking with extended audio features
 - Reverse text to dog-expression mapping
 - Reverse parameter variation
 - Analytics summary generation
@@ -63,3 +64,7 @@ Validate the Windows MVP+ across domain logic, persistence, primary UI flows, lo
 - `flutter test`: passed with 11 tests
 - `flutter build windows`: passed
 - Release executable generated at `build/windows/x64/runner/Release/dog_translator.exe`
+- Accuracy refinement verified with:
+  - new feature fields covered in extractor and fixture-based tests
+  - recalibrated intent inference still returning alert for strong guest-scene bark input
+  - weak short input still falling back to `uncertain`

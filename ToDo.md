@@ -32,6 +32,7 @@
 - [x] Implement MVP+ persistence, profiles, dashboard, ranked candidates, and inference abstraction
 - [x] Rework forward inference for Dog2vec-ready staged interpretation
 - [x] Add local process inference bridge and resilient fallback path
+- [x] Improve forward accuracy with richer audio features, calibrated scoring, and clean Japanese labels
 - [ ] Prepare release package plan
 
 ## Branch Policy

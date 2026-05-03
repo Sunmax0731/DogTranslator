@@ -27,6 +27,9 @@ void main() {
         dynamicRange: 0.1,
         spectralCentroid: 800,
         highBandRatio: 0.2,
+        crestFactor: 2.0,
+        activityRatio: 0.4,
+        pitchHz: 300,
       ),
       candidates: <TranslationCandidate>[
         TranslationCandidate(intent: DogIntent.attentionSeeking, score: 0.6),

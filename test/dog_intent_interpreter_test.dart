@@ -16,6 +16,9 @@ void main() {
         dynamicRange: 0.24,
         spectralCentroid: 2100,
         highBandRatio: 0.42,
+        crestFactor: 2.9,
+        activityRatio: 0.44,
+        pitchHz: 320,
       ),
       sceneMode: SceneMode.guest,
     );
@@ -37,6 +40,9 @@ void main() {
         dynamicRange: 0.05,
         spectralCentroid: 600,
         highBandRatio: 0.12,
+        crestFactor: 3.8,
+        activityRatio: 0.22,
+        pitchHz: 420,
       ),
     );
 
@@ -63,6 +69,9 @@ void main() {
         dynamicRange: 0.01,
         spectralCentroid: 1200,
         highBandRatio: 0.72,
+        crestFactor: 2.0,
+        activityRatio: 0.08,
+        pitchHz: 1500,
       ),
     );
 

@@ -8,6 +8,9 @@ class AudioFeatures {
     required this.dynamicRange,
     required this.spectralCentroid,
     required this.highBandRatio,
+    required this.crestFactor,
+    required this.activityRatio,
+    required this.pitchHz,
   });
 
   final double durationSeconds;
@@ -18,6 +21,9 @@ class AudioFeatures {
   final double dynamicRange;
   final double spectralCentroid;
   final double highBandRatio;
+  final double crestFactor;
+  final double activityRatio;
+  final double pitchHz;
 
   Map<String, dynamic> toJson() {
     return {
@@ -29,6 +35,9 @@ class AudioFeatures {
       'dynamicRange': dynamicRange,
       'spectralCentroid': spectralCentroid,
       'highBandRatio': highBandRatio,
+      'crestFactor': crestFactor,
+      'activityRatio': activityRatio,
+      'pitchHz': pitchHz,
     };
   }
 
@@ -42,6 +51,9 @@ class AudioFeatures {
       dynamicRange: (json['dynamicRange'] as num?)?.toDouble() ?? 0,
       spectralCentroid: (json['spectralCentroid'] as num?)?.toDouble() ?? 0,
       highBandRatio: (json['highBandRatio'] as num?)?.toDouble() ?? 0,
+      crestFactor: (json['crestFactor'] as num?)?.toDouble() ?? 0,
+      activityRatio: (json['activityRatio'] as num?)?.toDouble() ?? 0,
+      pitchHz: (json['pitchHz'] as num?)?.toDouble() ?? 0,
     );
   }
 }

@@ -11,6 +11,7 @@
 - [x] Define acceptance-oriented scenarios
 - [x] Define pre-release expansion behavior for waveform, microphone selection, and richer labels
 - [x] Define staged forward inference behavior and local model JSON contract
+- [x] Define richer audio-feature inputs and calibrated heuristic scoring rules
 
 ## Follow-up Candidates
 - [ ] Replace heuristic thresholds with learned model interface

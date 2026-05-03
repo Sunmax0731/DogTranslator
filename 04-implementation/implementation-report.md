@@ -28,6 +28,7 @@ This document tracks the Windows MVP+ implementation status.
 - `record`-based microphone recording service for WAV capture
 - JSON-backed local repository for profiles, history, and settings
 - pure Dart WAV feature extraction with extended metrics
+- richer audio metrics including crest factor, activity ratio, and pitch estimation
 - async inference-provider boundary with raw-audio support
 - staged heuristic forward inference for:
   - dog-vocal detection
@@ -35,9 +36,11 @@ This document tracks the Windows MVP+ implementation status.
   - emotion / intent estimation
   - context hint estimation
   - valence / arousal hint estimation
+- calibrated forward ranking with softmax normalization and vocal-type/context consistency adjustments
 - optional local process inference provider with JSON mapping
 - resilient fallback from local inference to heuristic inference
 - richer Japanese emotion labels and ranked forward candidates
+- repaired Japanese enum labels and explanation text across forward-mode output
 - recording-quality guidance
 - live waveform visualization during recording
 - microphone input selection with device enumeration

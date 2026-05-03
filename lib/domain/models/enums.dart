@@ -61,21 +61,21 @@ extension DogIntentText on DogIntent {
   String get explanationJa {
     switch (this) {
       case DogIntent.excitedGreeting:
-        return '短く勢いのある鳴き方が多く、遊びや歓迎の気分が強そうです。';
+        return '短く元気な鳴き方が多く、遊びや歓迎の勢いがありそうです。';
       case DogIntent.attentionSeeking:
-        return '呼びかけるようなリズムがあり、こちらに気づいてほしい様子です。';
+        return '呼びかけるようなリズムがあり、こちらに反応してほしい様子です。';
       case DogIntent.warningAlert:
-        return '音量や鋭さが強く、警戒や周囲への反応が出ていそうです。';
+        return '音量や緊張感が強く、警戒や見張りの反応が出ていそうです。';
       case DogIntent.anxiousWhine:
         return '長めで弱い鳴き方が多く、不安や甘えの傾向がありそうです。';
       case DogIntent.sleepy:
-        return '弱く穏やかな音が中心で、眠そうな雰囲気に見えます。';
+        return '眠そうな弱い声や小さな音量で、静かな状態に見えます。';
       case DogIntent.restlessEnergy:
-        return '落ち着きのない変化があり、そわそわした状態かもしれません。';
+        return '落ち着かない勢いがあり、そわそわした気分かもしれません。';
       case DogIntent.happyRelaxed:
-        return '荒さが少なく、機嫌よく落ち着いている可能性があります。';
+        return '明るさがあり、安心して気分よく反応している可能性があります。';
       case DogIntent.bored:
-        return '刺激が足りず、退屈している時のパターンに近いです。';
+        return '刺激が足りず、退屈している時間帯のパターンに近いです。';
       case DogIntent.uncertain:
         return '録音だけでは特徴が弱く、意図の特定が難しいです。';
     }
@@ -95,19 +95,19 @@ extension DogVocalTypeText on DogVocalType {
   String get labelJa {
     switch (this) {
       case DogVocalType.bark:
-        return '吠え';
+        return '吠え声';
       case DogVocalType.growl:
-        return 'うなり';
+        return 'うなり声';
       case DogVocalType.whine:
-        return 'クーン系';
+        return '鼻鳴き';
       case DogVocalType.howl:
         return '遠吠え';
       case DogVocalType.yelp:
-        return '高い短鳴き';
+        return '高い短声';
       case DogVocalType.pant:
-        return 'パンティング';
+        return 'ハッハッという息音';
       case DogVocalType.mixed:
-        return '混合';
+        return '混合的';
       case DogVocalType.unknown:
         return '不明';
     }
@@ -143,11 +143,11 @@ extension DogContextText on DogContext {
       case DogContext.foodOrAttention:
         return '食事 / 注目要求';
       case DogContext.walkAnticipation:
-        return '散歩期待';
+        return '散歩前の期待';
       case DogContext.play:
         return '遊び';
       case DogContext.alone:
-        return 'ひとり / 留守番';
+        return 'ひとり / さみしさ';
       case DogContext.otherDog:
         return '他の犬への反応';
       case DogContext.conflict:
@@ -175,7 +175,7 @@ extension RecordingQualityIssueText on RecordingQualityIssue {
       case RecordingQualityIssue.lowVolume:
         return '音量が小さめです';
       case RecordingQualityIssue.peakyInput:
-        return '一瞬だけ大きな音が入っています';
+        return '瞬間的な大音量に偏っています';
       case RecordingQualityIssue.unstableNoise:
         return '雑音の影響が強そうです';
     }
@@ -188,9 +188,9 @@ extension RecordingQualityIssueText on RecordingQualityIssue {
       case RecordingQualityIssue.lowVolume:
         return 'マイクを近づけるか、静かな場所で録音してください。';
       case RecordingQualityIssue.peakyInput:
-        return '突然の物音を避けて、犬の声が中心になるよう録音してください。';
+        return '大きな物音を避けて、声の区間が中心になるよう録音してください。';
       case RecordingQualityIssue.unstableNoise:
-        return 'テレビや換気音が少ない環境で録音してください。';
+        return 'テレビや環境音が少ない場所で録音してください。';
     }
   }
 
@@ -253,17 +253,17 @@ extension DogBreedText on DogBreed {
   String get descriptionJa {
     switch (this) {
       case DogBreed.mixed:
-        return '標準的でバランスの良い鳴き方を想定しています。';
+        return '標準的でバランスのよい鳴き声を想定した表現です。';
       case DogBreed.shiba:
-        return 'やや張りのある、切れの良い鳴き方を意識した表現です。';
+        return 'やや張りのある、切れのよい鳴き声を想定した表現です。';
       case DogBreed.chihuahua:
-        return '高めで細かいテンポの鳴き方を意識した表現です。';
+        return '高めで軽いテンポの鳴き声を想定した表現です。';
       case DogBreed.toyPoodle:
-        return '軽快で明るい鳴き方を意識した表現です。';
+        return '柔らかく明るい鳴き声を想定した表現です。';
       case DogBreed.goldenRetriever:
-        return '柔らかく厚みのある鳴き方を意識した表現です。';
+        return '広がりと厚みのある鳴き声を想定した表現です。';
       case DogBreed.husky:
-        return '遠吠え寄りの伸びを少し加えた表現です。';
+        return '遠吠え寄りの響きを含む表現です。';
     }
   }
 

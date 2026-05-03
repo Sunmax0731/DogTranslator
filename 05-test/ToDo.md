@@ -15,6 +15,7 @@
 - [x] Add reverse preset variation tests
 - [x] Add manual regression checklist for profiles and feedback labeling
 - [x] Add automated tests for local process inference mapping
+- [x] Extend tests for richer audio features and recalibrated inference outputs
 
 ## Follow-up Candidates
 - [ ] Real microphone regression pack with curated sample audio

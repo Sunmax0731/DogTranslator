@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dog_translator/domain/models.dart';
@@ -45,6 +45,9 @@ void main() {
         dynamicRange: 0.14,
         spectralCentroid: 1200,
         highBandRatio: 0.25,
+        crestFactor: 3.5,
+        activityRatio: 0.38,
+        pitchHz: 280,
       ),
       wavBytes: Uint8List.fromList(List<int>.filled(100, 1)),
     );

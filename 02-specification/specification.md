@@ -20,7 +20,7 @@
 
 ### Analysis Pipeline
 1. Load recorded PCM audio.
-2. Compute duration, RMS, peak level, zero-crossing rate, dynamic range, spectral centroid, and high-band ratio.
+2. Compute duration, RMS, peak level, zero-crossing rate, dynamic range, spectral centroid, high-band ratio, crest factor, activity ratio, and estimated pitch.
 3. Generate recording-quality hints.
 4. Run dog-vocal detection gate.
 5. Run the active inference provider.
@@ -152,6 +152,13 @@
 - No config: use heuristic provider.
 - Process failure: use heuristic provider.
 - Weak or likely non-dog input: return uncertain with guidance.
+
+## 9A. Accuracy Improvement Rules
+- Heuristic forward scoring should combine classic amplitude features with activity and pitch-related features.
+- Candidate probabilities should be normalized from calibrated scores instead of using raw rule totals directly.
+- Vocal-type and context estimates should feed back into final intent ranking as consistency adjustments.
+- Weak, noisy, or clearly non-dog-like pitch ranges should reduce confidence and may force `uncertain`.
+- Japanese output labels and explanations must remain human-readable and avoid mojibake.
 
 ## 10. History and Comparison
 - The app should persist forward and reverse interactions locally.

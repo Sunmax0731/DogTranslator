@@ -92,6 +92,17 @@
    - confidence
    - explanation
 
+## 7A. Accuracy Refinement Strategy
+- Keep the fast local heuristic path, but enrich the front-end feature vector with:
+  - crest factor
+  - activity ratio
+  - estimated pitch
+- Use a two-step decision path:
+  1. compute raw intent scores
+  2. apply vocal-type and context consistency adjustments
+- Convert adjusted scores to probabilities with softmax so candidate ranking and confidence are less brittle than raw threshold ordering.
+- Treat `DogIntentInterpreter` as the calibration layer that can later coexist with Dog2vec embeddings from the external runtime.
+
 ## 8. Local Runtime Boundary
 - Flutter app does not own Dog2vec weights by default.
 - External local runtime may own:
