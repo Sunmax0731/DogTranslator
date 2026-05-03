@@ -1,10 +1,11 @@
 import 'dart:async';
 
+import 'package:dog_translator/domain/models.dart';
 import 'package:dog_translator/features/home/home_controller.dart';
 import 'package:dog_translator/features/home/widgets/dashboard_tab.dart';
 import 'package:dog_translator/features/home/widgets/forward_translator_tab.dart';
 import 'package:dog_translator/features/home/widgets/history_panel.dart';
-import 'package:dog_translator/features/home/widgets/reverse_translator_tab.dart';
+import 'package:dog_translator/features/home/widgets/settings_tab.dart';
 import 'package:dog_translator/services/app_repository.dart';
 import 'package:dog_translator/services/bark_playback_service.dart';
 import 'package:dog_translator/services/inference_provider_factory.dart';
@@ -17,6 +18,7 @@ class DogTranslatorHomePage extends StatefulWidget {
     required this.playbackService,
     required this.repository,
     required this.inferenceProviderFactory,
+    required this.onThemePresetChanged,
     this.initialTabIndex = 0,
     super.key,
   });
@@ -25,6 +27,7 @@ class DogTranslatorHomePage extends StatefulWidget {
   final BarkPlaybackService playbackService;
   final AppRepository repository;
   final InferenceProviderFactory inferenceProviderFactory;
+  final ValueChanged<AppThemePreset> onThemePresetChanged;
   final int initialTabIndex;
 
   @override
@@ -33,15 +36,18 @@ class DogTranslatorHomePage extends StatefulWidget {
 
 class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
   late final HomeController _controller;
+  late int _selectedIndex;
 
   @override
   void initState() {
     super.initState();
+    _selectedIndex = widget.initialTabIndex.clamp(0, 2);
     _controller = HomeController(
       recordingService: widget.recordingService,
       playbackService: widget.playbackService,
       repository: widget.repository,
       inferenceProviderFactory: widget.inferenceProviderFactory,
+      onThemePresetChanged: widget.onThemePresetChanged,
     );
     unawaited(_controller.initialize());
   }
@@ -54,201 +60,289 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      initialIndex: widget.initialTabIndex,
-      length: 3,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) {
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final historyPanel = HistoryPanel(
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final pages = [
+              ForwardTranslatorTab(
+                result: _controller.translationResult,
+                latestRecord: _controller.latestForwardRecord,
+                isRecording: _controller.isRecording,
+                busy: _controller.recordingBusy,
+                loadingInputDevices: _controller.loadingInputDevices,
+                statusMessage: _controller.forwardStatusMessage,
+                waveformSamples: _controller.waveformSamples,
+                inputDevices: _controller.inputDevices,
+                selectedInputDeviceId: _controller.selectedInputDeviceId,
+                profiles: _controller.profiles,
+                selectedProfileId: _controller.selectedProfileId,
+                selectedSceneMode: _controller.selectedSceneMode,
+                onProfileChanged: _controller.selectProfile,
+                onCreateProfilePressed: () =>
+                    _controller.createProfile(context),
+                onSceneModeChanged: _controller.setSceneMode,
+                onInputDeviceSelected: _controller.selectInputDevice,
+                onRefreshInputDevices: _controller.loadInputDevices,
+                onRecordPressed: _controller.toggleRecording,
+                onFeedbackChanged: _controller.applyFeedback,
+              ),
+              DashboardTab(
+                analyticsSummary: _controller.analyticsSummary,
+                comparisonRecords: _controller.comparisonRecords,
+                profiles: _controller.profiles,
                 forwardRecords: _controller.forwardRecords,
-                reverseRecords: _controller.reverseRecords,
-                compareSelection: _controller.comparisonSelection,
-                onToggleCompare: _controller.toggleCompareSelection,
-              );
+              ),
+              SettingsTab(
+                selectedThemePreset: _controller.selectedThemePreset,
+                selectedInferenceModel: _controller.selectedInferenceModel,
+                inferenceStatusMessage: _controller.inferenceStatusMessage,
+                profiles: _controller.profiles,
+                latestForwardRecord: _controller.latestForwardRecord,
+                onThemeChanged: _controller.setThemePreset,
+                onInferenceModelChanged: _controller.setInferenceModel,
+                onCreateProfilePressed: () =>
+                    _controller.createProfile(context),
+                onEditProfilePressed: (profile) =>
+                    _controller.editProfile(context, profile),
+                onDeleteProfilePressed: _controller.deleteProfile,
+                onAddCalibrationSamplePressed:
+                    _controller.addLatestRecordingToProfileCalibration,
+              ),
+            ];
 
-              final mainContent = Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFF0F766E),
-                          Color(0xFF115E59),
-                          Color(0xFF134E4A),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: SafeArea(
-                      bottom: false,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'DogTranslator',
-                            style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '犬語の「翻訳」ではなく、鳴き声の傾向から感情や意図を推定する Windows アプリです。',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.88),
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                            child: const TabBar(
-                              dividerColor: Colors.transparent,
-                              indicatorSize: TabBarIndicatorSize.tab,
-                              indicator: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(18),
-                                ),
-                              ),
-                              labelColor: Color(0xFF134E4A),
-                              unselectedLabelColor: Colors.white,
-                              tabs: [
-                                Tab(text: '犬の声 -> 人の言葉'),
-                                Tab(text: '人の言葉 -> 犬っぽい声'),
-                                Tab(text: 'Dashboard'),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: _controller.loadingAppData
-                        ? const Center(child: CircularProgressIndicator())
-                        : Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: TabBarView(
-                              children: [
-                                ForwardTranslatorTab(
-                                  result: _controller.translationResult,
-                                  latestRecord: _controller.latestForwardRecord,
-                                  isRecording: _controller.isRecording,
-                                  busy: _controller.recordingBusy,
-                                  loadingInputDevices:
-                                      _controller.loadingInputDevices,
-                                  statusMessage:
-                                      _controller.forwardStatusMessage,
-                                  waveformSamples: _controller.waveformSamples,
-                                  inputDevices: _controller.inputDevices,
-                                  selectedInputDeviceId:
-                                      _controller.selectedInputDeviceId,
-                                  selectedInferenceModel:
-                                      _controller.selectedInferenceModel,
-                                  activeInferenceModel:
-                                      _controller.activeInferenceModel,
-                                  inferenceStatusMessage:
-                                      _controller.inferenceStatusMessage,
-                                  profiles: _controller.profiles,
-                                  selectedProfileId:
-                                      _controller.selectedProfileId,
-                                  selectedSceneMode:
-                                      _controller.selectedSceneMode,
-                                  onProfileChanged: _controller.selectProfile,
-                                  onCreateProfilePressed: () =>
-                                      _controller.createProfile(context),
-                                  onSceneModeChanged: _controller.setSceneMode,
-                                  onInputDeviceSelected:
-                                      _controller.selectInputDevice,
-                                  onInferenceModelSelected:
-                                      _controller.setInferenceModel,
-                                  onRefreshInputDevices:
-                                      _controller.loadInputDevices,
-                                  onRecordPressed: _controller.toggleRecording,
-                                  onFeedbackChanged: _controller.applyFeedback,
-                                ),
-                                ReverseTranslatorTab(
-                                  controller: _controller.reverseTextController,
-                                  result: _controller.reverseResult,
-                                  busy: _controller.reverseBusy,
-                                  profiles: _controller.profiles,
-                                  selectedProfileId:
-                                      _controller.selectedProfileId,
-                                  selectedBreed: _controller.selectedBreed,
-                                  selectedAgeStage:
-                                      _controller.selectedAgeStage,
-                                  selectedSizeClass:
-                                      _controller.selectedSizeClass,
-                                  selectedTension: _controller.selectedTension,
-                                  selectedSceneMode:
-                                      _controller.selectedSceneMode,
-                                  statusMessage:
-                                      _controller.reverseStatusMessage,
-                                  onProfileChanged: _controller.selectProfile,
-                                  onSceneModeChanged: _controller.setSceneMode,
-                                  onBreedChanged: _controller.setBreed,
-                                  onAgeStageChanged: _controller.setAgeStage,
-                                  onSizeClassChanged: _controller.setSizeClass,
-                                  onTensionChanged: _controller.setTension,
-                                  onTranslatePressed:
-                                      _controller.runReverseTranslation,
-                                ),
-                                DashboardTab(
-                                  analyticsSummary:
-                                      _controller.analyticsSummary,
-                                  comparisonRecords:
-                                      _controller.comparisonRecords,
-                                  profiles: _controller.profiles,
-                                  forwardRecords: _controller.forwardRecords,
-                                ),
-                              ],
-                            ),
-                          ),
-                  ),
-                ],
-              );
+            final profileNameById = <String, String>{
+              for (final profile in _controller.profiles)
+                profile.id: profile.name,
+            };
 
-              if (constraints.maxWidth > 1180) {
-                return Scaffold(
-                  body: Row(
-                    children: [
-                      Expanded(flex: 3, child: mainContent),
-                      SizedBox(
-                        width: 360,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 20, 20, 20),
-                          child: historyPanel,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
+            final content = _controller.loadingAppData
+                ? const Center(child: CircularProgressIndicator())
+                : pages[_selectedIndex];
 
+            final historyPanel = HistoryPanel(
+              forwardRecords: _controller.forwardRecords,
+              profileNameById: profileNameById,
+              compareSelection: _controller.comparisonSelection,
+              onToggleCompare: _controller.toggleCompareSelection,
+              onPlayForwardRecord: _controller.playForwardRecord,
+            );
+
+            if (constraints.maxWidth > 1180) {
               return Scaffold(
-                body: Column(
-                  children: [
-                    Expanded(child: mainContent),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                      child: SizedBox(height: 260, child: historyPanel),
+                body: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 220,
+                          child: _NavigationPane(
+                            selectedIndex: _selectedIndex,
+                            onSelected: _setSelectedIndex,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              _PageHeader(
+                                title: _pageTitle(_selectedIndex),
+                                subtitle: _pageSubtitle(_selectedIndex),
+                              ),
+                              const SizedBox(height: 16),
+                              Expanded(child: content),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        SizedBox(width: 380, child: historyPanel),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               );
-            },
-          );
-        },
+            }
+
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(_pageTitle(_selectedIndex)),
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+              ),
+              body: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Column(
+                  children: [
+                    Expanded(child: content),
+                    const SizedBox(height: 16),
+                    SizedBox(height: 300, child: historyPanel),
+                  ],
+                ),
+              ),
+              bottomNavigationBar: NavigationBar(
+                selectedIndex: _selectedIndex,
+                onDestinationSelected: _setSelectedIndex,
+                destinations: const [
+                  NavigationDestination(
+                    icon: Icon(Icons.mic_none_outlined),
+                    selectedIcon: Icon(Icons.mic),
+                    label: '解析',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.insights_outlined),
+                    selectedIcon: Icon(Icons.insights),
+                    label: '分析',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.settings_outlined),
+                    selectedIcon: Icon(Icons.settings),
+                    label: '設定',
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _setSelectedIndex(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  String _pageTitle(int index) {
+    return switch (index) {
+      0 => 'DogTranslator',
+      1 => 'Dashboard',
+      _ => 'Settings',
+    };
+  }
+
+  String _pageSubtitle(int index) {
+    return switch (index) {
+      0 => '録音した犬の鳴き声を解析します。',
+      1 => '履歴と推論傾向を確認します。',
+      _ => 'アプリ全体の設定とプロフィールを管理します。',
+    };
+  }
+}
+
+class _NavigationPane extends StatelessWidget {
+  const _NavigationPane({
+    required this.selectedIndex,
+    required this.onSelected,
+  });
+
+  final int selectedIndex;
+  final ValueChanged<int> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                'DogTranslator',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            const SizedBox(height: 8),
+            _NavButton(
+              selected: selectedIndex == 0,
+              icon: Icons.mic,
+              label: '解析',
+              onTap: () => onSelected(0),
+            ),
+            _NavButton(
+              selected: selectedIndex == 1,
+              icon: Icons.insights,
+              label: '分析',
+              onTap: () => onSelected(1),
+            ),
+            _NavButton(
+              selected: selectedIndex == 2,
+              icon: Icons.settings,
+              label: '設定',
+              onTap: () => onSelected(2),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NavButton extends StatelessWidget {
+  const _NavButton({
+    required this.selected,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final bool selected;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: selected ? colorScheme.primaryContainer : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [Icon(icon), const SizedBox(width: 12), Text(label)],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PageHeader extends StatelessWidget {
+  const _PageHeader({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: Theme.of(context).textTheme.headlineSmall),
+                  const SizedBox(height: 4),
+                  Text(subtitle),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

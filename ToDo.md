@@ -18,7 +18,7 @@
 - `02-specification`: complete
 - `03-design`: complete
 - `04-implementation`: complete
-- `05-test`: complete with environment blocker noted
+- `05-test`: complete
 - `06-release`: pending
 
 ## Active Tasks
@@ -34,6 +34,10 @@
 - [x] Add local process inference bridge and resilient fallback path
 - [x] Improve forward accuracy with richer audio features, calibrated scoring, and clean Japanese labels
 - [x] Add selectable inference model settings with runtime-aware fallback
+- [x] Refocus the visible product on forward interpretation and hide reverse mode UI
+- [x] Add settings tab, theme presets, richer history controls, and result tooltips
+- [x] Add profile calibration support and candidate pie-chart visualization
+- [x] Acquire Dog2vec local runtime assets and validate the Python runtime entrypoint
 - [ ] Prepare release package plan
 
 ## Branch Policy

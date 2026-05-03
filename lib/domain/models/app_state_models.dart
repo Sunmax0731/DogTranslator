@@ -9,6 +9,7 @@ class AppSettings {
     required this.selectedProfileId,
     required this.selectedInputDeviceId,
     required this.selectedInferenceModel,
+    required this.selectedThemePreset,
     required this.selectedBreed,
     required this.selectedAgeStage,
     required this.selectedSizeClass,
@@ -19,6 +20,7 @@ class AppSettings {
   final String? selectedProfileId;
   final String? selectedInputDeviceId;
   final InferenceModelSelection selectedInferenceModel;
+  final AppThemePreset selectedThemePreset;
   final DogBreed selectedBreed;
   final DogAgeStage selectedAgeStage;
   final DogSizeClass selectedSizeClass;
@@ -30,6 +32,7 @@ class AppSettings {
       'selectedProfileId': selectedProfileId,
       'selectedInputDeviceId': selectedInputDeviceId,
       'selectedInferenceModel': selectedInferenceModel.name,
+      'selectedThemePreset': selectedThemePreset.name,
       'selectedBreed': selectedBreed.name,
       'selectedAgeStage': selectedAgeStage.name,
       'selectedSizeClass': selectedSizeClass.name,
@@ -44,6 +47,9 @@ class AppSettings {
       selectedInputDeviceId: json['selectedInputDeviceId'] as String?,
       selectedInferenceModel: InferenceModelSelectionText.fromKey(
         json['selectedInferenceModel'] as String?,
+      ),
+      selectedThemePreset: AppThemePresetText.fromKey(
+        json['selectedThemePreset'] as String?,
       ),
       selectedBreed: DogBreedText.fromKey(json['selectedBreed'] as String?),
       selectedAgeStage: DogAgeStageText.fromKey(
@@ -65,6 +71,7 @@ class AppSettings {
     selectedProfileId: null,
     selectedInputDeviceId: null,
     selectedInferenceModel: InferenceModelSelection.auto,
+    selectedThemePreset: AppThemePreset.defaultTeal,
     selectedBreed: DogBreed.mixed,
     selectedAgeStage: DogAgeStage.adult,
     selectedSizeClass: DogSizeClass.medium,

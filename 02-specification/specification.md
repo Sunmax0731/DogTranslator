@@ -2,22 +2,33 @@
 
 ## 1. Feature Set
 - Forward mode: microphone audio -> staged analysis -> ranked interpretation candidates
-- Reverse mode: human text -> emotion style estimation -> dog-style expressive output
-- Session history: persistent local history for recent interactions
+- Dashboard: local summaries and comparison support
+- Settings: global app preferences and profile management
+- Session history: persistent local forward history with search and replay
 - Live waveform / level trace during recording
 - Input microphone selection for Windows
 - Inference model selection between auto, heuristic, and Dog2vec-local preference
-- Dog profile selection and persistence
-- Scene tagging
-- Dashboard summaries
-- Optional local process inference bridge for Dog2vec-style runtime
+- Optional Dog2vec local runtime via Python process
+- Hidden reverse implementation retained in codebase, but not surfaced in the release UI
 
-## 2. Forward Mode Behavior
+## 2. Visible Navigation
+- Wide layout:
+  - left navigation card
+  - main content
+  - right-side history panel
+- Narrow layout:
+  - bottom navigation
+  - stacked history section
+- Visible destinations:
+  - `Forward`
+  - `Dashboard`
+  - `Settings`
+
+## 3. Forward Mode Behavior
 ### Input
 - The user starts recording manually.
 - The user stops recording manually.
 - The user can choose a microphone input before recording.
-- The user can choose the inference model policy before recording.
 - The user can optionally choose a dog profile and scene mode before recording.
 
 ### Analysis Pipeline
@@ -26,7 +37,8 @@
 3. Generate recording-quality hints.
 4. Run dog-vocal detection gate.
 5. Run the active inference provider.
-6. Produce:
+6. Apply profile-calibration similarity when a selected profile has voice calibration data.
+7. Produce:
    - primary interpretation
    - ranked candidate list
    - vocal type
@@ -42,13 +54,27 @@
 - Explanation sentence
 - Confidence: `high`, `medium`, or `low`
 - Ranked candidates
+- Candidate pie chart
 - Vocal type
 - Context hint
 - Valence / arousal hint values
-- Feature summary for debugging
+- Feature summary
 - Quality hints
 
-## 3. Forward Emotion Categories
+## 4. Result Parameter Help
+- Hovering result chips should show tooltips for:
+  - confidence
+  - provider
+  - vocal type
+  - context
+  - duration
+  - RMS
+  - peak
+  - pitch
+  - valence
+  - arousal
+
+## 5. Forward Emotion Categories
 - `excited_greeting`
 - `attention_seeking`
 - `warning_alert`
@@ -59,7 +85,7 @@
 - `bored`
 - `uncertain`
 
-## 4. Additional Forward Classification Axes
+## 6. Additional Forward Classification Axes
 ### Vocal Types
 - `bark`
 - `growl`
@@ -81,12 +107,7 @@
 - `conflict`
 - `unknown`
 
-## 5. Multiple Candidate Rules
-- The app should display up to 3 ranked candidates.
-- The top candidate becomes the primary label.
-- Close-scoring candidates should remain visible instead of being discarded.
-
-## 6. Recording Visualization and Quality
+## 7. Recording Visualization and Quality
 - While recording is active, the app should show a live waveform or bar-trace style meter.
 - The visualization should reset when a new recording session starts.
 - Quality hints may include:
@@ -95,7 +116,7 @@
   - peak too spiky
   - likely noisy / unstable input
 
-## 7. Profiles and Scene Modes
+## 8. Profiles and Calibration
 ### Dog Profile Fields
 - profile id
 - display name
@@ -103,38 +124,75 @@
 - age stage
 - size class
 - notes
+- optional voice calibration aggregate:
+  - sample count
+  - average pitch
+  - average RMS
+  - average activity ratio
+  - last calibration timestamp
 
-### Scene Modes
-- home / normal
-- playtime
-- mealtime
-- walk
-- guest / visitor
-- night / rest
+### Calibration Rule
+- The user can add the latest saved forward recording as a calibration sample for a profile.
+- Calibration updates aggregate statistics only in this phase.
+- Calibration influences heuristic scoring as a personalization bias, not as full retraining.
 
-## 8. Reverse Mode Behavior
-### Input
-- Free-text Japanese or English message
-- Breed
-- Age stage
-- Size class
-- Tension level
-- Optional active dog profile
+### Supported Breeds
+- include existing breeds plus `Pomeranian`
 
-### Transformation
-1. Detect simple emotional cues in text.
-2. Resolve bark style profile from breed / age / size / tension.
-3. Produce:
-   - dog-style text
-   - emotion tag
-   - descriptive explanation
-   - playback audio
+## 9. Feedback Input
+- Saved forward records can store a manual feedback label.
+- The visible input control should use radio buttons, not a dropdown.
 
-## 9. Local Process Inference Contract
+## 10. Settings Tab Behavior
+### Common Settings
+- Theme preset selection:
+  - default
+  - ocean
+  - sunset
+  - forest
+  - graphite
+- Inference model selection:
+  - `auto`
+  - `heuristic`
+  - `dog2vec_local`
+
+### Profile Management
+- Add profile
+- Edit profile
+- Delete profile
+- Add latest recording as calibration sample
+
+## 11. Session History
+- Persist forward and reverse interactions locally, but the visible history panel should focus on forward sessions.
+- History panel behavior:
+  - search box
+  - date + time display
+  - replay saved forward recording
+  - compare selection toggle
+- Visible metadata:
+  - timestamp
+  - profile name
+  - scene mode
+  - primary interpretation
+  - short explanation
+
+## 12. Dashboard
+- Total forward sessions
+- Feedback coverage
+- Profile count
+- Comparison summary for selected forward records
+
+## 13. Local Process Inference Contract
 ### Invocation
 - The app loads optional runtime config from JSON.
 - It launches the configured command with its configured args.
 - It appends `--input <wavPath>` to the invocation.
+
+### Runtime Files
+- `dog2vec_runtime.json` at repo root or deployed working directory
+- `dog_voice_local/` runtime folder
+- optional upstream helper repo under `dog_voice_local/vendor/dog2vec`
+- optional weight file under `dog_voice_local/models/dog2vec/dog2vec_130k_9.pt`
 
 ### Expected stdout JSON
 ```json
@@ -146,7 +204,7 @@
   "valence": -0.22,
   "arousal": 0.81,
   "confidence": 0.68,
-  "message": "来客や物音に反応して警戒している可能性があります。"
+  "message": "警戒に近い鳴き方として解釈しました。"
 }
 ```
 
@@ -160,53 +218,32 @@
 - `heuristic`: always use the in-app heuristic pipeline.
 - `dog2vec_local`: prefer the local Dog2vec runtime; if unavailable, fall back to heuristic and surface that fallback in UI status text.
 
-## 9A. Accuracy Improvement Rules
-- Heuristic forward scoring should combine classic amplitude features with activity and pitch-related features.
-- Candidate probabilities should be normalized from calibrated scores instead of using raw rule totals directly.
-- Vocal-type and context estimates should feed back into final intent ranking as consistency adjustments.
-- Weak, noisy, or clearly non-dog-like pitch ranges should reduce confidence and may force `uncertain`.
-- Japanese output labels and explanations must remain human-readable and avoid mojibake.
+## 14. Hidden Reverse Feature Rule
+- Reverse implementation remains in source control.
+- The release UI must not expose:
+  - reverse tab
+  - reverse history view
+  - reverse dashboard emphasis
+- Future reactivation should require UI wiring only, not full reimplementation.
 
-## 10. History and Comparison
-- The app should persist forward and reverse interactions locally.
-- The app should allow selecting recent forward results for side-by-side comparison.
-- Saved forward results should keep:
-  - timestamp
-  - features
-  - primary label
-  - candidate labels
-  - profile id
-  - scene mode
-  - vocal type
-  - context
-  - valence / arousal
-  - quality hints
-  - manual feedback label
-
-## 11. Analytics Dashboard
-- Total saved interactions
-- Forward intent counts
-- Scene distribution
-- Profile distribution
-- Manual feedback coverage
-
-## 12. Error Handling
+## 15. Error Handling
 - No microphone available: show device guidance and disable recording action.
 - Recording too short: return low-confidence output plus quality hint.
 - File parse failure: show analysis error and keep the session alive.
-- Unsupported reverse input: fall back to neutral output.
-- Playback failure: keep the reverse result visible and show failure without blocking the UI.
+- Playback failure: keep the result visible and show failure without blocking the UI.
 - Selected microphone unavailable: fall back to default input and show a message.
 - Persistence read failure: reset to empty local state and show a warning.
 - Local inference process failure: fall back to heuristic inference without crashing.
 
-## 13. Acceptance Scenarios
+## 16. Acceptance Scenarios
 1. User records a short loud bark -> app returns ranked alert/greeting candidates with quality guidance.
-2. User records a soft long sound -> app returns anxious or sleepy candidates.
-3. User records near silence -> app returns uncertain with low confidence.
+2. User records near silence -> app returns uncertain with low confidence.
+3. User hovers a feature chip -> app shows a tooltip explaining the parameter.
 4. User changes the microphone device and records successfully from the selected input.
-5. User saves multiple forward results and compares them side-by-side.
-6. User registers a dog profile and reuses it for later recordings.
-7. User enters reverse text, changes breed / age / size / tension, and hears different synthetic output.
-8. User opens the dashboard and sees persisted statistics.
-9. Local Dog2vec-style runtime returns JSON -> app maps it into the forward result structure.
+5. User opens Settings and changes the theme preset.
+6. User adds, edits, and deletes profiles from Settings.
+7. User replays a saved forward recording from history.
+8. User searches history and sees date + time on results.
+9. User adds the latest forward recording as a calibration sample for a profile.
+10. Local Dog2vec runtime returns JSON -> app maps it into the forward result structure.
+11. Reverse implementation remains present in code, but the release UI shows only Forward, Dashboard, and Settings.

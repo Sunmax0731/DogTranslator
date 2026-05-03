@@ -11,6 +11,9 @@
 - [x] Define explicit out-of-scope items for the first release
 - [x] Define pre-release expansion scope split for requested features
 - [x] Define Dog2vec-ready local inference requirements and constraints
+- [x] Re-scope the visible product around forward-only UI while retaining reverse implementation internally
+- [x] Define settings, history replay/search, theme selection, and calibration requirements
+- [x] Define Dog2vec local runtime asset and dependency expectations
 
 ## Follow-up Candidates
 - [ ] Interview-based refinement with real dog owners

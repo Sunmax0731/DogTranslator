@@ -17,13 +17,18 @@ class AudioPlayerBarkPlaybackService implements BarkPlaybackService {
     );
     await file.writeAsBytes(wavBytes, flush: true);
 
+    await playFile(file.path);
+  }
+
+  @override
+  Future<void> playFile(String path) async {
     if (Platform.isWindows) {
-      await _playWithWindowsSoundPlayer(file.path);
+      await _playWithWindowsSoundPlayer(path);
       return;
     }
 
     await _player.stop();
-    await _player.play(DeviceFileSource(file.path));
+    await _player.play(DeviceFileSource(path));
   }
 
   @override

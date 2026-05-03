@@ -13,6 +13,10 @@
 - [x] Define staged forward inference behavior and local model JSON contract
 - [x] Define richer audio-feature inputs and calibrated heuristic scoring rules
 - [x] Define user-selectable inference model behavior and fallback rules
+- [x] Define forward-only visible navigation while preserving hidden reverse implementation
+- [x] Define settings-tab behavior for themes, inference selection, and profile management
+- [x] Define history replay/search behavior and tooltip explanations
+- [x] Define profile calibration aggregation and Dog2vec runtime asset expectations
 
 ## Follow-up Candidates
 - [ ] Replace heuristic thresholds with learned model interface

@@ -1,3 +1,4 @@
+import 'package:dog_translator/domain/models.dart';
 import 'package:dog_translator/features/home/dog_translator_home_page.dart';
 import 'package:dog_translator/services/app_repository.dart';
 import 'package:dog_translator/services/bark_playback_service.dart';
@@ -5,7 +6,7 @@ import 'package:dog_translator/services/inference_provider_factory.dart';
 import 'package:dog_translator/services/recording_service.dart';
 import 'package:flutter/material.dart';
 
-class DogTranslatorApp extends StatelessWidget {
+class DogTranslatorApp extends StatefulWidget {
   const DogTranslatorApp({
     required this.recordingService,
     required this.playbackService,
@@ -22,36 +23,84 @@ class DogTranslatorApp extends StatelessWidget {
   final int initialTabIndex;
 
   @override
+  State<DogTranslatorApp> createState() => _DogTranslatorAppState();
+}
+
+class _DogTranslatorAppState extends State<DogTranslatorApp> {
+  AppThemePreset _themePreset = AppThemePreset.defaultTeal;
+
+  @override
   Widget build(BuildContext context) {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF0F766E),
-      brightness: Brightness.light,
-    );
+    final theme = _buildTheme(_themePreset);
 
     return MaterialApp(
       title: 'DogTranslator',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: colorScheme,
-        scaffoldBackgroundColor: const Color(0xFFF4F1E8),
-        useMaterial3: true,
-        cardTheme: CardThemeData(
-          color: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: BorderSide(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.45),
-            ),
+      theme: theme,
+      home: DogTranslatorHomePage(
+        recordingService: widget.recordingService,
+        playbackService: widget.playbackService,
+        repository: widget.repository,
+        inferenceProviderFactory: widget.inferenceProviderFactory,
+        initialTabIndex: widget.initialTabIndex,
+        onThemePresetChanged: (preset) {
+          if (_themePreset == preset) {
+            return;
+          }
+          setState(() {
+            _themePreset = preset;
+          });
+        },
+      ),
+    );
+  }
+
+  ThemeData _buildTheme(AppThemePreset preset) {
+    final seed = switch (preset) {
+      AppThemePreset.defaultTeal => const Color(0xFF0F766E),
+      AppThemePreset.ocean => const Color(0xFF2563EB),
+      AppThemePreset.sunset => const Color(0xFFE67E22),
+      AppThemePreset.forest => const Color(0xFF2E7D32),
+      AppThemePreset.graphite => const Color(0xFF4B5563),
+    };
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: seed,
+      brightness: Brightness.light,
+    );
+
+    return ThemeData(
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: const Color(0xFFF5F6F8),
+      useMaterial3: true,
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.55),
           ),
         ),
       ),
-      home: DogTranslatorHomePage(
-        recordingService: recordingService,
-        playbackService: playbackService,
-        repository: repository,
-        inferenceProviderFactory: inferenceProviderFactory,
-        initialTabIndex: initialTabIndex,
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
       ),
     );
   }

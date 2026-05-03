@@ -31,7 +31,14 @@
 - [x] Recalibrate heuristic forward inference with softmax candidate ranking and consistency adjustments
 - [x] Repair Japanese label and explanation text in domain enums and forward explanation output
 - [x] Add persisted inference model selection and runtime-aware provider resolution
+- [x] Remove reverse mode from visible navigation while preserving its implementation
+- [x] Replace hero layout with a WinUI3-style forward/dashboard/settings workspace
+- [x] Add settings tab for themes, inference selection, and profile management
+- [x] Add history search, date display, and saved forward-record replay
+- [x] Add parameter tooltips, candidate pie chart, and radio-button feedback UI
+- [x] Add profile voice-calibration aggregation and scoring bias
+- [x] Add Dog2vec local runtime assets, config, and model download bootstrap
 
 ## Follow-up Candidates
-- [ ] Add local model provider implementation behind the inference interface
-- [ ] Add audio-preview playback for saved forward recordings
+- [ ] Add learned downstream classifier heads for Dog2vec runtime
+- [ ] Package Python runtime dependencies for offline redistribution

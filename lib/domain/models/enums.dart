@@ -230,7 +230,41 @@ extension ReverseEmotionStyleText on ReverseEmotionStyle {
   }
 }
 
-enum DogBreed { mixed, shiba, chihuahua, toyPoodle, goldenRetriever, husky }
+enum AppThemePreset { defaultTeal, ocean, sunset, forest, graphite }
+
+extension AppThemePresetText on AppThemePreset {
+  String get labelJa {
+    switch (this) {
+      case AppThemePreset.defaultTeal:
+        return 'Default';
+      case AppThemePreset.ocean:
+        return 'Ocean';
+      case AppThemePreset.sunset:
+        return 'Sunset';
+      case AppThemePreset.forest:
+        return 'Forest';
+      case AppThemePreset.graphite:
+        return 'Graphite';
+    }
+  }
+
+  static AppThemePreset fromKey(String? key) {
+    return AppThemePreset.values.firstWhere(
+      (value) => value.name == key,
+      orElse: () => AppThemePreset.defaultTeal,
+    );
+  }
+}
+
+enum DogBreed {
+  mixed,
+  shiba,
+  chihuahua,
+  toyPoodle,
+  goldenRetriever,
+  husky,
+  pomeranian,
+}
 
 extension DogBreedText on DogBreed {
   String get labelJa {
@@ -247,6 +281,8 @@ extension DogBreedText on DogBreed {
         return 'ゴールデンレトリバー';
       case DogBreed.husky:
         return 'ハスキー';
+      case DogBreed.pomeranian:
+        return 'ポメラニアン';
     }
   }
 
@@ -264,6 +300,8 @@ extension DogBreedText on DogBreed {
         return '広がりと厚みのある鳴き声を想定した表現です。';
       case DogBreed.husky:
         return '遠吠え寄りの響きを含む表現です。';
+      case DogBreed.pomeranian:
+        return '高めで軽快な反応を想定した表現です。';
     }
   }
 

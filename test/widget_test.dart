@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dog_translator/app/dog_translator_app.dart';
@@ -8,40 +7,33 @@ import 'package:dog_translator/services/app_repository.dart';
 import 'package:dog_translator/services/bark_playback_service.dart';
 import 'package:dog_translator/services/inference_provider_factory.dart';
 import 'package:dog_translator/services/recording_service.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('reverse translation flow appends history and plays audio', (
+  testWidgets('settings tab renders profile management and model selector', (
     tester,
   ) async {
-    final playbackService = _FakePlaybackService();
     await tester.pumpWidget(
       DogTranslatorApp(
         recordingService: _FakeRecordingService(),
-        playbackService: playbackService,
+        playbackService: _FakePlaybackService(),
         repository: _InMemoryAppRepository(),
         inferenceProviderFactory: const InferenceProviderFactory.fixed(
           _FakeInferenceProvider(),
         ),
-        initialTabIndex: 1,
+        initialTabIndex: 2,
       ),
     );
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextField).first, 'こっちに来て');
+    final settingsTargets = find.text('設定');
+    if (settingsTargets.evaluate().isNotEmpty) {
+      await tester.tap(settingsTargets.first);
+      await tester.pumpAndSettle();
+    }
 
-    final translateButton = find.widgetWithText(FilledButton, '犬っぽい声に変換して再生');
-    final button = tester.widget<FilledButton>(translateButton);
-    button.onPressed!.call();
-    await tester.pump();
-    await tester.pumpAndSettle();
-
-    expect(playbackService.playCount, 1);
-    expect(find.text('犬っぽい音声を再生しました。'), findsOneWidget);
-    expect(find.text('Session History'), findsOneWidget);
-    expect(find.textContaining('要求 (ミックス)'), findsOneWidget);
-    expect(find.text('Dashboard'), findsOneWidget);
+    expect(find.text('カラーテーマ'), findsOneWidget);
+    expect(find.text('推論モデル'), findsOneWidget);
   });
 }
 
@@ -78,15 +70,14 @@ class _FakeRecordingService implements RecordingService {
 }
 
 class _FakePlaybackService implements BarkPlaybackService {
-  int playCount = 0;
-
   @override
   Future<void> dispose() async {}
 
   @override
-  Future<void> play(Uint8List wavBytes) async {
-    playCount++;
-  }
+  Future<void> play(Uint8List wavBytes) async {}
+
+  @override
+  Future<void> playFile(String path) async {}
 }
 
 class _InMemoryAppRepository implements AppRepository {

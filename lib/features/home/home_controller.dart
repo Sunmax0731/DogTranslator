@@ -19,6 +19,7 @@ class HomeController extends ChangeNotifier {
     required RecordingService recordingService,
     required BarkPlaybackService playbackService,
     required AppRepository repository,
+    required ValueChanged<AppThemePreset> onThemePresetChanged,
     AudioFeatureExtractor? featureExtractor,
     InferenceProviderFactory? inferenceProviderFactory,
     ReverseTranslator? reverseTranslator,
@@ -26,6 +27,7 @@ class HomeController extends ChangeNotifier {
   }) : _recordingService = recordingService,
        _playbackService = playbackService,
        _repository = repository,
+       _onThemePresetChanged = onThemePresetChanged,
        _featureExtractor = featureExtractor ?? const AudioFeatureExtractor(),
        _inferenceProviderFactory =
            inferenceProviderFactory ?? const InferenceProviderFactory(),
@@ -37,6 +39,7 @@ class HomeController extends ChangeNotifier {
   final RecordingService _recordingService;
   final BarkPlaybackService _playbackService;
   final AppRepository _repository;
+  final ValueChanged<AppThemePreset> _onThemePresetChanged;
   final AudioFeatureExtractor _featureExtractor;
   final InferenceProviderFactory _inferenceProviderFactory;
   final ReverseTranslator _reverseTranslator;
@@ -63,6 +66,7 @@ class HomeController extends ChangeNotifier {
       InferenceModelSelection.auto;
   InferenceModelSelection _activeInferenceModel =
       InferenceModelSelection.heuristic;
+  AppThemePreset _selectedThemePreset = AppThemePreset.defaultTeal;
   DogBreed _selectedBreed = DogBreed.mixed;
   DogAgeStage _selectedAgeStage = DogAgeStage.adult;
   DogSizeClass _selectedSizeClass = DogSizeClass.medium;
@@ -87,6 +91,7 @@ class HomeController extends ChangeNotifier {
   String? get selectedProfileId => _selectedProfileId;
   InferenceModelSelection get selectedInferenceModel => _selectedInferenceModel;
   InferenceModelSelection get activeInferenceModel => _activeInferenceModel;
+  AppThemePreset get selectedThemePreset => _selectedThemePreset;
   DogBreed get selectedBreed => _selectedBreed;
   DogAgeStage get selectedAgeStage => _selectedAgeStage;
   DogSizeClass get selectedSizeClass => _selectedSizeClass;
@@ -153,12 +158,14 @@ class HomeController extends ChangeNotifier {
     _selectedInputDeviceId =
         data.settings.selectedInputDeviceId ?? _selectedInputDeviceId;
     _selectedInferenceModel = data.settings.selectedInferenceModel;
+    _selectedThemePreset = data.settings.selectedThemePreset;
     _selectedBreed = data.settings.selectedBreed;
     _selectedAgeStage = data.settings.selectedAgeStage;
     _selectedSizeClass = data.settings.selectedSizeClass;
     _selectedTension = data.settings.selectedTension;
     _selectedSceneMode = data.settings.selectedSceneMode;
     _loadingAppData = false;
+    _onThemePresetChanged(_selectedThemePreset);
     notifyListeners();
   }
 
@@ -172,6 +179,7 @@ class HomeController extends ChangeNotifier {
           selectedProfileId: _selectedProfileId,
           selectedInputDeviceId: _selectedInputDeviceId,
           selectedInferenceModel: _selectedInferenceModel,
+          selectedThemePreset: _selectedThemePreset,
           selectedBreed: _selectedBreed,
           selectedAgeStage: _selectedAgeStage,
           selectedSizeClass: _selectedSizeClass,
@@ -250,6 +258,16 @@ class HomeController extends ChangeNotifier {
 
     _selectedInferenceModel = selection;
     await loadInferenceProvider();
+  }
+
+  Future<void> setThemePreset(AppThemePreset? preset) async {
+    if (preset == null) {
+      return;
+    }
+    _selectedThemePreset = preset;
+    _onThemePresetChanged(preset);
+    notifyListeners();
+    await persistState();
   }
 
   Future<void> toggleRecording() async {
@@ -439,6 +457,76 @@ class HomeController extends ChangeNotifier {
     await persistState();
   }
 
+  Future<void> editProfile(BuildContext context, DogProfile profile) async {
+    final updated = await showDialog<DogProfile>(
+      context: context,
+      builder: (context) => CreateProfileDialog.edit(initialProfile: profile),
+    );
+    if (updated == null) {
+      return;
+    }
+
+    _profiles = _profiles
+        .map((item) => item.id == updated.id ? updated : item)
+        .toList(growable: false);
+    if (_selectedProfileId == updated.id) {
+      _selectedBreed = updated.breed;
+      _selectedAgeStage = updated.ageStage;
+      _selectedSizeClass = updated.sizeClass;
+    }
+    notifyListeners();
+    await persistState();
+  }
+
+  Future<void> deleteProfile(String profileId) async {
+    _profiles = _profiles
+        .where((profile) => profile.id != profileId)
+        .toList(growable: false);
+    if (_selectedProfileId == profileId) {
+      _selectedProfileId = null;
+    }
+    notifyListeners();
+    await persistState();
+  }
+
+  Future<void> addLatestRecordingToProfileCalibration(String profileId) async {
+    final record = latestForwardRecord;
+    if (record == null) {
+      _forwardStatusMessage = '個体サンプルに追加するための最新録音がありません。';
+      notifyListeners();
+      return;
+    }
+
+    _profiles = _profiles
+        .map((profile) {
+          if (profile.id != profileId) {
+            return profile;
+          }
+          final calibration =
+              profile.voiceCalibration ??
+              const DogVoiceCalibration(
+                sampleCount: 0,
+                averagePitchHz: 0,
+                averageRms: 0,
+                averageActivityRatio: 0,
+                lastSampleAtIso: null,
+              );
+          return profile.copyWith(
+            voiceCalibration: calibration.mergeSample(
+              pitchHz: record.translation.features.pitchHz,
+              rms: record.translation.features.rms,
+              activityRatio: record.translation.features.activityRatio,
+              timestampIso: record.timestampIso,
+            ),
+          );
+        })
+        .toList(growable: false);
+
+    _forwardStatusMessage = '最新録音を個体サンプルとして追加しました。';
+    notifyListeners();
+    await persistState();
+  }
+
   Future<void> selectProfile(String? profileId) async {
     _selectedProfileId = profileId;
     final profile = selectedProfile;
@@ -515,6 +603,24 @@ class HomeController extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  Future<void> playForwardRecord(String id) async {
+    final record = findForwardRecord(id);
+    final path = record?.recordingPath;
+    if (path == null || path.isEmpty) {
+      _forwardStatusMessage = 'このセッションに再生できる録音ファイルがありません。';
+      notifyListeners();
+      return;
+    }
+
+    try {
+      await _playbackService.playFile(path);
+      _forwardStatusMessage = 'セッション録音を再生しました。';
+    } catch (error) {
+      _forwardStatusMessage = 'セッション録音の再生に失敗しました: $error';
+    }
+    notifyListeners();
   }
 
   String _createId(String prefix) {

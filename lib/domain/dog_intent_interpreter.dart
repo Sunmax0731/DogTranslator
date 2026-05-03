@@ -19,13 +19,20 @@ class DogIntentInterpreter implements InferenceProvider {
         ? _inferVocalType(features)
         : DogVocalType.unknown;
     final context = _inferContext(features, sceneMode, vocalType);
+    final profileSimilarity = _profileSimilarity(features, profile);
     final rawScores = <DogIntent, double>{
-      DogIntent.excitedGreeting: _excitedScore(features, sceneMode, profile),
+      DogIntent.excitedGreeting: _excitedScore(
+        features,
+        sceneMode,
+        profile,
+        profileSimilarity,
+      ),
       DogIntent.attentionSeeking: _attentionScore(
         features,
         sceneMode,
         vocalType,
         context,
+        profileSimilarity,
       ),
       DogIntent.warningAlert: _warningScore(
         features,
@@ -33,17 +40,32 @@ class DogIntentInterpreter implements InferenceProvider {
         profile,
         vocalType,
         context,
+        profileSimilarity,
       ),
       DogIntent.anxiousWhine: _anxiousScore(
         features,
         sceneMode,
         vocalType,
         context,
+        profileSimilarity,
       ),
-      DogIntent.sleepy: _sleepyScore(features, sceneMode, profile),
-      DogIntent.restlessEnergy: _restlessScore(features, vocalType),
-      DogIntent.happyRelaxed: _happyScore(features, sceneMode),
-      DogIntent.bored: _boredScore(features, sceneMode),
+      DogIntent.sleepy: _sleepyScore(
+        features,
+        sceneMode,
+        profile,
+        profileSimilarity,
+      ),
+      DogIntent.restlessEnergy: _restlessScore(
+        features,
+        vocalType,
+        profileSimilarity,
+      ),
+      DogIntent.happyRelaxed: _happyScore(
+        features,
+        sceneMode,
+        profileSimilarity,
+      ),
+      DogIntent.bored: _boredScore(features, sceneMode, profileSimilarity),
       DogIntent.uncertain: 0.16,
     };
 
@@ -192,6 +214,7 @@ class DogIntentInterpreter implements InferenceProvider {
     AudioFeatures features,
     SceneMode sceneMode,
     DogProfile? profile,
+    double profileSimilarity,
   ) {
     var score =
         (features.burstCount / 5) +
@@ -208,6 +231,7 @@ class DogIntentInterpreter implements InferenceProvider {
     if (features.pitchHz >= 350 && features.pitchHz <= 900) {
       score += 0.12;
     }
+    score += profileSimilarity * 0.04;
     return score;
   }
 
@@ -216,6 +240,7 @@ class DogIntentInterpreter implements InferenceProvider {
     SceneMode sceneMode,
     DogVocalType vocalType,
     DogContext context,
+    double profileSimilarity,
   ) {
     var score =
         (features.burstCount / 5.5) +
@@ -232,6 +257,7 @@ class DogIntentInterpreter implements InferenceProvider {
     if (features.activityRatio >= 0.32 && features.activityRatio <= 0.68) {
       score += 0.1;
     }
+    score += profileSimilarity * 0.05;
     return score;
   }
 
@@ -241,6 +267,7 @@ class DogIntentInterpreter implements InferenceProvider {
     DogProfile? profile,
     DogVocalType vocalType,
     DogContext context,
+    double profileSimilarity,
   ) {
     var score =
         (features.peak * 0.9) +
@@ -262,6 +289,7 @@ class DogIntentInterpreter implements InferenceProvider {
     if (features.crestFactor < 5.5 && features.activityRatio > 0.25) {
       score += 0.08;
     }
+    score += profileSimilarity * 0.03;
     return score;
   }
 
@@ -270,6 +298,7 @@ class DogIntentInterpreter implements InferenceProvider {
     SceneMode sceneMode,
     DogVocalType vocalType,
     DogContext context,
+    double profileSimilarity,
   ) {
     var score =
         (features.durationSeconds * 0.28) +
@@ -284,6 +313,7 @@ class DogIntentInterpreter implements InferenceProvider {
     if (features.pitchHz > 500) {
       score += 0.08;
     }
+    score += profileSimilarity * 0.05;
     return score;
   }
 
@@ -291,6 +321,7 @@ class DogIntentInterpreter implements InferenceProvider {
     AudioFeatures features,
     SceneMode sceneMode,
     DogProfile? profile,
+    double profileSimilarity,
   ) {
     var score =
         (features.durationSeconds * 0.22) +
@@ -305,10 +336,15 @@ class DogIntentInterpreter implements InferenceProvider {
     if (features.activityRatio < 0.25) {
       score += 0.08;
     }
+    score += profileSimilarity * 0.02;
     return score;
   }
 
-  double _restlessScore(AudioFeatures features, DogVocalType vocalType) {
+  double _restlessScore(
+    AudioFeatures features,
+    DogVocalType vocalType,
+    double profileSimilarity,
+  ) {
     var score =
         (features.rms * 1.8) +
         (features.dynamicRange * 1.1) +
@@ -319,10 +355,15 @@ class DogIntentInterpreter implements InferenceProvider {
     if (features.crestFactor > 7.5) {
       score += 0.1;
     }
+    score += profileSimilarity * 0.03;
     return score;
   }
 
-  double _happyScore(AudioFeatures features, SceneMode sceneMode) {
+  double _happyScore(
+    AudioFeatures features,
+    SceneMode sceneMode,
+    double profileSimilarity,
+  ) {
     var score =
         (features.rms * 1.2) +
         (features.dynamicRange * 0.8) +
@@ -333,10 +374,15 @@ class DogIntentInterpreter implements InferenceProvider {
     if (features.pitchHz >= 250 && features.pitchHz <= 700) {
       score += 0.08;
     }
+    score += profileSimilarity * 0.04;
     return score;
   }
 
-  double _boredScore(AudioFeatures features, SceneMode sceneMode) {
+  double _boredScore(
+    AudioFeatures features,
+    SceneMode sceneMode,
+    double profileSimilarity,
+  ) {
     var score =
         (features.durationSeconds * 0.24) +
         ((0.11 - features.rms).clamp(0.0, 0.11) * 2.8) +
@@ -347,6 +393,7 @@ class DogIntentInterpreter implements InferenceProvider {
     if (features.activityRatio < 0.3) {
       score += 0.08;
     }
+    score += profileSimilarity * 0.02;
     return score;
   }
 
@@ -409,6 +456,34 @@ class DogIntentInterpreter implements InferenceProvider {
     }
 
     return adjusted;
+  }
+
+  double _profileSimilarity(AudioFeatures features, DogProfile? profile) {
+    final calibration = profile?.voiceCalibration;
+    if (calibration == null || calibration.sampleCount <= 0) {
+      return 0;
+    }
+
+    final pitchDistance =
+        calibration.averagePitchHz <= 0 || features.pitchHz <= 0
+        ? 0.5
+        : ((features.pitchHz - calibration.averagePitchHz).abs() /
+                  max(calibration.averagePitchHz, 1))
+              .clamp(0.0, 1.0);
+    final rmsDistance = (features.rms - calibration.averageRms).abs().clamp(
+      0.0,
+      1.0,
+    );
+    final activityDistance =
+        (features.activityRatio - calibration.averageActivityRatio).abs().clamp(
+          0.0,
+          1.0,
+        );
+    final distance =
+        (pitchDistance * 0.45) +
+        (rmsDistance * 0.3) +
+        (activityDistance * 0.25);
+    return (1 - distance).clamp(0.0, 1.0) * min(calibration.sampleCount / 6, 1);
   }
 
   Map<DogIntent, double> _softmax(Map<DogIntent, double> scores) {

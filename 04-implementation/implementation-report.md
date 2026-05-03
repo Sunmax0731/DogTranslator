@@ -1,7 +1,7 @@
 # Implementation Report
 
 ## Scope
-This document tracks the Windows MVP+ implementation status.
+This document tracks the Windows MVP+ implementation status after the forward-only UI refresh and Dog2vec runtime hardening pass.
 
 ## Planned Modules
 - Flutter application shell
@@ -11,56 +11,55 @@ This document tracks the Windows MVP+ implementation status.
 - heuristic inference provider
 - local process inference provider
 - resilient inference fallback wrapper
-- reverse expression generation
+- hidden reverse expression generation stack
 - live waveform rendering
 - microphone device selection
 - dog profile management
+- settings and theme management
 - dashboard and comparison UI
+- history replay/search UI
+- Dog2vec local runtime assets
 - validation tests
 
 ## Current Status
 - Implemented
 
 ## Implemented Modules
-- Flutter app shell with `Forward / Reverse / Dashboard` workflow
+- Flutter app shell with `Forward / Dashboard / Settings` visible workflow
 - presentation-controller based home orchestration with `HomeController`
-- split widgets for forward, reverse, dashboard, history, waveform, and profile dialog
+- split widgets for forward, dashboard, settings, history, waveform, pie chart, and profile dialog
+- hidden reverse translation code retained for future reactivation
 - `record`-based microphone recording service for WAV capture
 - JSON-backed local repository for profiles, history, and settings
 - pure Dart WAV feature extraction with extended metrics
-- richer audio metrics including crest factor, activity ratio, and pitch estimation
+- profile-calibration aggregation stored per dog profile
+- heuristic forward inference adjusted with profile-similarity bias
 - async inference-provider boundary with raw-audio support
-- inference-model selection with persisted requested mode and resolved active mode
-- staged heuristic forward inference for:
-  - dog-vocal detection
-  - vocal type estimation
-  - emotion / intent estimation
-  - context hint estimation
-  - valence / arousal hint estimation
-- calibrated forward ranking with softmax normalization and vocal-type/context consistency adjustments
+- runtime-aware inference-model selection with persisted requested mode and resolved active mode
 - optional local process inference provider with JSON mapping
 - resilient fallback from local inference to heuristic inference
-- runtime-aware provider factory returning selected-vs-active inference state
-- richer Japanese emotion labels and ranked forward candidates
-- repaired Japanese enum labels and explanation text across forward-mode output
-- recording-quality guidance
+- Dog2vec local runtime scaffold under `dog_voice_local/`
+- downloaded Dog2vec base weight file under `dog_voice_local/models/dog2vec/dog2vec_130k_9.pt`
+- cloned upstream helper repository under `dog_voice_local/vendor/dog2vec`
+- local runtime config file at repo root: `dog2vec_runtime.json`
 - live waveform visualization during recording
 - microphone input selection with device enumeration
-- dog profile registration and selection
-- scene mode tagging and user feedback labeling
-- reverse text-to-dog-expression translator with breed / age / size / tension controls
-- bark-like WAV synthesizer and playback service
-- dashboard summaries and forward-record comparison view
-- barrel-exported domain model package with smaller model files by responsibility
-- unit tests, repository test, analytics test, local-process inference test, and widget test
+- theme preset selection
+- settings tab with profile add/edit/delete controls
+- history search, date display, compare toggle, and forward-record replay
+- parameter tooltips in forward result chips
+- candidate pie chart visualization
+- feedback radio-button input
+- Pomeranian breed support in the retained reverse domain implementation
 
 ## Notes
-- Forward translation is intentionally framed as interpretation, not literal translation.
-- Reverse mode is experimental and uses synthesized bark-like output rather than real dog recordings.
-- Dog2vec is integrated as an optional external runtime contract, not a bundled in-app model.
-- The local process bridge follows the `.idea` design direction: Dog2vec feature extraction and classifier heads may live outside Flutter.
+- Forward interpretation remains intentionally framed as interpretation, not literal translation.
+- Reverse mode remains experimental and is intentionally hidden from the visible UI.
+- Dog2vec runtime is integrated as an optional local-process enhancement, not as an in-app embedded model.
+- The current local runtime can execute in bootstrap heuristic mode or Dog2vec-enhanced embedding mode, but high-quality downstream learned classifier heads are still a future refinement area.
 
 ## Validation Summary
 - `flutter analyze`: passed
 - `flutter test`: passed
 - `flutter build windows`: passed
+- `python dog_voice_local/app/infer.py --input dog_voice_local/sample_test.wav`: passed with Dog2vec embedding extraction active

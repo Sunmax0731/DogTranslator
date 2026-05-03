@@ -1,4 +1,5 @@
 import 'package:dog_translator/domain/models.dart';
+import 'package:dog_translator/features/home/widgets/candidate_pie_chart.dart';
 import 'package:dog_translator/features/home/widgets/feature_chip.dart';
 import 'package:dog_translator/features/home/widgets/waveform_panel.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +15,6 @@ class ForwardTranslatorTab extends StatelessWidget {
     required this.waveformSamples,
     required this.inputDevices,
     required this.selectedInputDeviceId,
-    required this.selectedInferenceModel,
-    required this.activeInferenceModel,
-    required this.inferenceStatusMessage,
     required this.profiles,
     required this.selectedProfileId,
     required this.selectedSceneMode,
@@ -24,7 +22,6 @@ class ForwardTranslatorTab extends StatelessWidget {
     required this.onCreateProfilePressed,
     required this.onSceneModeChanged,
     required this.onInputDeviceSelected,
-    required this.onInferenceModelSelected,
     required this.onRefreshInputDevices,
     required this.onRecordPressed,
     required this.onFeedbackChanged,
@@ -40,9 +37,6 @@ class ForwardTranslatorTab extends StatelessWidget {
   final List<double> waveformSamples;
   final List<RecordingInputDevice> inputDevices;
   final String? selectedInputDeviceId;
-  final InferenceModelSelection selectedInferenceModel;
-  final InferenceModelSelection activeInferenceModel;
-  final String? inferenceStatusMessage;
   final List<DogProfile> profiles;
   final String? selectedProfileId;
   final SceneMode selectedSceneMode;
@@ -50,7 +44,6 @@ class ForwardTranslatorTab extends StatelessWidget {
   final VoidCallback onCreateProfilePressed;
   final ValueChanged<SceneMode?> onSceneModeChanged;
   final ValueChanged<String?> onInputDeviceSelected;
-  final ValueChanged<InferenceModelSelection?> onInferenceModelSelected;
   final VoidCallback onRefreshInputDevices;
   final VoidCallback onRecordPressed;
   final ValueChanged<UserFeedbackLabel?> onFeedbackChanged;
@@ -67,12 +60,7 @@ class ForwardTranslatorTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Forward Interpretation',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 12),
-                const Text('録音した犬の声から、感情・文脈・鳴き方の傾向を推定します。'),
+                const Text('犬の鳴き声を録音して、感情や意図を推定します。'),
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -80,7 +68,7 @@ class ForwardTranslatorTab extends StatelessWidget {
                       child: DropdownButtonFormField<String?>(
                         initialValue: selectedProfileId,
                         decoration: const InputDecoration(
-                          labelText: '犬プロフィール',
+                          labelText: 'プロフィール',
                           border: OutlineInputBorder(),
                         ),
                         items: [
@@ -170,32 +158,6 @@ class ForwardTranslatorTab extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<InferenceModelSelection>(
-                  initialValue: selectedInferenceModel,
-                  decoration: const InputDecoration(
-                    labelText: '推論モデル',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: InferenceModelSelection.values
-                      .map(
-                        (selection) =>
-                            DropdownMenuItem<InferenceModelSelection>(
-                              value: selection,
-                              child: Text(selection.labelJa),
-                            ),
-                      )
-                      .toList(growable: false),
-                  onChanged: busy || isRecording
-                      ? null
-                      : onInferenceModelSelected,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  inferenceStatusMessage ??
-                      '現在の有効モデル: ${activeInferenceModel.labelJa}',
-                  style: TextStyle(color: colorScheme.onSurfaceVariant),
-                ),
                 const SizedBox(height: 16),
                 WaveformPanel(
                   isRecording: isRecording,
@@ -248,61 +210,71 @@ class ForwardTranslatorTab extends StatelessWidget {
                           FeatureChip(
                             label: '確信度',
                             value: result!.confidence.labelJa,
+                            tooltip: '推論結果の安定度です。録音品質や候補差分を加味して表示します。',
                           ),
                           FeatureChip(
-                            label: '推論源',
+                            label: '推論方式',
                             value: result!.providerLabel,
+                            tooltip: 'どの推論経路で結果を出したかを示します。',
                           ),
                           FeatureChip(
                             label: '鳴き方',
                             value: result!.vocalType.labelJa,
+                            tooltip: '吠え声、鼻鳴き、うなり声など、声の種類の推定です。',
                           ),
                           FeatureChip(
                             label: '文脈',
                             value: result!.context.labelJa,
+                            tooltip: '来客、散歩前、遊びなど、起きていそうな状況の推定です。',
                           ),
                           FeatureChip(
                             label: '録音長',
                             value:
                                 '${result!.features.durationSeconds.toStringAsFixed(2)}s',
+                            tooltip: '解析した録音の長さです。',
                           ),
                           FeatureChip(
                             label: 'RMS',
                             value: result!.features.rms.toStringAsFixed(3),
+                            tooltip: '全体の平均的な音量です。',
                           ),
                           FeatureChip(
                             label: 'Peak',
                             value: result!.features.peak.toStringAsFixed(3),
+                            tooltip: '録音内で最も大きかった瞬間的な音量です。',
+                          ),
+                          FeatureChip(
+                            label: 'Pitch',
+                            value: result!.features.pitchHz.toStringAsFixed(0),
+                            tooltip: '主な声の高さの推定値です。',
                           ),
                           FeatureChip(
                             label: 'Arousal',
                             value: result!.arousal.toStringAsFixed(2),
+                            tooltip: '興奮度の推定です。高いほど勢いが強い傾向です。',
                           ),
                           FeatureChip(
                             label: 'Valence',
                             value: result!.valence.toStringAsFixed(2),
+                            tooltip: '快・不快寄りの推定です。正なら明るめ、負なら緊張寄りです。',
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       Text(
-                        '候補',
+                        '推論候補',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      const SizedBox(height: 8),
-                      ...result!.candidates.map(
-                        (candidate) => Text(
-                          '${candidate.intent.labelJa} - ${(candidate.score * 100).round()}%',
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
+                      CandidatePieChart(candidates: result!.candidates),
+                      const SizedBox(height: 20),
                       Text(
                         '録音品質ガイド',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 8),
                       if (result!.qualityIssues.isEmpty)
-                        const Text('大きな録音品質の問題は見つかりませんでした。')
+                        const Text('大きな録音品質上の問題は見つかりませんでした。')
                       else
                         ...result!.qualityIssues.map(
                           (issue) => Padding(
@@ -312,22 +284,30 @@ class ForwardTranslatorTab extends StatelessWidget {
                             ),
                           ),
                         ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<UserFeedbackLabel>(
-                        initialValue: latestRecord?.feedbackLabel,
-                        decoration: const InputDecoration(
-                          labelText: '推定の近さを記録',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: UserFeedbackLabel.values
-                            .map(
-                              (label) => DropdownMenuItem<UserFeedbackLabel>(
-                                value: label,
-                                child: Text(label.labelJa),
-                              ),
-                            )
-                            .toList(growable: false),
+                      const SizedBox(height: 20),
+                      Text(
+                        '推論の近さを記録',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      RadioGroup<UserFeedbackLabel>(
+                        groupValue: latestRecord?.feedbackLabel,
                         onChanged: onFeedbackChanged,
+                        child: Wrap(
+                          spacing: 16,
+                          runSpacing: 8,
+                          children: UserFeedbackLabel.values
+                              .map((label) {
+                                return Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Radio<UserFeedbackLabel>(value: label),
+                                    Text(label.labelJa),
+                                  ],
+                                );
+                              })
+                              .toList(growable: false),
+                        ),
                       ),
                     ],
                   ),

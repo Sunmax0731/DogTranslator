@@ -100,6 +100,16 @@ class DogBarkSynthesizer {
         noiseMix: 0.17,
         pauseSeconds: 0.07,
       ),
+      DogBreed.pomeranian => const _BarkProfile(
+        seed: 41,
+        sampleRate: 18000,
+        pitchScale: 1.28,
+        durationScale: 0.78,
+        amplitudeScale: 0.68,
+        toneMix: 0.7,
+        noiseMix: 0.3,
+        pauseSeconds: 0.045,
+      ),
       DogBreed.mixed => const _BarkProfile(
         seed: 73,
         sampleRate: 16000,

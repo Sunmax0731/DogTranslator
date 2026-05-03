@@ -29,10 +29,6 @@ class DashboardTab extends StatelessWidget {
               value: analyticsSummary.totalForward.toString(),
             ),
             FeatureChip(
-              label: 'Reverse 件数',
-              value: analyticsSummary.totalReverse.toString(),
-            ),
-            FeatureChip(
               label: 'フィードバック数',
               value: analyticsSummary.feedbackCount.toString(),
             ),
@@ -41,7 +37,7 @@ class DashboardTab extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _SummaryCard(
-          title: '感情傾向',
+          title: '感情推定',
           emptyText: 'まだ forward 解析結果がありません。',
           entries: analyticsSummary.intentCounts,
         ),
@@ -97,8 +93,7 @@ class DashboardTab extends StatelessWidget {
                       (record) => Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: Text(
-                          '${record.translation.intent.labelJa} / '
-                          '${record.sceneMode.labelJa} / ${record.timestampIso}',
+                          '${record.translation.intent.labelJa} / ${record.sceneMode.labelJa} / ${record.timestampIso}',
                         ),
                       ),
                     ),

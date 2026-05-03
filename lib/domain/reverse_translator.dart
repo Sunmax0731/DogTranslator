@@ -94,6 +94,7 @@ class ReverseTranslator {
       DogBreed.toyPoodle => '$base yap-yap!',
       DogBreed.goldenRetriever => 'bow-wow... $base',
       DogBreed.husky => '$base awooo!',
+      DogBreed.pomeranian => 'kyan! yap! $base',
       DogBreed.mixed => base,
     };
 

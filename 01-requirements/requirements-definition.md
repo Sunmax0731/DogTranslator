@@ -1,115 +1,105 @@
 # DogTranslator Requirements Definition
 
 ## 1. Product Vision
-DogTranslator is a Windows-first application that listens to dog vocalizations, estimates likely emotional intent, and presents that interpretation as user-readable text. The product also supports a reverse mode where human text is transformed into dog-like expressive output for playful interaction.
+DogTranslator is a Windows-first application that records dog vocalizations, estimates likely emotional intent, and presents that interpretation as readable text. The product is positioned as an `interpretation` and `emotion estimation` tool, not a scientifically validated literal translator.
 
-## 2. Positioning
-- Primary position: companion / entertainment plus behavioral hinting tool
-- Explicitly not: scientifically validated literal language translation
-- Recommended wording: `interpretation`, `emotion estimation`, `intent hint`
+## 2. Current Product Direction
+- Primary experience: dog voice -> human-readable interpretation
+- Reverse mode status: implementation retained internally, but hidden from the main UI until quality improves
+- Model direction: heuristic inference remains the safe fallback, while Dog2vec-backed local runtime is added as an optional higher-fidelity path
 
 ## 3. Target Users
-- Dog owners who want a playful interpretation of their dog's vocal state
-- Families and children who want an interactive pet communication experience
-- Early testers interested in audio AI and animal-interaction experiments
+- Dog owners who want a practical and playful interpretation tool
+- Early testers interested in local audio AI
+- Users who want to keep histories, compare sessions, and refine interpretation per individual dog
 
-## 4. User Scenarios
-1. A user records a short bark and receives an on-screen interpretation such as `遊びたい` or `警戒している`.
-2. A user records repeated whining and receives a calmer interpretation such as `さみしい / 甘えたい` or `ねむたい`.
-3. A user types a short human message and asks the app to render a dog-style expressive response.
-4. A user reviews recent translations to compare multiple recordings.
-5. A user registers an individual dog profile and wants the app to remember that dog's breed, age, and size.
-6. A user wants to keep improving the app by labeling whether the estimated emotion matched the real-world situation.
+## 4. Priority User Scenarios
+1. A user records a bark and gets a Japanese emotional interpretation such as `遊びたい`, `さみしい`, or `警戒している`.
+2. A user wants to hover each result parameter and understand what it means.
+3. A user wants to manage dog profiles and shared app settings from one dedicated settings surface.
+4. A user wants to search past sessions, confirm when they were recorded, and replay a saved recording.
+5. A user wants the app to remember an individual dog's vocal tendency and use that as a personalization signal.
+6. A user wants to try Dog2vec local inference when the runtime is available, but still use the app safely when it is not.
 
-## 5. Scope After Dog2vec Reconsideration
+## 5. Scope After Forward-Only UI Refresh
 ### In Scope
 - Windows desktop application
 - Microphone audio capture
-- Short-session audio recording and stop control
-- Staged forward inference:
-  - dog-vocal detection
-  - vocal type estimation
-  - emotion / intent estimation
-  - context hint estimation
-  - valence / arousal hint estimation
-- Display of translated / estimated text on screen
-- Experimental reverse mode: human text to dog-style expression output
-- Session history with local persistence
-- Japanese emotional interpretation labels for forward mode
-- Microphone device selection
+- Manual start / stop recording
+- Forward interpretation only in the visible UI
+- Session history with local persistence, search, date display, and replay
+- Tooltips for displayed interpretation parameters
 - Live recording waveform
-- Multiple emotion candidates for forward interpretation
-- Recording quality guidance
-- Dog profile registration and selection
-- Scene-mode tagging
-- Reverse mode controls for breed, age stage, size, and tension
-- Analytics dashboard from local history
-- User feedback labeling for saved results
-- Async inference provider abstraction for future model replacement
-- Optional local process integration for Dog2vec-style inference
-- Responsive layout preparation for later mobile reuse
+- Microphone device selection
+- Dog profile registration, editing, deletion, and selection
+- Shared settings tab
+- Theme preset selection
+- Dog-specific calibration samples from recorded forward sessions
+- Candidate probability pie chart
+- Feedback input via radio buttons
+- Optional Dog2vec local runtime with external Python process
+- Pomeranian breed support
 
 ### Out of Scope
 - Scientifically validated dog-language translation
-- Veterinary diagnosis or behavioral treatment advice
-- Mandatory cloud-hosted model service
-- Multi-user sync
-- Android and iPhone shipping in the current phase
-- Bundling full Dog2vec weights directly inside the Flutter desktop app
-- Learned breed-specific voice synthesis from recorded datasets
+- Public cloud inference as a requirement
+- Mobile shipping in the current phase
+- Reverse mode as a user-facing release feature in the current UI
+- Learned per-breed bark synthesis with validated datasets
 
 ## 6. Functional Requirements
 1. The app must allow the user to start and stop microphone recording.
-2. The app must analyze the latest recorded audio and produce an interpretation label, explanation, confidence, and candidate list.
-3. The app must provide forward-side structure for:
+2. The app must analyze the latest recorded audio and produce:
+   - a primary interpretation
+   - ranked candidates
+   - confidence wording
    - vocal type
    - context hint
    - valence / arousal hints
    - provider label
-4. The app must show confidence as qualitative text, not false precision.
-5. The app must provide recording quality guidance such as short input, noisy input, or weak signal.
-6. The app must allow the user to enter Japanese or English text in reverse mode.
-7. The reverse mode must produce a dog-style expressive output that can be played back.
-8. The reverse mode must let the user choose breed, age stage, size, and tension preset.
-9. The app must preserve interaction history across sessions.
-10. The app must allow the user to store and switch dog profiles.
-11. The app must allow the user to assign a manual feedback label to saved forward results.
-12. The app must show dashboard summaries derived from saved history.
-13. The app should allow the user to choose the microphone input device on Windows.
-14. The app should show a simple live waveform or level trace while recording.
-15. The inference path should support raw-audio-aware external providers without rewriting the UI.
-16. The app must remain usable when a configured local model runtime is missing or fails.
+3. The app must show explanatory tooltips for displayed interpretation parameters.
+4. The app must show a live waveform while recording.
+5. The app must allow microphone device selection on Windows.
+6. The app must persist profiles, forward history, settings, and feedback locally.
+7. The app must offer a settings tab for:
+   - theme selection
+   - inference model selection
+   - profile management
+8. The app must still allow profile creation from the existing recording-side flow.
+9. The app must allow replaying a saved forward recording from history.
+10. The app must allow searching saved forward sessions.
+11. The app must show session timestamps with date and time.
+12. The app must allow attaching a recorded forward sample to a selected dog profile as a calibration hint.
+13. The app must hide the reverse interpretation feature from the visible UI while keeping its implementation in the codebase.
+14. The app must support an optional Dog2vec local runtime and fall back gracefully when it is unavailable or fails.
 
 ## 7. Non-Functional Requirements
-- Responsiveness: result display should appear within a few seconds after recording stops.
-- Privacy: audio and history remain local in this phase.
-- Portability: core logic should be reusable in later mobile ports.
-- Usability: the first-time user should understand how to record and switch dogs quickly.
-- Resilience: microphone absence or permission issues should be surfaced clearly.
-- Deployment realism: large research weights such as Dog2vec must remain optional external assets in this phase.
+- Responsiveness: forward results should appear within a few seconds after recording stops.
+- Privacy: recordings, profiles, and histories stay local in this phase.
+- Resilience: missing microphone, missing runtime, or replay failure should not crash the app.
+- Maintainability: hidden reverse functionality should remain isolated enough to be restored later.
+- Portability: inference runtime must stay behind a boundary that can later be replaced for mobile.
+- UX quality: the Windows UI should follow a calmer, WinUI3-aligned information hierarchy rather than a hero-centric marketing layout.
 
 ## 8. Risks and Assumptions
 ### Risks
-- There is no reliable general-purpose dataset for literal dog-language translation.
-- Acoustic heuristics may misclassify noisy environments.
-- Dog2vec or similar local runtimes may require large files and Python dependencies.
-- Windows audio-device behavior can differ across machines.
-- User-labeled feedback may be subjective and noisy.
+- Dog2vec runtime requires a large model file and Python dependencies.
+- Downstream classifier quality still depends on heuristics or separately trained heads.
+- User-provided calibration samples may be sparse or noisy.
+- Windows audio-device behavior can still vary by hardware.
 
 ### Assumptions
-- This phase remains an `emotion estimation` product, not literal translation.
-- Dog2vec should be treated as a feature extractor plus classifier stack, not a direct text generator.
-- Local heuristic analysis remains the fallback when the model runtime is unavailable.
-- Reverse mode can remain explicitly labeled as experimental.
-- Breed, age, and tension presets can be heuristic rather than data-driven in this phase.
+- The core product remains an interpretation tool.
+- Dog-specific calibration is a personalization hint, not full supervised retraining.
+- Reverse mode should remain hidden until fidelity improves enough for public use.
+- Dog2vec integration in this phase is local-process based, not embedded directly into Flutter.
 
 ## 9. Acceptance Criteria
-- A Windows user can record audio through a microphone.
-- The app returns an interpretation text with confidence wording and candidate alternatives.
-- The app can surface vocal type, context hint, valence, and arousal style hints in the forward result.
-- The app handles empty or invalid recordings gracefully and gives quality guidance.
-- The app persists history, profiles, and feedback labels locally.
-- The app offers a visible reverse-mode workflow for text input plus breed / age / size / tension controls.
-- The app shows dashboard summaries from saved interactions.
-- The app keeps the inference path separate from UI concerns.
-- The app builds and runs even if no Dog2vec runtime config is present.
+- A Windows user can record audio and receive a forward interpretation.
+- The visible UI contains Forward, Dashboard, and Settings flows only.
+- The user can inspect parameter meanings via tooltips.
+- The user can search and replay saved forward sessions from history.
+- The user can manage profiles from Settings and still add them from the recording flow.
+- The user can choose a theme preset and inference model in Settings.
+- The user can add a calibration sample from a saved forward recording to a profile.
+- The app works with or without Dog2vec local runtime configuration.

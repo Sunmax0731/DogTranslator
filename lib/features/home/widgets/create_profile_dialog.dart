@@ -1,19 +1,62 @@
 import 'package:dog_translator/domain/models.dart';
 import 'package:flutter/material.dart';
 
-class CreateProfileDialog extends StatefulWidget {
-  const CreateProfileDialog({super.key});
+class CreateProfileDialog extends StatelessWidget {
+  const CreateProfileDialog({super.key})
+    : initialProfile = null,
+      title = 'プロフィール追加',
+      confirmLabel = '追加';
+
+  const CreateProfileDialog.edit({required this.initialProfile, super.key})
+    : title = 'プロフィール編集',
+      confirmLabel = '保存';
+
+  final DogProfile? initialProfile;
+  final String title;
+  final String confirmLabel;
 
   @override
-  State<CreateProfileDialog> createState() => _CreateProfileDialogState();
+  Widget build(BuildContext context) {
+    return _ProfileEditorDialog(
+      initialProfile: initialProfile,
+      title: title,
+      confirmLabel: confirmLabel,
+    );
+  }
 }
 
-class _CreateProfileDialogState extends State<CreateProfileDialog> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _notesController = TextEditingController();
-  DogBreed _breed = DogBreed.mixed;
-  DogAgeStage _ageStage = DogAgeStage.adult;
-  DogSizeClass _sizeClass = DogSizeClass.medium;
+class _ProfileEditorDialog extends StatefulWidget {
+  const _ProfileEditorDialog({
+    required this.initialProfile,
+    required this.title,
+    required this.confirmLabel,
+  });
+
+  final DogProfile? initialProfile;
+  final String title;
+  final String confirmLabel;
+
+  @override
+  State<_ProfileEditorDialog> createState() => _ProfileEditorDialogState();
+}
+
+class _ProfileEditorDialogState extends State<_ProfileEditorDialog> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _notesController;
+  late DogBreed _breed;
+  late DogAgeStage _ageStage;
+  late DogSizeClass _sizeClass;
+
+  @override
+  void initState() {
+    super.initState();
+    final profile = widget.initialProfile;
+    _nameController = TextEditingController(text: profile?.name ?? '');
+    _notesController = TextEditingController(text: profile?.notes ?? '');
+    _breed = profile?.breed ?? DogBreed.mixed;
+    _ageStage = profile?.ageStage ?? DogAgeStage.adult;
+    _sizeClass = profile?.sizeClass ?? DogSizeClass.medium;
+  }
 
   @override
   void dispose() {
@@ -25,7 +68,7 @@ class _CreateProfileDialogState extends State<CreateProfileDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('プロフィール追加'),
+      title: Text(widget.title),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -58,7 +101,7 @@ class _CreateProfileDialogState extends State<CreateProfileDialog> {
             const SizedBox(height: 12),
             DropdownButtonFormField<DogAgeStage>(
               initialValue: _ageStage,
-              decoration: const InputDecoration(labelText: '年齢感'),
+              decoration: const InputDecoration(labelText: '年齢帯'),
               items: DogAgeStage.values
                   .map(
                     (value) => DropdownMenuItem<DogAgeStage>(
@@ -117,19 +160,24 @@ class _CreateProfileDialogState extends State<CreateProfileDialog> {
             if (name.isEmpty) {
               return;
             }
+            final current = widget.initialProfile;
             Navigator.of(context).pop(
               DogProfile(
-                id: 'profile-${DateTime.now().microsecondsSinceEpoch}',
+                id:
+                    current?.id ??
+                    'profile-${DateTime.now().microsecondsSinceEpoch}',
                 name: name,
                 breed: _breed,
                 ageStage: _ageStage,
                 sizeClass: _sizeClass,
                 notes: _notesController.text.trim(),
-                createdAtIso: DateTime.now().toIso8601String(),
+                createdAtIso:
+                    current?.createdAtIso ?? DateTime.now().toIso8601String(),
+                voiceCalibration: current?.voiceCalibration,
               ),
             );
           },
-          child: const Text('保存'),
+          child: Text(widget.confirmLabel),
         ),
       ],
     );

@@ -13,6 +13,10 @@
 - [x] Define Dog2vec local-process integration architecture and fallback strategy
 - [x] Define feature-extraction and score-calibration refinements for accuracy improvements
 - [x] Define requested-vs-active inference model selection and fallback behavior
+- [x] Redesign the visible UI around a WinUI3-style forward-focused workspace
+- [x] Define hidden-feature preservation strategy for reverse mode
+- [x] Define settings-tab ownership and history replay/search behavior
+- [x] Define profile-calibration personalization approach
 
 ## Follow-up Candidates
 - [ ] Plugin architecture for future ML model providers

@@ -43,3 +43,10 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Local Dog2vec runtime assets
+/dog_voice_local/models/
+/dog_voice_local/vendor/
+/dog_voice_local/__pycache__/
+/dog_voice_local/stderr_check.txt
+/dog_voice_local/stdout_check.txt

@@ -17,6 +17,9 @@
 - [x] Add automated tests for local process inference mapping
 - [x] Extend tests for richer audio features and recalibrated inference outputs
 - [x] Add automated tests for inference model selection and runtime fallback
+- [x] Update regression scope for forward-only visible navigation
+- [x] Add manual checks for tooltips, settings, history replay, and theme switching
+- [x] Validate Dog2vec local runtime entrypoint with downloaded model assets
 
 ## Follow-up Candidates
 - [ ] Real microphone regression pack with curated sample audio

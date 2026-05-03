@@ -46,7 +46,7 @@ class InferenceProviderFactory {
             : InferenceModelSelection.heuristic,
         localRuntimeAvailable:
             selection == InferenceModelSelection.dog2vecLocal,
-        statusMessage: '固定推論プロバイダを使用中です。',
+        statusMessage: '固定の推論プロバイダーを使用中です。',
       );
     }
 
@@ -71,7 +71,7 @@ class InferenceProviderFactory {
             activeModel: InferenceModelSelection.heuristic,
             localRuntimeAvailable: false,
             statusMessage:
-                'Dog2vec ローカル runtime が見つからないため、標準ヒューリスティック推論を使用します。',
+                'Dog2vec ローカル runtime が見つからないため、標準ヒューリスティック推論へフォールバックします。',
           );
         }
         return InferenceProviderResolution(
@@ -83,7 +83,7 @@ class InferenceProviderFactory {
           activeModel: InferenceModelSelection.dog2vecLocal,
           localRuntimeAvailable: true,
           statusMessage:
-              'Dog2vec ローカル runtime を優先し、失敗時は標準ヒューリスティックへフォールバックします。',
+              'Dog2vec ローカル runtime を使用します。失敗時は標準ヒューリスティックへフォールバックします。',
         );
       case InferenceModelSelection.auto:
         if (config == null) {
@@ -92,7 +92,7 @@ class InferenceProviderFactory {
             requestedModel: InferenceModelSelection.auto,
             activeModel: InferenceModelSelection.heuristic,
             localRuntimeAvailable: false,
-            statusMessage: 'Dog2vec ローカル runtime が未設定のため、標準ヒューリスティック推論を使用します。',
+            statusMessage: 'Dog2vec ローカル runtime は未設定のため、標準ヒューリスティック推論を使用します。',
           );
         }
         return InferenceProviderResolution(
@@ -103,7 +103,7 @@ class InferenceProviderFactory {
           requestedModel: InferenceModelSelection.auto,
           activeModel: InferenceModelSelection.dog2vecLocal,
           localRuntimeAvailable: localAvailable,
-          statusMessage: 'Dog2vec ローカル runtime を検出したため、自動的にそれを優先します。',
+          statusMessage: 'Dog2vec ローカル runtime を検出したため、自動でそれを使用します。',
         );
     }
   }
