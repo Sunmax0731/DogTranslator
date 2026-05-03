@@ -32,6 +32,13 @@ void main() {
         TranslationCandidate(intent: DogIntent.attentionSeeking, score: 0.6),
       ],
       qualityIssues: <RecordingQualityIssue>[],
+      detectedDogVocal: true,
+      vocalType: DogVocalType.bark,
+      context: DogContext.play,
+      valence: 0.25,
+      arousal: 0.64,
+      rawConfidence: 0.6,
+      providerLabel: 'heuristic-pipeline',
     );
 
     final summary = const AnalyticsService().summarize(

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dog_translator/app/dog_translator_app.dart';
+import 'package:dog_translator/domain/inference_provider.dart';
 import 'package:dog_translator/domain/models.dart';
 import 'package:dog_translator/services/app_repository.dart';
 import 'package:dog_translator/services/bark_playback_service.dart';
@@ -19,6 +20,7 @@ void main() {
         recordingService: _FakeRecordingService(),
         playbackService: playbackService,
         repository: _InMemoryAppRepository(),
+        inferenceProvider: _FakeInferenceProvider(),
         initialTabIndex: 1,
       ),
     );
@@ -98,4 +100,30 @@ class _InMemoryAppRepository implements AppRepository {
   @override
   Future<String?> saveRecording(Uint8List wavBytes, String recordId) async =>
       'memory://$recordId.wav';
+}
+
+class _FakeInferenceProvider implements InferenceProvider {
+  @override
+  Future<TranslationResult> analyze(
+    AudioFeatures features, {
+    DogProfile? profile,
+    SceneMode sceneMode = SceneMode.home,
+    Uint8List? wavBytes,
+  }) async {
+    return TranslationResult(
+      intent: DogIntent.uncertain,
+      explanation: 'test',
+      confidence: ConfidenceLevel.low,
+      features: features,
+      candidates: const <TranslationCandidate>[],
+      qualityIssues: const <RecordingQualityIssue>[],
+      detectedDogVocal: false,
+      vocalType: DogVocalType.unknown,
+      context: DogContext.unknown,
+      valence: 0,
+      arousal: 0,
+      rawConfidence: 0.1,
+      providerLabel: 'fake',
+    );
+  }
 }

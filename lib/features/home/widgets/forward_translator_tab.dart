@@ -64,7 +64,7 @@ class ForwardTranslatorTab extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
-                const Text('録音した犬の声から、感情や意図の傾向を日本語で推定します。'),
+                const Text('録音した犬の声から、感情・文脈・鳴き方の傾向を推定します。'),
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -216,6 +216,18 @@ class ForwardTranslatorTab extends StatelessWidget {
                             value: result!.confidence.labelJa,
                           ),
                           FeatureChip(
+                            label: '推論源',
+                            value: result!.providerLabel,
+                          ),
+                          FeatureChip(
+                            label: '鳴き方',
+                            value: result!.vocalType.labelJa,
+                          ),
+                          FeatureChip(
+                            label: '文脈',
+                            value: result!.context.labelJa,
+                          ),
+                          FeatureChip(
                             label: '録音長',
                             value:
                                 '${result!.features.durationSeconds.toStringAsFixed(2)}s',
@@ -229,13 +241,12 @@ class ForwardTranslatorTab extends StatelessWidget {
                             value: result!.features.peak.toStringAsFixed(3),
                           ),
                           FeatureChip(
-                            label: 'Burst',
-                            value: result!.features.burstCount.toString(),
+                            label: 'Arousal',
+                            value: result!.arousal.toStringAsFixed(2),
                           ),
                           FeatureChip(
-                            label: 'Spectral',
-                            value: result!.features.spectralCentroid
-                                .toStringAsFixed(0),
+                            label: 'Valence',
+                            value: result!.valence.toStringAsFixed(2),
                           ),
                         ],
                       ),

@@ -21,123 +21,109 @@
 ### Presentation Controller
 - `HomeController` owns screen state, async flows, and persistence triggers.
 - Widgets read state and invoke callbacks only.
-- Reason:
-  - keeps side effects out of widget build methods
-  - makes the page easier to test and refactor
-  - allows future split into additional controllers per tab
 
 ### Widget Composition
-- The former monolithic home page is split into:
+- The home page is split into:
   - `ForwardTranslatorTab`
   - `ReverseTranslatorTab`
   - `DashboardTab`
   - `HistoryPanel`
   - `WaveformPanel`
   - `CreateProfileDialog`
-- Reason:
-  - each file maps to one visible responsibility
-  - UI changes stay localized
-  - long build methods are avoided
 
 ### Barrel Export for Domain Models
-- `lib/domain/models.dart` now exports smaller files under `lib/domain/models/`.
-- Model responsibilities are separated into:
-  - enums and labels
-  - audio features
-  - translation models
-  - profile models
-  - history models
-  - app state models
-  - analytics summary
-- Reason:
-  - keeps import surface stable
-  - reduces single-file growth
-  - makes future domain expansion manageable
+- `lib/domain/models.dart` exports smaller files under `lib/domain/models/`.
 
 ## 4. Layered Architecture
 - Presentation layer:
   - Flutter pages and widgets
-  - view-only rendering logic
 - Application layer:
   - `HomeController`
-  - orchestration of recording, inference, persistence, playback
 - Domain layer:
-  - audio feature extraction
-  - inference provider
+  - feature extraction
+  - inference provider contract
+  - heuristic forward interpreter
   - reverse translator
   - analytics summarizer
-  - domain models
-- Platform adapter layer:
+- Service / adapter layer:
   - recording service
-  - local file persistence
-  - Windows playback integration
+  - persistence repository
+  - playback service
+  - local process inference bridge
 
-## 5. State Ownership
+## 5. Dog2vec Integration Options
+### Option A: direct Dog2vec runtime inside Flutter app
+- Pros: one process
+- Cons: heavy dependency footprint, difficult Windows packaging, poor mobile path
+
+### Option B: local Python / model process bridge
+- Pros: pragmatic for Windows, keeps Flutter app light, allows external model updates
+- Cons: requires external runtime setup
+
+### Option C: cloud inference service
+- Pros: easiest client
+- Cons: privacy, cost, offline loss
+
+### Chosen Option
+- Option B
+
+## 6. Inference Architecture
+- `InferenceProvider` is async and supports raw audio bytes.
+- Default path:
+  - `DogIntentInterpreter`
+- Optional enriched path:
+  - `LocalProcessInferenceProvider`
+- Resilience wrapper:
+  - `ResilientInferenceProvider`
+- Startup selection:
+  - `InferenceProviderFactory`
+
+## 7. Forward Pipeline Shape
+1. Record WAV
+2. Extract lightweight features
+3. Run dog-vocal gate
+4. Run provider
+5. Produce:
+   - intent
+   - vocal type
+   - context
+   - valence
+   - arousal
+   - confidence
+   - explanation
+
+## 8. Local Runtime Boundary
+- Flutter app does not own Dog2vec weights by default.
+- External local runtime may own:
+  - Dog2vec feature extraction
+  - downstream classifier heads
+  - JSON response generation
+- Flutter maps JSON into internal `TranslationResult`.
+
+## 9. Config Strategy
+- The app looks for an optional `dog2vec_runtime.json`.
+- If absent, it stays on heuristic inference.
+- If present and valid, it launches the configured local command.
+
+## 10. State Ownership
 - `HomeController` owns:
   - active profile
   - active scene mode
   - selected microphone
   - reverse preset selections
   - waveform buffer
-  - current forward/reverse results
+  - current forward / reverse results
   - saved history
   - dashboard comparison selection
-- Widgets do not mutate shared state directly.
 
-## 6. Persistence Strategy
+## 11. Persistence Strategy
 - Store app state in local JSON under app-support directory.
 - Persist:
   - profiles
-  - saved forward entries
-  - saved reverse entries
+  - forward entries
+  - reverse entries
   - selected settings
-- Keep repository interface small so later DB migration is possible.
-
-## 7. Inference Strategy
-### Option A: heuristic interpreter only
-- Pros: simple, current implementation
-- Cons: hard to swap later
-
-### Option B: provider interface with heuristic provider now
-- Pros: future-ready, low risk
-- Cons: slightly more plumbing now
-
-### Chosen Option
-- Option B
-
-## 8. UI Structure
-- Main tab set:
-  - Forward
-  - Reverse
-  - Dashboard
-- Shared right-side panel on wide screens:
-  - saved history
-  - compare quick actions
-- Narrow screens keep vertical stacking for mobile readiness.
-
-## 9. Comparison Design
-- User can mark up to 2 saved forward entries for comparison.
-- Compare card shows:
-  - timestamp
-  - primary label
-  - confidence
-  - scene
-  - feature chips
-  - candidate list
-
-## 10. Dashboard Design
-- Summary chips
-- Count lists by emotion and scene
-- Feedback summary
-- Recent activity list
-
-## 11. Reverse Preset Design
-- Breed drives base bark profile
-- Age stage alters pitch and duration bias
-- Size alters amplitude and low / high emphasis
-- Tension alters pacing and burst density
 
 ## 12. Mobile Readiness
-- Avoid fixed desktop-only widths in primary flows
-- Keep cards and forms stackable
-- Avoid coupling side panel content to desktop-only interaction
+- Keep inference behind a contract so local process can later be replaced by ONNX / Sentis / TFLite compatible execution.
+- Avoid desktop-only coupling in UI state flow.

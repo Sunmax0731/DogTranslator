@@ -10,6 +10,7 @@
 - [x] Define error handling and confidence presentation
 - [x] Define acceptance-oriented scenarios
 - [x] Define pre-release expansion behavior for waveform, microphone selection, and richer labels
+- [x] Define staged forward inference behavior and local model JSON contract
 
 ## Follow-up Candidates
 - [ ] Replace heuristic thresholds with learned model interface

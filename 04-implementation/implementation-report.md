@@ -9,6 +9,8 @@ This document tracks the Windows MVP+ implementation status.
 - local persistence repository
 - WAV analysis
 - heuristic inference provider
+- local process inference provider
+- resilient inference fallback wrapper
 - reverse expression generation
 - live waveform rendering
 - microphone device selection
@@ -26,7 +28,15 @@ This document tracks the Windows MVP+ implementation status.
 - `record`-based microphone recording service for WAV capture
 - JSON-backed local repository for profiles, history, and settings
 - pure Dart WAV feature extraction with extended metrics
-- inference-provider boundary plus heuristic implementation
+- async inference-provider boundary with raw-audio support
+- staged heuristic forward inference for:
+  - dog-vocal detection
+  - vocal type estimation
+  - emotion / intent estimation
+  - context hint estimation
+  - valence / arousal hint estimation
+- optional local process inference provider with JSON mapping
+- resilient fallback from local inference to heuristic inference
 - richer Japanese emotion labels and ranked forward candidates
 - recording-quality guidance
 - live waveform visualization during recording
@@ -37,14 +47,13 @@ This document tracks the Windows MVP+ implementation status.
 - bark-like WAV synthesizer and playback service
 - dashboard summaries and forward-record comparison view
 - barrel-exported domain model package with smaller model files by responsibility
-- unit tests, repository test, analytics test, and widget test
+- unit tests, repository test, analytics test, local-process inference test, and widget test
 
 ## Notes
 - Forward translation is intentionally framed as interpretation, not literal translation.
 - Reverse mode is experimental and uses synthesized bark-like output rather than real dog recordings.
-- Breed, age, size, and tension presets remain heuristic and are not based on learned dog-voice datasets.
-- The inference boundary is now explicit, so a later local or cloud model can replace the current heuristic provider without a UI rewrite.
-- The home screen no longer mixes rendering, orchestration, and persistence in one file; UI files are now focused on a single panel or tab each.
+- Dog2vec is integrated as an optional external runtime contract, not a bundled in-app model.
+- The local process bridge follows the `.idea` design direction: Dog2vec feature extraction and classifier heads may live outside Flutter.
 
 ## Validation Summary
 - `flutter analyze`: passed

@@ -24,6 +24,9 @@
 - [x] Add pluggable inference provider boundary
 - [x] Refactor home screen to presentation controller + widget composition
 - [x] Split domain models into smaller files behind a barrel export
+- [x] Add async inference provider contract for external local model execution
+- [x] Add local process inference provider with JSON mapping and fallback
+- [x] Extend forward results with vocal type, context, valence, and arousal
 
 ## Follow-up Candidates
 - [ ] Add local model provider implementation behind the inference interface

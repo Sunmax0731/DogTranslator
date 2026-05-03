@@ -30,6 +30,8 @@
 - [x] Expand pre-release scope with waveform, mic selection, and richer Japanese emotion labels
 - [x] Add breed-aware reverse mode controls and synthesis presets
 - [x] Implement MVP+ persistence, profiles, dashboard, ranked candidates, and inference abstraction
+- [x] Rework forward inference for Dog2vec-ready staged interpretation
+- [x] Add local process inference bridge and resilient fallback path
 - [ ] Prepare release package plan
 
 ## Branch Policy

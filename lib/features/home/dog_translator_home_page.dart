@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dog_translator/domain/inference_provider.dart';
 import 'package:dog_translator/features/home/home_controller.dart';
 import 'package:dog_translator/features/home/widgets/dashboard_tab.dart';
 import 'package:dog_translator/features/home/widgets/forward_translator_tab.dart';
@@ -15,6 +16,7 @@ class DogTranslatorHomePage extends StatefulWidget {
     required this.recordingService,
     required this.playbackService,
     required this.repository,
+    required this.inferenceProvider,
     this.initialTabIndex = 0,
     super.key,
   });
@@ -22,6 +24,7 @@ class DogTranslatorHomePage extends StatefulWidget {
   final RecordingService recordingService;
   final BarkPlaybackService playbackService;
   final AppRepository repository;
+  final InferenceProvider inferenceProvider;
   final int initialTabIndex;
 
   @override
@@ -38,6 +41,7 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
       recordingService: widget.recordingService,
       playbackService: widget.playbackService,
       repository: widget.repository,
+      inferenceProvider: widget.inferenceProvider,
     );
     unawaited(_controller.initialize());
   }

@@ -14,6 +14,7 @@
 - [x] Add persistence, dashboard, and comparison automated tests
 - [x] Add reverse preset variation tests
 - [x] Add manual regression checklist for profiles and feedback labeling
+- [x] Add automated tests for local process inference mapping
 
 ## Follow-up Candidates
 - [ ] Real microphone regression pack with curated sample audio

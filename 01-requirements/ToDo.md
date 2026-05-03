@@ -10,6 +10,7 @@
 - [x] Define non-functional requirements and risks
 - [x] Define explicit out-of-scope items for the first release
 - [x] Define pre-release expansion scope split for requested features
+- [x] Define Dog2vec-ready local inference requirements and constraints
 
 ## Follow-up Candidates
 - [ ] Interview-based refinement with real dog owners

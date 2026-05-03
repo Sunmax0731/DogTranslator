@@ -29,6 +29,13 @@ class TranslationResult {
     required this.features,
     required this.candidates,
     required this.qualityIssues,
+    required this.detectedDogVocal,
+    required this.vocalType,
+    required this.context,
+    required this.valence,
+    required this.arousal,
+    required this.rawConfidence,
+    required this.providerLabel,
   });
 
   final DogIntent intent;
@@ -37,6 +44,13 @@ class TranslationResult {
   final AudioFeatures features;
   final List<TranslationCandidate> candidates;
   final List<RecordingQualityIssue> qualityIssues;
+  final bool detectedDogVocal;
+  final DogVocalType vocalType;
+  final DogContext context;
+  final double valence;
+  final double arousal;
+  final double rawConfidence;
+  final String providerLabel;
 
   Map<String, dynamic> toJson() {
     return {
@@ -46,6 +60,13 @@ class TranslationResult {
       'features': features.toJson(),
       'candidates': candidates.map((candidate) => candidate.toJson()).toList(),
       'qualityIssues': qualityIssues.map((issue) => issue.name).toList(),
+      'detectedDogVocal': detectedDogVocal,
+      'vocalType': vocalType.name,
+      'context': context.name,
+      'valence': valence,
+      'arousal': arousal,
+      'rawConfidence': rawConfidence,
+      'providerLabel': providerLabel,
     };
   }
 
@@ -70,6 +91,13 @@ class TranslationResult {
       qualityIssues: qualityJson
           .map((value) => RecordingQualityIssueText.fromKey(value as String?))
           .toList(growable: false),
+      detectedDogVocal: json['detectedDogVocal'] as bool? ?? true,
+      vocalType: DogVocalTypeText.fromKey(json['vocalType'] as String?),
+      context: DogContextText.fromKey(json['context'] as String?),
+      valence: (json['valence'] as num?)?.toDouble() ?? 0,
+      arousal: (json['arousal'] as num?)?.toDouble() ?? 0,
+      rawConfidence: (json['rawConfidence'] as num?)?.toDouble() ?? 0,
+      providerLabel: json['providerLabel'] as String? ?? 'heuristic',
     );
   }
 }

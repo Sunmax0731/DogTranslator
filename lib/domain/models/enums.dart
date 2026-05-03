@@ -89,6 +89,82 @@ extension DogIntentText on DogIntent {
   }
 }
 
+enum DogVocalType { bark, growl, whine, howl, yelp, pant, mixed, unknown }
+
+extension DogVocalTypeText on DogVocalType {
+  String get labelJa {
+    switch (this) {
+      case DogVocalType.bark:
+        return '吠え';
+      case DogVocalType.growl:
+        return 'うなり';
+      case DogVocalType.whine:
+        return 'クーン系';
+      case DogVocalType.howl:
+        return '遠吠え';
+      case DogVocalType.yelp:
+        return '高い短鳴き';
+      case DogVocalType.pant:
+        return 'パンティング';
+      case DogVocalType.mixed:
+        return '混合';
+      case DogVocalType.unknown:
+        return '不明';
+    }
+  }
+
+  static DogVocalType fromKey(String? key) {
+    return DogVocalType.values.firstWhere(
+      (value) => value.name == key,
+      orElse: () => DogVocalType.unknown,
+    );
+  }
+}
+
+enum DogContext {
+  strangerOrNoise,
+  ownerReturn,
+  foodOrAttention,
+  walkAnticipation,
+  play,
+  alone,
+  otherDog,
+  conflict,
+  unknown,
+}
+
+extension DogContextText on DogContext {
+  String get labelJa {
+    switch (this) {
+      case DogContext.strangerOrNoise:
+        return '来客 / 物音';
+      case DogContext.ownerReturn:
+        return '飼い主の帰宅';
+      case DogContext.foodOrAttention:
+        return '食事 / 注目要求';
+      case DogContext.walkAnticipation:
+        return '散歩期待';
+      case DogContext.play:
+        return '遊び';
+      case DogContext.alone:
+        return 'ひとり / 留守番';
+      case DogContext.otherDog:
+        return '他の犬への反応';
+      case DogContext.conflict:
+        return '緊張 / 競合';
+      case DogContext.unknown:
+        return '不明';
+    }
+  }
+
+  static DogContext fromKey(String? key) {
+    return DogContext.values.firstWhere(
+      (value) => value.name == key,
+      orElse: () => DogContext.unknown,
+    );
+  }
+}
+
 enum RecordingQualityIssue { tooShort, lowVolume, peakyInput, unstableNoise }
 
 extension RecordingQualityIssueText on RecordingQualityIssue {

@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   const interpreter = DogIntentInterpreter();
 
-  test('maps sharp loud bark to warning alert', () {
-    final result = interpreter.analyze(
+  test('maps sharp loud bark to warning alert', () async {
+    final result = await interpreter.analyze(
       const AudioFeatures(
         durationSeconds: 0.45,
         rms: 0.31,
@@ -22,10 +22,12 @@ void main() {
 
     expect(result.intent, DogIntent.warningAlert);
     expect(result.confidence, isNot(ConfidenceLevel.low));
+    expect(result.vocalType, isNot(DogVocalType.unknown));
+    expect(result.context, DogContext.strangerOrNoise);
   });
 
-  test('maps long soft audio to a calm low-energy candidate set', () {
-    final result = interpreter.analyze(
+  test('maps long soft audio to a calm low-energy candidate set', () async {
+    final result = await interpreter.analyze(
       const AudioFeatures(
         durationSeconds: 1.6,
         rms: 0.06,
@@ -47,10 +49,11 @@ void main() {
           intents.contains(DogIntent.bored),
       isTrue,
     );
+    expect(result.arousal, lessThan(0.65));
   });
 
-  test('reports quality issues for short weak audio', () {
-    final result = interpreter.analyze(
+  test('reports quality issues for short weak audio', () async {
+    final result = await interpreter.analyze(
       const AudioFeatures(
         durationSeconds: 0.12,
         rms: 0.02,
@@ -66,5 +69,6 @@ void main() {
     expect(result.intent, DogIntent.uncertain);
     expect(result.qualityIssues, contains(RecordingQualityIssue.tooShort));
     expect(result.qualityIssues, contains(RecordingQualityIssue.lowVolume));
+    expect(result.detectedDogVocal, isFalse);
   });
 }

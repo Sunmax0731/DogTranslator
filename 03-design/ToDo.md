@@ -10,6 +10,7 @@
 - [x] Define state flow and portability strategy
 - [x] Define UI surface structure
 - [x] Define pre-release expansion approach for waveform, device selection, and richer labels
+- [x] Define Dog2vec local-process integration architecture and fallback strategy
 
 ## Follow-up Candidates
 - [ ] Plugin architecture for future ML model providers

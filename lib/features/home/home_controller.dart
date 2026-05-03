@@ -222,10 +222,11 @@ class HomeController extends ChangeNotifier {
 
         final bytes = await File(path).readAsBytes();
         final features = _featureExtractor.extractFromWavBytes(bytes);
-        final result = _inferenceProvider.analyze(
+        final result = await _inferenceProvider.analyze(
           features,
           profile: selectedProfile,
           sceneMode: _selectedSceneMode,
+          wavBytes: bytes,
         );
         final recordId = _createId('fwd');
         final recordingPath = await _repository.saveRecording(bytes, recordId);
