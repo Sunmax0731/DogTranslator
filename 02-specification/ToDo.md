@@ -9,6 +9,7 @@
 - [x] Define audio input and analysis rules
 - [x] Define error handling and confidence presentation
 - [x] Define acceptance-oriented scenarios
+- [x] Define pre-release expansion behavior for waveform, microphone selection, and richer labels
 
 ## Follow-up Candidates
 - [ ] Replace heuristic thresholds with learned model interface

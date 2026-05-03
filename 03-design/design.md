@@ -39,11 +39,21 @@ Flutter is the best fit because it enables a single shared presentation and doma
 - `lib/domain/`: interpretation and reverse translation logic
 - `test/`: unit and widget tests
 
+## 6.1 Pre-release Expansion Modules
+- `recording waveform presenter`: consumes amplitude samples and exposes a bounded trace for UI
+- `input device repository`: lists microphones and stores the selected device id
+- `forward label mapper`: converts low-level heuristic intent into clearer Japanese emotional language
+- `reverse profile selector`: future hook for breed-aware reverse output, but not required in the current release candidate
+
 ## 7. Portability Strategy
 - Keep audio recording behind a service interface.
 - Keep interpretation logic pure Dart.
 - Keep reverse text transformation pure Dart.
 - Treat Windows-only helpers as replaceable adapters.
+
+## 7.1 Scope Note
+- Waveform and microphone selection can be implemented behind the existing recording service contract and kept Windows-safe.
+- Breed-aware reverse generation should be introduced as a new profile layer rather than mixed directly into the current rule-based generator.
 
 ## 8. UI Structure
 - Main screen with two tabs:
@@ -57,3 +67,13 @@ Flutter is the best fit because it enables a single shared presentation and doma
 2. State controller invokes recording or reverse translation service.
 3. Domain logic produces a normalized result object.
 4. UI renders result and appends history entry.
+
+## 10. Expansion Decision
+### Implement before release
+- live waveform based on sampled amplitude
+- microphone device selection
+- clearer Japanese emotional output text
+
+### Keep on a separate track
+- breed-aware reverse sound rendering
+- higher-fidelity synthesized or sample-based bark engine
