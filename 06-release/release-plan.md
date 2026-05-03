@@ -24,3 +24,13 @@ Ship a Windows desktop MVP that demonstrates local dog-voice interpretation and 
 - learned model provider integration
 - persistent history
 - richer playback behavior
+
+## 6. Release Scope Revision
+### Still candidate for pre-release inclusion
+- waveform visualization during recording
+- microphone device selection
+- richer Japanese emotional labels in forward mode
+
+### Defer unless a smaller concrete version is approved
+- breed selection
+- higher-fidelity dog-voice rendering

@@ -28,6 +28,9 @@ DogTranslator is a Windows-first application that listens to dog vocalizations, 
 - Display of translated/estimated text on screen
 - Experimental reverse mode: human text to dog-style expression output
 - Local history of the current session
+- Japanese emotional interpretation labels for forward mode in the extended pre-release scope
+- Optional microphone device selection in the extended pre-release scope
+- Live recording waveform in the extended pre-release scope
 
 ### Out of Scope
 - Scientifically validated dog-language translation
@@ -35,7 +38,8 @@ DogTranslator is a Windows-first application that listens to dog vocalizations, 
 - Cloud-hosted model service
 - Multi-user sync
 - Android and iPhone releases
-- Breed-specific or dog-specific personalization
+- Breed-specific or dog-specific personalization in the initial release candidate
+- High-fidelity learned dog-voice synthesis in the initial release candidate
 
 ## 6. Functional Requirements
 1. The app must allow the user to start and stop microphone recording.
@@ -45,6 +49,10 @@ DogTranslator is a Windows-first application that listens to dog vocalizations, 
 5. The reverse mode must produce a dog-style expressive output that can be played or visually represented.
 6. The app must preserve a session history of recent interactions.
 7. The app must expose when a result is experimental or low-confidence.
+8. The app should allow the user to choose the microphone input device on Windows.
+9. The app should show a simple live waveform or level trace while recording.
+10. The forward interpretation output should use clearer Japanese emotional labels such as `遊びたい`, `さみしい`, `ねむたい`, `警戒している`.
+11. Breed-specific reverse output is a planned expansion feature and must not be overclaimed in the current release.
 
 ## 7. Non-Functional Requirements
 - Responsiveness: result display should appear within a few seconds after recording stops.
@@ -63,6 +71,7 @@ DogTranslator is a Windows-first application that listens to dog vocalizations, 
 - The first MVP is acceptable as an "emotion estimation" product.
 - Local heuristic analysis is sufficient for a first release.
 - Reverse mode can be explicitly labeled as experimental.
+- A small pre-release scope increase is acceptable if it improves user trust and usability without requiring a model-platform rewrite.
 
 ## 9. MVP Acceptance Criteria
 - A Windows user can record audio through a microphone.
@@ -70,3 +79,13 @@ DogTranslator is a Windows-first application that listens to dog vocalizations, 
 - The app handles empty or invalid recordings gracefully.
 - The app offers a visible reverse-mode workflow for human text input.
 - The app keeps the core interpretation logic separate from UI concerns.
+
+## 10. Pre-release Expansion Boundary
+### Add before release
+- waveform visualization during recording
+- microphone device selection
+- richer Japanese emotional phrasing in forward mode
+
+### Defer to expansion phase unless explicitly reduced in scope
+- higher-fidelity dog-voice rendering
+- breed selection and breed-specific reverse sound profiles

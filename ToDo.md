@@ -26,7 +26,9 @@
 - [x] Create milestone and phase documentation skeleton
 - [x] Implement Windows MVP using Flutter
 - [x] Execute automated validation
-- [ ] Resolve Windows build environment prerequisites and run desktop build
+- [x] Resolve Windows build environment prerequisites and run desktop build
+- [ ] Expand pre-release scope with waveform, mic selection, and richer Japanese emotion labels
+- [ ] Define separate expansion track for breed-aware high-fidelity reverse mode
 - [ ] Prepare release package plan
 
 ## Branch Policy
