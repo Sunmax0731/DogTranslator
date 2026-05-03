@@ -32,4 +32,5 @@ This document tracks the Windows MVP implementation status.
 ## Validation Summary
 - `flutter analyze`: passed
 - `flutter test`: passed
-- `flutter build windows`: blocked by missing Visual Studio C++ workload and SDK components on this machine
+- `flutter doctor -v`: passed after Visual Studio Windows desktop components were installed
+- `flutter build windows`: passed

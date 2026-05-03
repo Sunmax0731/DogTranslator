@@ -41,12 +41,10 @@ Validate the Windows MVP across domain logic, primary UI flows, and Windows desk
 ## 7. Observed Results
 - `flutter analyze`: passed
 - `flutter test`: passed with 6 tests
-- `flutter build windows`: could not complete in the current environment
+- `flutter doctor -v`: passed with Windows desktop toolchain healthy
+- `flutter build windows`: passed
+- Release executable generated at `build/windows/x64/runner/Release/dog_translator.exe`
 
 ## 8. Current Blocker
-- `flutter doctor -v` reports missing Visual Studio components for Windows desktop builds:
-  - Desktop development with C++
-  - MSVC build tools
-  - C++ CMake tools for Windows
-  - Windows 10 SDK
-- Detailed recovery task: `05-test/task-windows-build-prerequisites.md`
+- No active Windows build blocker remains.
+- Historical recovery task retained for traceability: `05-test/task-windows-build-prerequisites.md`

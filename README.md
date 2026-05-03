@@ -17,12 +17,6 @@ This app does not perform scientifically validated literal translation of dog la
 - Test: `flutter test`
 - Windows build: `flutter build windows`
 
-## Environment Note
-On this machine, Windows build currently requires additional Visual Studio components:
-- Desktop development with C++
-- C++ CMake tools for Windows
-- Windows 10 SDK
-
 ## Project Documents
 - [ToDo.md](./ToDo.md)
 - [01-requirements/requirements-definition.md](./01-requirements/requirements-definition.md)
