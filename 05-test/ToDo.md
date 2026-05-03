@@ -8,7 +8,7 @@
 - [x] Define manual test scenarios
 - [x] Execute unit tests
 - [x] Execute widget tests
-- [ ] Execute Windows build validation
+- [x] Execute Windows build validation
 - [x] Record observed results and residual risks
 - [x] Document Windows build environment blocker and manual resolution path
 
