@@ -33,7 +33,8 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
 
   TranslationResult? _translationResult;
   ReverseTranslationResult? _reverseResult;
-  bool _busy = false;
+  bool _recordingBusy = false;
+  bool _reverseBusy = false;
   String? _statusMessage;
 
   @override
@@ -45,11 +46,11 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
   }
 
   Future<void> _toggleRecording() async {
-    if (_busy) {
+    if (_recordingBusy) {
       return;
     }
     setState(() {
-      _busy = true;
+      _recordingBusy = true;
       _statusMessage = null;
     });
 
@@ -102,19 +103,21 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
         _statusMessage = '録音処理でエラーが発生しました: $error';
       });
     } finally {
-      setState(() {
-        _busy = false;
-      });
+      if (mounted) {
+        setState(() {
+          _recordingBusy = false;
+        });
+      }
     }
   }
 
   Future<void> _runReverseTranslation() async {
-    if (_busy) {
+    if (_reverseBusy) {
       return;
     }
 
     setState(() {
-      _busy = true;
+      _reverseBusy = true;
       _statusMessage = null;
     });
 
@@ -139,9 +142,11 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
         _statusMessage = '逆変換の再生でエラーが発生しました: $error';
       });
     } finally {
-      setState(() {
-        _busy = false;
-      });
+      if (mounted) {
+        setState(() {
+          _reverseBusy = false;
+        });
+      }
     }
   }
 
@@ -222,14 +227,14 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
                       _ForwardTranslatorTab(
                         result: _translationResult,
                         isRecording: widget.recordingService.isRecording,
-                        busy: _busy,
+                        busy: _recordingBusy,
                         statusMessage: _statusMessage,
                         onRecordPressed: _toggleRecording,
                       ),
                       _ReverseTranslatorTab(
                         controller: _textController,
                         result: _reverseResult,
-                        busy: _busy,
+                        busy: _reverseBusy,
                         statusMessage: _statusMessage,
                         onTranslatePressed: _runReverseTranslation,
                       ),
