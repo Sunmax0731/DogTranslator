@@ -38,6 +38,11 @@
 - [x] Add parameter tooltips, candidate pie chart, and radio-button feedback UI
 - [x] Add profile voice-calibration aggregation and scoring bias
 - [x] Add Dog2vec local runtime assets, config, and model download bootstrap
+- [x] Expand staged analysis progress UI with ETA and result-card dimming
+- [x] Add bounded-metric mini graphs and confidence color coding in forward results
+- [x] Add history tag filters, history-driven result recall, and GUI delete flows
+- [x] Add dashboard profile filtering and dashboard-to-history drilldown
+- [x] Move microphone selection into Settings and add dark mode theme
 
 ## Follow-up Candidates
 - [ ] Add learned downstream classifier heads for Dog2vec runtime

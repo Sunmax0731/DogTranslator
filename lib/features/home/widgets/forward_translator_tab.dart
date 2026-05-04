@@ -13,19 +13,15 @@ class ForwardTranslatorTab extends StatelessWidget {
     required this.analysisInProgress,
     required this.analysisProgress,
     required this.analysisStageMessage,
-    required this.loadingInputDevices,
+    required this.analysisEstimatedRemainingLabel,
     required this.statusMessage,
     required this.waveformSamples,
-    required this.inputDevices,
-    required this.selectedInputDeviceId,
     required this.profiles,
     required this.selectedProfileId,
     required this.selectedSceneMode,
     required this.onProfileChanged,
     required this.onCreateProfilePressed,
     required this.onSceneModeChanged,
-    required this.onInputDeviceSelected,
-    required this.onRefreshInputDevices,
     required this.onRecordPressed,
     required this.onFeedbackChanged,
     super.key,
@@ -38,19 +34,15 @@ class ForwardTranslatorTab extends StatelessWidget {
   final bool analysisInProgress;
   final double? analysisProgress;
   final String? analysisStageMessage;
-  final bool loadingInputDevices;
+  final String? analysisEstimatedRemainingLabel;
   final String? statusMessage;
   final List<double> waveformSamples;
-  final List<RecordingInputDevice> inputDevices;
-  final String? selectedInputDeviceId;
   final List<DogProfile> profiles;
   final String? selectedProfileId;
   final SceneMode selectedSceneMode;
   final ValueChanged<String?> onProfileChanged;
   final VoidCallback onCreateProfilePressed;
   final ValueChanged<SceneMode?> onSceneModeChanged;
-  final ValueChanged<String?> onInputDeviceSelected;
-  final VoidCallback onRefreshInputDevices;
   final VoidCallback onRecordPressed;
   final ValueChanged<UserFeedbackLabel?> onFeedbackChanged;
 
@@ -121,49 +113,6 @@ class ForwardTranslatorTab extends StatelessWidget {
                       .toList(growable: false),
                   onChanged: busy || isRecording ? null : onSceneModeChanged,
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String?>(
-                        initialValue: selectedInputDeviceId,
-                        decoration: const InputDecoration(
-                          labelText: '入力マイク',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: [
-                          const DropdownMenuItem<String?>(
-                            value: null,
-                            child: Text('既定のマイク'),
-                          ),
-                          ...inputDevices.map(
-                            (device) => DropdownMenuItem<String?>(
-                              value: device.id,
-                              child: Text(device.label),
-                            ),
-                          ),
-                        ],
-                        onChanged: loadingInputDevices || busy || isRecording
-                            ? null
-                            : onInputDeviceSelected,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    IconButton(
-                      tooltip: 'マイク一覧を更新',
-                      onPressed: loadingInputDevices || busy || isRecording
-                          ? null
-                          : onRefreshInputDevices,
-                      icon: loadingInputDevices
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.refresh),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 16),
                 WaveformPanel(
                   isRecording: isRecording,
@@ -189,15 +138,22 @@ class ForwardTranslatorTab extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(999),
                     child: LinearProgressIndicator(
-                      minHeight: 10,
+                      minHeight: 12,
                       value: analysisProgress,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Text(
                     analysisStageMessage ?? '解析しています...',
                     style: TextStyle(color: colorScheme.onSurfaceVariant),
                   ),
+                  if (analysisEstimatedRemainingLabel != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      analysisEstimatedRemainingLabel!,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ],
                 const SizedBox(height: 12),
                 Text(
@@ -209,132 +165,236 @@ class ForwardTranslatorTab extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: result == null
-                ? const Text('まだ解析結果がありません。録音後にここへ結果を表示します。')
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        result!.intent.labelJa,
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(result!.explanation),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: [
-                          FeatureChip(
-                            label: '確信度',
-                            value: result!.confidence.labelJa,
-                            tooltip: '推論結果の安定度です。録音品質や候補差分を加味して表示します。',
-                          ),
-                          FeatureChip(
-                            label: '推論方式',
-                            value: result!.providerLabel,
-                            tooltip: 'どの推論経路で結果を出したかを示します。',
-                          ),
-                          FeatureChip(
-                            label: '鳴き方',
-                            value: result!.vocalType.labelJa,
-                            tooltip: '吠え声、鼻鳴き、うなり声など、声の種類の推定です。',
-                          ),
-                          FeatureChip(
-                            label: '文脈',
-                            value: result!.context.labelJa,
-                            tooltip: '来客、散歩前、遊びなど、起きていそうな状況の推定です。',
-                          ),
-                          FeatureChip(
-                            label: '録音長',
-                            value:
-                                '${result!.features.durationSeconds.toStringAsFixed(2)}s',
-                            tooltip: '解析した録音の長さです。',
-                          ),
-                          FeatureChip(
-                            label: 'RMS',
-                            value: result!.features.rms.toStringAsFixed(3),
-                            tooltip: '全体の平均的な音量です。',
-                          ),
-                          FeatureChip(
-                            label: 'Peak',
-                            value: result!.features.peak.toStringAsFixed(3),
-                            tooltip: '録音内で最も大きかった瞬間的な音量です。',
-                          ),
-                          FeatureChip(
-                            label: 'Pitch',
-                            value: result!.features.pitchHz.toStringAsFixed(0),
-                            tooltip: '主な声の高さの推定値です。',
-                          ),
-                          FeatureChip(
-                            label: 'Arousal',
-                            value: result!.arousal.toStringAsFixed(2),
-                            tooltip: '興奮度の推定です。高いほど勢いが強い傾向です。',
-                          ),
-                          FeatureChip(
-                            label: 'Valence',
-                            value: result!.valence.toStringAsFixed(2),
-                            tooltip: '快・不快寄りの推定です。正なら明るめ、負なら緊張寄りです。',
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        '推論候補',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 12),
-                      CandidatePieChart(candidates: result!.candidates),
-                      const SizedBox(height: 20),
-                      Text(
-                        '録音品質ガイド',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      if (result!.qualityIssues.isEmpty)
-                        const Text('大きな録音品質上の問題は見つかりませんでした。')
-                      else
-                        ...result!.qualityIssues.map(
-                          (issue) => Padding(
-                            padding: const EdgeInsets.only(bottom: 6),
-                            child: Text(
-                              '・${issue.labelJa} - ${issue.adviceJa}',
+        Opacity(
+          opacity: analysisInProgress ? 0.5 : 1,
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: result == null
+                  ? const Text('まだ解析結果がありません。録音後にここへ結果を表示します。')
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          result!.intent.labelJa,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(result!.explanation),
+                        const SizedBox(height: 16),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            FeatureChip(
+                              label: '推論方式',
+                              value: result!.providerLabel,
+                              tooltip: 'どの推論方式で結果を出したかを表示します。',
+                            ),
+                            FeatureChip(
+                              label: '確信度',
+                              value: result!.confidence.labelJa,
+                              tooltip: '推論結果の確からしさの目安です。',
+                              backgroundColor: _confidenceBackground(
+                                result!.confidence,
+                              ),
+                              foregroundColor: _confidenceForeground(
+                                result!.confidence,
+                              ),
+                            ),
+                            FeatureChip(
+                              label: '鳴き方',
+                              value: result!.vocalType.labelJa,
+                              tooltip: '犬の声の種類を推定した結果です。',
+                            ),
+                            FeatureChip(
+                              label: '文脈',
+                              value: result!.context.labelJa,
+                              tooltip: 'どのような状況に近いかの推定です。',
+                            ),
+                            FeatureChip(
+                              label: '録音長',
+                              value:
+                                  '${result!.features.durationSeconds.toStringAsFixed(2)}s',
+                              tooltip: '録音した音声の長さです。',
+                            ),
+                            FeatureChip(
+                              label: 'Pitch',
+                              value: result!.features.pitchHz.toStringAsFixed(
+                                0,
+                              ),
+                              tooltip: '主な高さの推定値です。',
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        _MetricRangePanel(result: result!),
+                        const SizedBox(height: 20),
+                        Text(
+                          '推論候補',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        CandidatePieChart(candidates: result!.candidates),
+                        const SizedBox(height: 20),
+                        Text(
+                          '録音品質ガイド',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        if (result!.qualityIssues.isEmpty)
+                          const Text('大きな録音品質上の注意は見つかりませんでした。')
+                        else
+                          ...result!.qualityIssues.map(
+                            (issue) => Padding(
+                              padding: const EdgeInsets.only(bottom: 6),
+                              child: Text(
+                                '・${issue.labelJa} - ${issue.adviceJa}',
+                              ),
                             ),
                           ),
+                        const SizedBox(height: 20),
+                        Text(
+                          '推論の近さを記録',
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                      const SizedBox(height: 20),
-                      Text(
-                        '推論の近さを記録',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      RadioGroup<UserFeedbackLabel>(
-                        groupValue: latestRecord?.feedbackLabel,
-                        onChanged: onFeedbackChanged,
-                        child: Wrap(
-                          spacing: 16,
-                          runSpacing: 8,
-                          children: UserFeedbackLabel.values
-                              .map((label) {
-                                return Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Radio<UserFeedbackLabel>(value: label),
-                                    Text(label.labelJa),
-                                  ],
-                                );
-                              })
-                              .toList(growable: false),
+                        const SizedBox(height: 8),
+                        RadioGroup<UserFeedbackLabel>(
+                          groupValue: latestRecord?.feedbackLabel,
+                          onChanged: onFeedbackChanged,
+                          child: Wrap(
+                            spacing: 16,
+                            runSpacing: 8,
+                            children: UserFeedbackLabel.values
+                                .map(
+                                  (label) => Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Radio<UserFeedbackLabel>(value: label),
+                                      Text(label.labelJa),
+                                    ],
+                                  ),
+                                )
+                                .toList(growable: false),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+            ),
           ),
         ),
       ],
+    );
+  }
+
+  Color _confidenceBackground(ConfidenceLevel level) {
+    return switch (level) {
+      ConfidenceLevel.high => const Color(0xFFDCFCE7),
+      ConfidenceLevel.medium => const Color(0xFFFEF3C7),
+      ConfidenceLevel.low => const Color(0xFFFEE2E2),
+    };
+  }
+
+  Color _confidenceForeground(ConfidenceLevel level) {
+    return switch (level) {
+      ConfidenceLevel.high => const Color(0xFF166534),
+      ConfidenceLevel.medium => const Color(0xFF92400E),
+      ConfidenceLevel.low => const Color(0xFF991B1B),
+    };
+  }
+}
+
+class _MetricRangePanel extends StatelessWidget {
+  const _MetricRangePanel({required this.result});
+
+  final TranslationResult result;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('主要パラメータ', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 12),
+        _MetricBar(
+          label: 'RMS',
+          valueLabel: result.features.rms.toStringAsFixed(3),
+          normalizedValue: result.features.rms.clamp(0.0, 1.0),
+          minLabel: '0.0',
+          maxLabel: '1.0',
+        ),
+        _MetricBar(
+          label: 'Peak',
+          valueLabel: result.features.peak.toStringAsFixed(3),
+          normalizedValue: result.features.peak.clamp(0.0, 1.0),
+          minLabel: '0.0',
+          maxLabel: '1.0',
+        ),
+        _MetricBar(
+          label: 'Arousal',
+          valueLabel: result.arousal.toStringAsFixed(2),
+          normalizedValue: result.arousal.clamp(0.0, 1.0),
+          minLabel: '0.0',
+          maxLabel: '1.0',
+        ),
+        _MetricBar(
+          label: 'Valence',
+          valueLabel: result.valence.toStringAsFixed(2),
+          normalizedValue: ((result.valence + 1) / 2).clamp(0.0, 1.0),
+          minLabel: '-1.0',
+          maxLabel: '1.0',
+        ),
+      ],
+    );
+  }
+}
+
+class _MetricBar extends StatelessWidget {
+  const _MetricBar({
+    required this.label,
+    required this.valueLabel,
+    required this.normalizedValue,
+    required this.minLabel,
+    required this.maxLabel,
+  });
+
+  final String label;
+  final String valueLabel;
+  final double normalizedValue;
+  final String minLabel;
+  final String maxLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text(label)),
+              Text(valueLabel, style: Theme.of(context).textTheme.titleSmall),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              minHeight: 10,
+              value: normalizedValue,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Text(minLabel, style: Theme.of(context).textTheme.labelSmall),
+              const Spacer(),
+              Text(maxLabel, style: Theme.of(context).textTheme.labelSmall),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

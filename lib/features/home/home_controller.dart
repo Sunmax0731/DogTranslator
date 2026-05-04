@@ -55,13 +55,18 @@ class HomeController extends ChangeNotifier {
   TranslationResult? _translationResult;
   ReverseTranslationResult? _reverseResult;
   InferenceProvider _inferenceProvider = _defaultInferenceProvider;
-  String? _latestForwardRecordId;
+  String? _selectedRecordId;
+  DateTime? _analysisStartedAt;
   List<RecordingInputDevice> _inputDevices = const <RecordingInputDevice>[];
   List<DogProfile> _profiles = const <DogProfile>[];
   List<ForwardRecord> _forwardRecords = const <ForwardRecord>[];
   List<ReverseRecord> _reverseRecords = const <ReverseRecord>[];
   String? _selectedInputDeviceId;
   String? _selectedProfileId;
+  String? _historyProfileFilterId;
+  String? _dashboardProfileFilterId;
+  String? _historyIntentFilterLabel;
+  String _historySearchQuery = '';
   InferenceModelSelection _selectedInferenceModel =
       InferenceModelSelection.auto;
   InferenceModelSelection _activeInferenceModel =
@@ -92,6 +97,10 @@ class HomeController extends ChangeNotifier {
   List<ReverseRecord> get reverseRecords => _reverseRecords;
   String? get selectedInputDeviceId => _selectedInputDeviceId;
   String? get selectedProfileId => _selectedProfileId;
+  String? get historyProfileFilterId => _historyProfileFilterId;
+  String? get dashboardProfileFilterId => _dashboardProfileFilterId;
+  String? get historyIntentFilterLabel => _historyIntentFilterLabel;
+  String get historySearchQuery => _historySearchQuery;
   InferenceModelSelection get selectedInferenceModel => _selectedInferenceModel;
   InferenceModelSelection get activeInferenceModel => _activeInferenceModel;
   AppThemePreset get selectedThemePreset => _selectedThemePreset;
@@ -112,14 +121,32 @@ class HomeController extends ChangeNotifier {
   String? get inferenceStatusMessage => _inferenceStatusMessage;
   double? get analysisProgress => _analysisProgress;
   String? get analysisStageMessage => _analysisStageMessage;
+  String? get analysisEstimatedRemainingLabel {
+    final startedAt = _analysisStartedAt;
+    final progress = _analysisProgress;
+    if (!_analysisInProgress ||
+        startedAt == null ||
+        progress == null ||
+        progress <= 0 ||
+        progress >= 1) {
+      return null;
+    }
+    final elapsedMs = DateTime.now().difference(startedAt).inMilliseconds;
+    final totalMs = (elapsedMs / progress).round();
+    final remainingMs = (totalMs - elapsedMs).clamp(0, 3600000);
+    final seconds = (remainingMs / 1000).ceil();
+    return '推定残り ${seconds}s';
+  }
+
   List<double> get waveformSamples =>
       List<double>.unmodifiable(_waveformSamples);
   Set<String> get comparisonSelection =>
       Set<String>.unmodifiable(_comparisonSelection);
 
-  ForwardRecord? get latestForwardRecord => _latestForwardRecordId == null
-      ? null
-      : findForwardRecord(_latestForwardRecordId!);
+  ForwardRecord? get selectedForwardRecord =>
+      _selectedRecordId == null ? null : findForwardRecord(_selectedRecordId!);
+
+  ForwardRecord? get latestForwardRecord => selectedForwardRecord;
 
   DogProfile? get selectedProfile {
     for (final profile in _profiles) {
@@ -130,8 +157,63 @@ class HomeController extends ChangeNotifier {
     return null;
   }
 
-  AnalyticsSummary get analyticsSummary =>
-      _analyticsService.summarize(_forwardRecords, _reverseRecords, _profiles);
+  Map<String, String> get profileNameById => <String, String>{
+    for (final profile in _profiles) profile.id: profile.name,
+  };
+
+  List<String> get availableHistoryIntentLabels =>
+      _forwardRecords
+          .map((record) => record.translation.intent.labelJa)
+          .toSet()
+          .toList(growable: false)
+        ..sort();
+
+  List<MapEntry<String, String>> get availableHistoryProfileFilters => _profiles
+      .map((profile) => MapEntry(profile.id, profile.name))
+      .toList(growable: false);
+
+  List<ForwardRecord> get filteredHistoryRecords {
+    final query = _historySearchQuery.trim().toLowerCase();
+    return _forwardRecords
+        .where((record) {
+          if (_historyIntentFilterLabel != null &&
+              record.translation.intent.labelJa != _historyIntentFilterLabel) {
+            return false;
+          }
+          if (_historyProfileFilterId != null &&
+              record.profileId != _historyProfileFilterId) {
+            return false;
+          }
+          if (query.isEmpty) {
+            return true;
+          }
+          final profileName = profileNameById[record.profileId] ?? '';
+          final haystack = [
+            record.translation.intent.labelJa,
+            record.translation.explanation,
+            record.sceneMode.labelJa,
+            profileName,
+          ].join(' ').toLowerCase();
+          return haystack.contains(query);
+        })
+        .toList(growable: false);
+  }
+
+  AnalyticsSummary get analyticsSummary => _analyticsService.summarize(
+    _forwardRecords,
+    _reverseRecords,
+    _profiles,
+    profileFilterId: _dashboardProfileFilterId,
+  );
+
+  List<ForwardRecord> get dashboardForwardRecords {
+    if (_dashboardProfileFilterId == null) {
+      return _forwardRecords;
+    }
+    return _forwardRecords
+        .where((record) => record.profileId == _dashboardProfileFilterId)
+        .toList(growable: false);
+  }
 
   List<ForwardRecord> get comparisonRecords {
     final records = _forwardRecords
@@ -170,6 +252,12 @@ class HomeController extends ChangeNotifier {
     _selectedSizeClass = data.settings.selectedSizeClass;
     _selectedTension = data.settings.selectedTension;
     _selectedSceneMode = data.settings.selectedSceneMode;
+    _selectedRecordId = _forwardRecords.isEmpty
+        ? null
+        : _forwardRecords.first.id;
+    _translationResult = _selectedRecordId == null
+        ? null
+        : _forwardRecords.first.translation;
     _loadingAppData = false;
     _onThemePresetChanged(_selectedThemePreset);
     notifyListeners();
@@ -199,7 +287,6 @@ class HomeController extends ChangeNotifier {
   Future<void> loadInputDevices() async {
     _loadingInputDevices = true;
     notifyListeners();
-
     try {
       final devices = await _recordingService.listInputDevices();
       _inputDevices = devices;
@@ -207,7 +294,7 @@ class HomeController extends ChangeNotifier {
       if (currentId != null &&
           devices.every((device) => device.id != currentId)) {
         _selectedInputDeviceId = null;
-        _forwardStatusMessage = '選択中のマイクが見つからなかったため、既定の入力に戻しました。';
+        _forwardStatusMessage = '選択中のマイクが見つからないため、既定の入力に戻しました。';
       }
       await persistState();
     } catch (error) {
@@ -221,7 +308,6 @@ class HomeController extends ChangeNotifier {
   Future<void> loadInferenceProvider() async {
     _loadingInferenceModel = true;
     notifyListeners();
-
     try {
       final resolution = await _inferenceProviderFactory.create(
         selection: _selectedInferenceModel,
@@ -236,7 +322,7 @@ class HomeController extends ChangeNotifier {
     } catch (error) {
       _inferenceProvider = _defaultInferenceProvider;
       _activeInferenceModel = InferenceModelSelection.heuristic;
-      _inferenceStatusMessage = '推論モデルの初期化に失敗したため、標準ヒューリスティック推論を使用します: $error';
+      _inferenceStatusMessage = '推論モデルの初期化に失敗しました。標準ヒューリスティック推論を使用します: $error';
     } finally {
       _loadingInferenceModel = false;
       notifyListeners();
@@ -247,11 +333,10 @@ class HomeController extends ChangeNotifier {
     if (_recordingBusy || _recordingService.isRecording) {
       return;
     }
-
     await _recordingService.selectInputDevice(deviceId);
     _selectedInputDeviceId = deviceId;
     _forwardStatusMessage = deviceId == null
-        ? '既定のマイクを使う設定にしました。'
+        ? '既定のマイクを使用する設定にしました。'
         : '入力マイクを切り替えました。';
     notifyListeners();
     await persistState();
@@ -261,7 +346,6 @@ class HomeController extends ChangeNotifier {
     if (selection == null || _recordingBusy || _recordingService.isRecording) {
       return;
     }
-
     _selectedInferenceModel = selection;
     await loadInferenceProvider();
   }
@@ -296,21 +380,27 @@ class HomeController extends ChangeNotifier {
           return;
         }
 
+        _analysisStartedAt = DateTime.now();
         _setAnalysisProgress(
           inProgress: true,
-          progress: 0.12,
+          progress: 0.1,
           message: '録音データを読み込んでいます...',
         );
         final bytes = await File(path).readAsBytes();
         _setAnalysisProgress(
           inProgress: true,
-          progress: 0.32,
+          progress: 0.24,
           message: '音声特徴を抽出しています...',
         );
         final features = _featureExtractor.extractFromWavBytes(bytes);
         _setAnalysisProgress(
           inProgress: true,
-          progress: 0.58,
+          progress: 0.42,
+          message: '録音品質を確認しています...',
+        );
+        _setAnalysisProgress(
+          inProgress: true,
+          progress: 0.68,
           message: '推論モデルで解析しています...',
         );
         final result = await _inferenceProvider.analyze(
@@ -321,8 +411,8 @@ class HomeController extends ChangeNotifier {
         );
         _setAnalysisProgress(
           inProgress: true,
-          progress: 0.84,
-          message: '結果を保存しています...',
+          progress: 0.86,
+          message: '履歴へ保存しています...',
         );
         final recordId = _createId('fwd');
         final recordingPath = await _repository.saveRecording(bytes, recordId);
@@ -336,12 +426,16 @@ class HomeController extends ChangeNotifier {
           feedbackLabel: null,
         );
 
+        _setAnalysisProgress(
+          inProgress: true,
+          progress: 0.96,
+          message: '画面へ結果を反映しています...',
+        );
         _translationResult = result;
-        _latestForwardRecordId = recordId;
+        _selectedRecordId = recordId;
         _forwardRecords = <ForwardRecord>[record, ..._forwardRecords];
         _forwardStatusMessage = '録音を解析しました。';
         await persistState();
-        _setAnalysisProgress(inProgress: false, progress: null, message: null);
       } else {
         final hasPermission = await _recordingService.hasPermission();
         if (!hasPermission) {
@@ -363,6 +457,7 @@ class HomeController extends ChangeNotifier {
       _forwardStatusMessage = '録音処理でエラーが発生しました: $error';
     } finally {
       _recordingBusy = false;
+      _analysisStartedAt = null;
       _analysisInProgress = false;
       _analysisProgress = null;
       _analysisStageMessage = null;
@@ -448,13 +543,13 @@ class HomeController extends ChangeNotifier {
       await _playbackService.play(result.audioBytes);
       _reverseStatusMessage = '犬っぽい音声を再生しました。';
     } catch (error) {
-      _reverseStatusMessage = '結果は生成しましたが、音声再生は完了しませんでした: $error';
+      _reverseStatusMessage = '音声は生成しましたが、再生に失敗しました: $error';
     }
     notifyListeners();
   }
 
   Future<void> applyFeedback(UserFeedbackLabel? label) async {
-    final recordId = _latestForwardRecordId;
+    final recordId = _selectedRecordId;
     if (recordId == null || label == null) {
       return;
     }
@@ -525,6 +620,12 @@ class HomeController extends ChangeNotifier {
         .toList(growable: false);
     if (_selectedProfileId == profileId) {
       _selectedProfileId = null;
+    }
+    if (_historyProfileFilterId == profileId) {
+      _historyProfileFilterId = null;
+    }
+    if (_dashboardProfileFilterId == profileId) {
+      _dashboardProfileFilterId = null;
     }
     notifyListeners();
     await persistState();
@@ -625,6 +726,38 @@ class HomeController extends ChangeNotifier {
     await persistState();
   }
 
+  void setHistorySearchQuery(String value) {
+    _historySearchQuery = value;
+    notifyListeners();
+  }
+
+  void setHistoryIntentFilter(String? label) {
+    _historyIntentFilterLabel = label;
+    notifyListeners();
+  }
+
+  void setHistoryProfileFilter(String? profileId) {
+    _historyProfileFilterId = profileId;
+    notifyListeners();
+  }
+
+  void clearHistoryFilters() {
+    _historyIntentFilterLabel = null;
+    _historyProfileFilterId = null;
+    _historySearchQuery = '';
+    notifyListeners();
+  }
+
+  void setDashboardProfileFilter(String? profileId) {
+    _dashboardProfileFilterId = profileId;
+    notifyListeners();
+  }
+
+  void selectHistoryIntentFromDashboard(String label) {
+    _historyIntentFilterLabel = label;
+    notifyListeners();
+  }
+
   void toggleCompareSelection(String id) {
     if (_comparisonSelection.contains(id)) {
       _comparisonSelection.remove(id);
@@ -646,6 +779,19 @@ class HomeController extends ChangeNotifier {
     return null;
   }
 
+  void selectForwardRecord(String id) {
+    final record = findForwardRecord(id);
+    if (record == null) {
+      return;
+    }
+    _selectedRecordId = id;
+    _translationResult = record.translation;
+    _selectedProfileId = record.profileId;
+    _selectedSceneMode = record.sceneMode;
+    _forwardStatusMessage = '履歴の解析結果を表示しています。';
+    notifyListeners();
+  }
+
   Future<void> playForwardRecord(String id) async {
     final record = findForwardRecord(id);
     final path = record?.recordingPath;
@@ -662,6 +808,49 @@ class HomeController extends ChangeNotifier {
       _forwardStatusMessage = 'セッション録音の再生に失敗しました: $error';
     }
     notifyListeners();
+  }
+
+  Future<void> deleteForwardRecord(String id) async {
+    final record = findForwardRecord(id);
+    final path = record?.recordingPath;
+    if (path != null && path.isNotEmpty) {
+      unawaited(_deleteFileIfExists(path));
+    }
+    _forwardRecords = _forwardRecords
+        .where((record) => record.id != id)
+        .toList(growable: false);
+    _comparisonSelection.remove(id);
+    if (_selectedRecordId == id) {
+      final replacement = _forwardRecords.isEmpty
+          ? null
+          : _forwardRecords.first;
+      _selectedRecordId = replacement?.id;
+      _translationResult = replacement?.translation;
+    }
+    notifyListeners();
+    await persistState();
+  }
+
+  Future<void> deleteAllForwardRecords() async {
+    for (final record in _forwardRecords) {
+      final path = record.recordingPath;
+      if (path != null && path.isNotEmpty) {
+        unawaited(_deleteFileIfExists(path));
+      }
+    }
+    _forwardRecords = const <ForwardRecord>[];
+    _comparisonSelection.clear();
+    _selectedRecordId = null;
+    _translationResult = null;
+    notifyListeners();
+    await persistState();
+  }
+
+  Future<void> _deleteFileIfExists(String path) async {
+    final file = File(path);
+    if (await file.exists()) {
+      await file.delete();
+    }
   }
 
   String _createId(String prefix) {

@@ -62,18 +62,22 @@ class _DogTranslatorAppState extends State<DogTranslatorApp> {
       AppThemePreset.sunset => const Color(0xFFE67E22),
       AppThemePreset.forest => const Color(0xFF2E7D32),
       AppThemePreset.graphite => const Color(0xFF4B5563),
+      AppThemePreset.darkMode => const Color(0xFF60A5FA),
     };
+    final isDark = preset == AppThemePreset.darkMode;
     final colorScheme = ColorScheme.fromSeed(
       seedColor: seed,
-      brightness: Brightness.light,
+      brightness: isDark ? Brightness.dark : Brightness.light,
     );
 
     return ThemeData(
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: const Color(0xFFF5F6F8),
+      scaffoldBackgroundColor: isDark
+          ? const Color(0xFF0F172A)
+          : const Color(0xFFF5F6F8),
       useMaterial3: true,
       cardTheme: CardThemeData(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF111827) : Colors.white,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
@@ -85,7 +89,7 @@ class _DogTranslatorAppState extends State<DogTranslatorApp> {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: isDark ? const Color(0xFF111827) : Colors.white,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
       ),
       filledButtonTheme: FilledButtonThemeData(

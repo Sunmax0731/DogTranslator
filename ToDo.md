@@ -38,6 +38,10 @@
 - [x] Add settings tab, theme presets, richer history controls, and result tooltips
 - [x] Add profile calibration support and candidate pie-chart visualization
 - [x] Acquire Dog2vec local runtime assets and validate the Python runtime entrypoint
+- [x] Expand analysis progress UI with more stages, ETA, and dimmed stale results
+- [x] Add history tag filters, selection-driven result recall, and GUI delete actions
+- [x] Add dashboard-driven history filtering and profile-scoped analytics
+- [x] Move microphone selection into Settings and add dark mode theme
 - [ ] Prepare release package plan
 
 ## Branch Policy

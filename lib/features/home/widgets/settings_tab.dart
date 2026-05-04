@@ -6,10 +6,15 @@ class SettingsTab extends StatelessWidget {
     required this.selectedThemePreset,
     required this.selectedInferenceModel,
     required this.inferenceStatusMessage,
+    required this.inputDevices,
+    required this.selectedInputDeviceId,
+    required this.loadingInputDevices,
     required this.profiles,
     required this.latestForwardRecord,
     required this.onThemeChanged,
     required this.onInferenceModelChanged,
+    required this.onInputDeviceChanged,
+    required this.onRefreshInputDevices,
     required this.onCreateProfilePressed,
     required this.onEditProfilePressed,
     required this.onDeleteProfilePressed,
@@ -20,10 +25,15 @@ class SettingsTab extends StatelessWidget {
   final AppThemePreset selectedThemePreset;
   final InferenceModelSelection selectedInferenceModel;
   final String? inferenceStatusMessage;
+  final List<RecordingInputDevice> inputDevices;
+  final String? selectedInputDeviceId;
+  final bool loadingInputDevices;
   final List<DogProfile> profiles;
   final ForwardRecord? latestForwardRecord;
   final ValueChanged<AppThemePreset?> onThemeChanged;
   final ValueChanged<InferenceModelSelection?> onInferenceModelChanged;
+  final ValueChanged<String?> onInputDeviceChanged;
+  final VoidCallback onRefreshInputDevices;
   final VoidCallback onCreateProfilePressed;
   final ValueChanged<DogProfile> onEditProfilePressed;
   final ValueChanged<String> onDeleteProfilePressed;
@@ -79,6 +89,49 @@ class SettingsTab extends StatelessWidget {
                 Text(
                   inferenceStatusMessage ??
                       selectedInferenceModel.descriptionJa,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String?>(
+                        initialValue: selectedInputDeviceId,
+                        decoration: const InputDecoration(
+                          labelText: '入力マイク',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          const DropdownMenuItem<String?>(
+                            value: null,
+                            child: Text('既定のマイク'),
+                          ),
+                          ...inputDevices.map(
+                            (device) => DropdownMenuItem<String?>(
+                              value: device.id,
+                              child: Text(device.label),
+                            ),
+                          ),
+                        ],
+                        onChanged: loadingInputDevices
+                            ? null
+                            : onInputDeviceChanged,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    IconButton(
+                      tooltip: 'マイク一覧を更新',
+                      onPressed: loadingInputDevices
+                          ? null
+                          : onRefreshInputDevices,
+                      icon: loadingInputDevices
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.refresh),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -192,7 +245,7 @@ class _ProfileTile extends StatelessWidget {
           Text(
             calibration == null
                 ? '個体サンプル: まだありません'
-                : '個体サンプル: ${calibration.sampleCount}件 / 平均Pitch ${calibration.averagePitchHz.toStringAsFixed(0)} Hz',
+                : '個体サンプル: ${calibration.sampleCount}件 / 平均 Pitch ${calibration.averagePitchHz.toStringAsFixed(0)} Hz',
             style: detailStyle,
           ),
           const SizedBox(height: 8),
