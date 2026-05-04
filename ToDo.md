@@ -19,7 +19,7 @@
 - `03-design`: complete
 - `04-implementation`: complete
 - `05-test`: complete
-- `06-release`: pending
+- `06-release`: in progress
 
 ## Active Tasks
 - [x] Create repository operating documents (`Agents.md`, root `Skill.md`, phase `Skill.md`)
@@ -42,7 +42,9 @@
 - [x] Add history tag filters, selection-driven result recall, and GUI delete actions
 - [x] Add dashboard-driven history filtering and profile-scoped analytics
 - [x] Move microphone selection into Settings and add dark mode theme
-- [ ] Prepare release package plan
+- [x] Define installer-based release packaging with post-install Dog2vec bootstrap
+- [x] Build local installer artifact and runtime cleanup scripts
+- [ ] Finalize release notes and publishable distribution checklist
 
 ## Branch Policy
 - Base branch: `main`
@@ -53,7 +55,9 @@
 ## Current Delivery Sequence
 1. `codex/docs-foundation`: documentation and planning artifacts
 2. `codex/flutter-mvp`: Windows MVP implementation and testing
+3. `codex/release-prep-installer`: installer-oriented release preparation and runtime bootstrap
 
 ## Notes
-- Until a GitHub remote is configured, branch and merge operations are local only.
+- Branch and merge operations are currently local unless a remote is configured and used explicitly.
 - Early "translation" results must be framed as interpretation or estimation, not scientific fact.
+- Release packaging now targets a per-user Windows installer that bootstraps Dog2vec runtime assets after app files are installed.

@@ -22,6 +22,7 @@
 - [x] Validate Dog2vec local runtime entrypoint with downloaded model assets
 - [x] Re-run analyze, test, and Windows build after progress/history/settings UI expansion
 - [x] Extend manual checklist for history filters, dashboard drilldown, and dark mode
+- [x] Validate installer compile path and runtime-config discovery updates
 
 ## Follow-up Candidates
 - [ ] Real microphone regression pack with curated sample audio

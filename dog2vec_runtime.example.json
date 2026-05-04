@@ -2,6 +2,6 @@
   "enabled": true,
   "command": "python",
   "args": ["app/infer.py"],
-  "workingDirectory": "D:/AI/WinApp/DogTranslator/dog_voice_local",
-  "timeoutMs": 10000
+  "workingDirectory": "dog_voice_local",
+  "timeoutMs": 15000
 }

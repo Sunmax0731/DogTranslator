@@ -14,6 +14,7 @@
 - [x] Re-scope the visible product around forward-only UI while retaining reverse implementation internally
 - [x] Define settings, history replay/search, theme selection, and calibration requirements
 - [x] Define Dog2vec local runtime asset and dependency expectations
+- [x] Define installer-based release requirements for runtime bootstrap, model download, and uninstall cleanup
 
 ## Follow-up Candidates
 - [ ] Interview-based refinement with real dog owners

@@ -56,6 +56,8 @@ This repository is operated as a docs-first, task-driven Windows application pro
   - TTS and dog-sound playback
   - cross-platform adapters
 - Prefer designs that allow replacement of the inference engine without rewriting the UI or audio layers.
+- For release work, assume the Windows installer is a first-class deliverable and keep runtime bootstrap behavior documented and testable.
+- If large model data is excluded from the base package, document the post-install bootstrap flow and cleanup flow explicitly.
 
 ## Definition of Done
 - The target task document is updated.

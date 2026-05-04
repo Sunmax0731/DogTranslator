@@ -17,6 +17,7 @@
 - [x] Define settings-tab behavior for themes, inference selection, and profile management
 - [x] Define history replay/search behavior and tooltip explanations
 - [x] Define profile calibration aggregation and Dog2vec runtime asset expectations
+- [x] Define installer/bootstrap behavior for local runtime download, configuration, and uninstall cleanup
 
 ## Follow-up Candidates
 - [ ] Replace heuristic thresholds with learned model interface

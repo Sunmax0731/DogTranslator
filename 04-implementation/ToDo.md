@@ -43,6 +43,7 @@
 - [x] Add history tag filters, history-driven result recall, and GUI delete flows
 - [x] Add dashboard profile filtering and dashboard-to-history drilldown
 - [x] Move microphone selection into Settings and add dark mode theme
+- [x] Add installer scripts, runtime bootstrap automation, and release build helper
 
 ## Follow-up Candidates
 - [ ] Add learned downstream classifier heads for Dog2vec runtime

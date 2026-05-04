@@ -247,3 +247,23 @@
 9. User adds the latest forward recording as a calibration sample for a profile.
 10. Local Dog2vec runtime returns JSON -> app maps it into the forward result structure.
 11. Reverse implementation remains present in code, but the release UI shows only Forward, Dashboard, and Settings.
+
+## 17. Installer and Runtime Bootstrap Behavior
+### Install
+- Install target: `%LocalAppData%\\Programs\\DogTranslator`
+- Post-install bootstrap target:
+  - runtime root: `%LocalAppData%\\DogTranslator\\dog2vec-runtime`
+  - config root: `%LocalAppData%\\DogTranslator\\.dog2vec`
+- Installer bootstrap downloads:
+  - embedded Python runtime
+  - Python dependencies for Dog2vec local inference
+  - Dog2vec helper source archive
+  - Dog2vec model weight file
+- Installer bootstrap writes runtime JSON and user environment variables automatically.
+
+### Uninstall
+- Uninstall removes:
+  - runtime root
+  - config root
+  - `DOG_TRANSLATOR_RUNTIME_ROOT`
+  - `DOG_TRANSLATOR_RUNTIME_CONFIG`

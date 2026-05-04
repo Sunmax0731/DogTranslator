@@ -60,6 +60,12 @@ This document tracks the Windows MVP+ implementation status after the forward-on
 - feedback radio-button input
 - stage-based progress bar, step messaging, ETA, and dimmed stale-result presentation during active analysis
 - Pomeranian breed support in the retained reverse domain implementation
+- installer definition at `installer/DogTranslator.iss`
+- post-install runtime bootstrap script at `installer/scripts/Install-Dog2vecRuntime.ps1`
+- uninstall cleanup script at `installer/scripts/Uninstall-Dog2vecRuntime.ps1`
+- release installer build helper at `tools/build_release_installer.ps1`
+- pinned runtime dependency manifest at `dog_voice_local/release-requirements.txt`
+- runtime-config discovery support for LocalAppData and installer-created environment variables
 
 ## Notes
 - Forward interpretation remains intentionally framed as interpretation, not literal translation.
@@ -67,9 +73,11 @@ This document tracks the Windows MVP+ implementation status after the forward-on
 - Dog2vec runtime is integrated as an optional local-process enhancement, not as an in-app embedded model.
 - The current local runtime can execute in bootstrap heuristic mode or Dog2vec-enhanced embedding mode, but high-quality downstream learned classifier heads are still a future refinement area.
 - The visible input-device selector now lives in Settings so the forward recording surface stays focused on recording and result review.
+- Release packaging now assumes a per-user Windows installer that bootstraps Dog2vec runtime assets after app files are installed.
 
 ## Validation Summary
 - `flutter analyze`: passed
 - `flutter test`: passed
 - `flutter build windows`: passed
 - `python dog_voice_local/app/infer.py --input dog_voice_local/sample_test.wav`: passed with Dog2vec embedding extraction active
+- `powershell -ExecutionPolicy Bypass -NoProfile -File tools/build_release_installer.ps1`: passed

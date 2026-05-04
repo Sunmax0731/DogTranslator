@@ -103,3 +103,10 @@ DogTranslator is a Windows-first application that records dog vocalizations, est
 - The user can choose a theme preset and inference model in Settings.
 - The user can add a calibration sample from a saved forward recording to a profile.
 - The app works with or without Dog2vec local runtime configuration.
+
+## 10. Release Packaging Requirements
+- The primary Windows distribution format must be an installer rather than a raw zip-only package.
+- The base installer must not require the Dog2vec weight file to be bundled inside the desktop app payload.
+- The installer must provision runtime configuration automatically without requiring users to hand-edit JSON or environment settings.
+- The installer must download Dog2vec runtime assets during installation.
+- The uninstaller must remove installer-created runtime settings and downloaded model/runtime assets.

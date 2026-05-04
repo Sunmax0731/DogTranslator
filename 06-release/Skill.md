@@ -4,7 +4,7 @@
 Use this phase to package, document, version, and publish a validated build without overstating readiness.
 
 ## Goals
-- Produce a clear Windows release package.
+- Produce a clear Windows installer package.
 - Publish user-facing guidance and limitations.
 - Prepare the backlog for post-release and mobile expansion.
 
@@ -23,12 +23,14 @@ Use this phase to package, document, version, and publish a validated build with
 - versioning
 - packaging format
 - installation steps
+- runtime bootstrap steps
+- uninstall cleanup behavior
 - known limitations
 - release notes
 - post-release backlog
 
 ## Phase Questions
 - What exactly is being shipped in this release?
-- What user setup is required on Windows?
+- What user setup is required on Windows, and what is automated by the installer?
 - How are privacy, audio retention, and experimental accuracy disclosed?
 - What work should remain explicitly deferred to Android/iPhone phases?

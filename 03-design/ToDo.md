@@ -17,6 +17,7 @@
 - [x] Define hidden-feature preservation strategy for reverse mode
 - [x] Define settings-tab ownership and history replay/search behavior
 - [x] Define profile-calibration personalization approach
+- [x] Define installer/bootstrap architecture for shipping the app without bundling model weights
 
 ## Follow-up Candidates
 - [ ] Plugin architecture for future ML model providers

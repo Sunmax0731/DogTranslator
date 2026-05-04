@@ -63,6 +63,9 @@ Validate the Windows MVP+ across forward interpretation, settings/profile flows,
 - `flutter test`
 - `flutter build windows`
 - `python dog_voice_local/app/infer.py --input dog_voice_local/sample_test.wav`
+- `powershell -ExecutionPolicy Bypass -NoProfile -File installer/scripts/Install-Dog2vecRuntime.ps1 -?`
+- `powershell -ExecutionPolicy Bypass -NoProfile -File installer/scripts/Uninstall-Dog2vecRuntime.ps1 -?`
+- `powershell -ExecutionPolicy Bypass -NoProfile -File tools/build_release_installer.ps1`
 
 ## 5. Expected Results
 - Tests pass without compilation errors.
@@ -75,6 +78,7 @@ Validate the Windows MVP+ across forward interpretation, settings/profile flows,
 - The app shows meaningful staged progress feedback during analysis.
 - The app handles missing or weak audio gracefully.
 - The local Dog2vec runtime can execute when configured.
+- The Windows installer compiles successfully and includes runtime bootstrap scripts.
 
 ## 6. Known Risk Areas
 - Real microphone device behavior may differ by hardware.
@@ -87,5 +91,9 @@ Validate the Windows MVP+ across forward interpretation, settings/profile flows,
 - `flutter test`: passed with 13 tests
 - `flutter build windows`: passed
 - `python dog_voice_local/app/infer.py --input dog_voice_local/sample_test.wav`: passed
+- `powershell -ExecutionPolicy Bypass -NoProfile -File installer/scripts/Install-Dog2vecRuntime.ps1 -?`: passed
+- `powershell -ExecutionPolicy Bypass -NoProfile -File installer/scripts/Uninstall-Dog2vecRuntime.ps1 -?`: passed
+- `powershell -ExecutionPolicy Bypass -NoProfile -File tools/build_release_installer.ps1`: passed
 - Dog2vec base weight file downloaded to `dog_voice_local/models/dog2vec/dog2vec_130k_9.pt`
 - Release executable generated at `build/windows/x64/runner/Release/dog_translator.exe`
+- Installer artifact generated at `dist/installer/DogTranslator-Setup-1.0.0.exe`

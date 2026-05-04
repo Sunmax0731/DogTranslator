@@ -43,6 +43,12 @@ Agents working in this repository must prioritize traceability, small task units
   - task files for that phase
   - phase-specific `Skill.md`
 
+## Release Packaging Rules
+- Treat the Windows installer as part of the product, not as an afterthought.
+- When release packaging changes, update `README.md`, `06-release/release-plan.md`, and the relevant phase aggregates in the same task.
+- If runtime or model assets are intentionally excluded from the base installer, document exactly how and when they are provisioned.
+- If installer-created settings or environment variables exist, define both install-time creation and uninstall-time cleanup.
+
 ## Engineering Expectations
 - Keep platform-dependent code isolated from reusable domain logic.
 - Prefer interfaces around audio capture, TTS, and inference so mobile ports can replace adapters without rewriting core flows.
@@ -50,4 +56,5 @@ Agents working in this repository must prioritize traceability, small task units
 - Treat microphone permission, audio retention, and user privacy as first-class concerns.
 
 ## Current Constraint
-- This directory is not yet a Git repository. Do not claim branch creation, merge, or GitHub sync has happened until Git is initialized and a remote is configured.
+- Git is available locally and branch-based task flow is active.
+- Do not claim remote publication or GitHub sync unless a remote operation was actually executed.

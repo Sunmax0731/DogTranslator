@@ -151,3 +151,27 @@
 - Hidden reverse code remains isolated and can be restored later.
 - Inference stays behind a contract so Python runtime can later be replaced by ONNX / Sentis / TFLite compatible execution.
 - UI state flow avoids tight coupling to desktop-only navigation patterns.
+
+## 15. Release Packaging Architecture
+### Option A: zip-only desktop build
+- Pros: very simple
+- Cons: no guided runtime provisioning
+
+### Option B: installer plus post-install runtime bootstrap
+- Pros: model weights stay out of the base package, runtime setup can be automated, uninstall cleanup can be explicit
+- Cons: install depends on internet access
+
+### Option C: fully bundled offline installer
+- Pros: offline after download
+- Cons: very large package
+
+### Chosen Option
+- Option B
+
+### Release Runtime Design
+- Desktop app files live under the install directory.
+- Dog2vec runtime files live under LocalAppData so model data and Python assets are writable without admin privileges.
+- Runtime discovery supports:
+  - explicit environment config path
+  - explicit environment runtime root
+  - LocalAppData `DogTranslator` fallback paths

@@ -32,7 +32,15 @@ class LocalInferenceRuntimeConfig {
 }
 
 class LocalInferenceRuntimeConfigLoader {
-  const LocalInferenceRuntimeConfigLoader();
+  const LocalInferenceRuntimeConfigLoader({
+    Map<String, String>? environment,
+    this.currentDirectoryPath,
+    this.executablePath,
+  }) : _environment = environment;
+
+  final Map<String, String>? _environment;
+  final String? currentDirectoryPath;
+  final String? executablePath;
 
   Future<LocalInferenceRuntimeConfig?> load() async {
     for (final path in _candidatePaths()) {
@@ -51,15 +59,47 @@ class LocalInferenceRuntimeConfigLoader {
   }
 
   List<String> _candidatePaths() {
+    final environment = _environment ?? Platform.environment;
+    final envConfig = environment['DOG_TRANSLATOR_RUNTIME_CONFIG'];
+    if (envConfig != null && envConfig.isNotEmpty) {
+      return <String>[
+        envConfig,
+        ..._candidatePathsFromDirs(_candidateDirectories(environment)),
+      ];
+    }
+
+    return _candidatePathsFromDirs(_candidateDirectories(environment));
+  }
+
+  Set<String> _candidateDirectories(Map<String, String> environment) {
     final candidateDirs = <String>{
-      Directory.current.path,
-      File(Platform.resolvedExecutable).parent.path,
+      currentDirectoryPath ?? Directory.current.path,
+      File(executablePath ?? Platform.resolvedExecutable).parent.path,
     };
+
+    final envRoot = environment['DOG_TRANSLATOR_RUNTIME_ROOT'];
+    if (envRoot != null && envRoot.isNotEmpty) {
+      candidateDirs.add(envRoot);
+    }
+
+    final localAppData = environment['LOCALAPPDATA'];
+    if (localAppData != null && localAppData.isNotEmpty) {
+      candidateDirs.add('$localAppData${Platform.pathSeparator}DogTranslator');
+      candidateDirs.add(
+        '$localAppData${Platform.pathSeparator}DogTranslator${Platform.pathSeparator}.dog2vec',
+      );
+      candidateDirs.add(
+        '$localAppData${Platform.pathSeparator}DogTranslator${Platform.pathSeparator}dog2vec-runtime',
+      );
+    }
 
     for (final root in candidateDirs.toList()) {
       candidateDirs.addAll(_ancestorDirectories(root, maxDepth: 8));
     }
+    return candidateDirs;
+  }
 
+  List<String> _candidatePathsFromDirs(Set<String> candidateDirs) {
     final paths = <String>[];
     for (final dir in candidateDirs) {
       paths.add('$dir${Platform.pathSeparator}dog2vec_runtime.json');
