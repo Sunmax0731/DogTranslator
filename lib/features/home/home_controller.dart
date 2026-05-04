@@ -74,9 +74,12 @@ class HomeController extends ChangeNotifier {
   SceneMode _selectedSceneMode = SceneMode.home;
   bool _recordingBusy = false;
   bool _reverseBusy = false;
+  bool _analysisInProgress = false;
   bool _loadingInputDevices = true;
   bool _loadingAppData = true;
   bool _loadingInferenceModel = true;
+  double? _analysisProgress;
+  String? _analysisStageMessage;
   String? _forwardStatusMessage;
   String? _reverseStatusMessage;
   String? _inferenceStatusMessage;
@@ -99,6 +102,7 @@ class HomeController extends ChangeNotifier {
   SceneMode get selectedSceneMode => _selectedSceneMode;
   bool get recordingBusy => _recordingBusy;
   bool get reverseBusy => _reverseBusy;
+  bool get analysisInProgress => _analysisInProgress;
   bool get loadingInputDevices => _loadingInputDevices;
   bool get loadingAppData => _loadingAppData;
   bool get loadingInferenceModel => _loadingInferenceModel;
@@ -106,6 +110,8 @@ class HomeController extends ChangeNotifier {
   String? get forwardStatusMessage => _forwardStatusMessage;
   String? get reverseStatusMessage => _reverseStatusMessage;
   String? get inferenceStatusMessage => _inferenceStatusMessage;
+  double? get analysisProgress => _analysisProgress;
+  String? get analysisStageMessage => _analysisStageMessage;
   List<double> get waveformSamples =>
       List<double>.unmodifiable(_waveformSamples);
   Set<String> get comparisonSelection =>
@@ -290,13 +296,33 @@ class HomeController extends ChangeNotifier {
           return;
         }
 
+        _setAnalysisProgress(
+          inProgress: true,
+          progress: 0.12,
+          message: '録音データを読み込んでいます...',
+        );
         final bytes = await File(path).readAsBytes();
+        _setAnalysisProgress(
+          inProgress: true,
+          progress: 0.32,
+          message: '音声特徴を抽出しています...',
+        );
         final features = _featureExtractor.extractFromWavBytes(bytes);
+        _setAnalysisProgress(
+          inProgress: true,
+          progress: 0.58,
+          message: '推論モデルで解析しています...',
+        );
         final result = await _inferenceProvider.analyze(
           features,
           profile: selectedProfile,
           sceneMode: _selectedSceneMode,
           wavBytes: bytes,
+        );
+        _setAnalysisProgress(
+          inProgress: true,
+          progress: 0.84,
+          message: '結果を保存しています...',
         );
         final recordId = _createId('fwd');
         final recordingPath = await _repository.saveRecording(bytes, recordId);
@@ -315,6 +341,7 @@ class HomeController extends ChangeNotifier {
         _forwardRecords = <ForwardRecord>[record, ..._forwardRecords];
         _forwardStatusMessage = '録音を解析しました。';
         await persistState();
+        _setAnalysisProgress(inProgress: false, progress: null, message: null);
       } else {
         final hasPermission = await _recordingService.hasPermission();
         if (!hasPermission) {
@@ -336,8 +363,22 @@ class HomeController extends ChangeNotifier {
       _forwardStatusMessage = '録音処理でエラーが発生しました: $error';
     } finally {
       _recordingBusy = false;
+      _analysisInProgress = false;
+      _analysisProgress = null;
+      _analysisStageMessage = null;
       notifyListeners();
     }
+  }
+
+  void _setAnalysisProgress({
+    required bool inProgress,
+    required double? progress,
+    required String? message,
+  }) {
+    _analysisInProgress = inProgress;
+    _analysisProgress = progress;
+    _analysisStageMessage = message;
+    notifyListeners();
   }
 
   void _beginWaveformSampling() {

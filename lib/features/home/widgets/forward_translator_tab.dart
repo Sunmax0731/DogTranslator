@@ -10,6 +10,9 @@ class ForwardTranslatorTab extends StatelessWidget {
     required this.latestRecord,
     required this.isRecording,
     required this.busy,
+    required this.analysisInProgress,
+    required this.analysisProgress,
+    required this.analysisStageMessage,
     required this.loadingInputDevices,
     required this.statusMessage,
     required this.waveformSamples,
@@ -32,6 +35,9 @@ class ForwardTranslatorTab extends StatelessWidget {
   final ForwardRecord? latestRecord;
   final bool isRecording;
   final bool busy;
+  final bool analysisInProgress;
+  final double? analysisProgress;
+  final String? analysisStageMessage;
   final bool loadingInputDevices;
   final String? statusMessage;
   final List<double> waveformSamples;
@@ -178,6 +184,21 @@ class ForwardTranslatorTab extends StatelessWidget {
                   icon: Icon(isRecording ? Icons.stop_circle : Icons.mic),
                   label: Text(isRecording ? '録音を止めて解析' : '録音を開始'),
                 ),
+                if (analysisInProgress) ...[
+                  const SizedBox(height: 16),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(999),
+                    child: LinearProgressIndicator(
+                      minHeight: 10,
+                      value: analysisProgress,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    analysisStageMessage ?? '解析しています...',
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Text(
                   statusMessage ?? 'マイクボタンを押して録音を始めてください。',
