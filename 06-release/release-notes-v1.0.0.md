@@ -1,23 +1,23 @@
-# DogTranslator 1.0.0 Release Notes
+# DogTranslator 1.0.0 リリースノート
 
-## Highlights
-- Forward-only Windows desktop experience for dog-voice interpretation
-- Local profile management, history replay, search, filtering, and dashboard summaries
-- Optional Dog2vec local runtime with runtime-aware fallback to heuristic inference
-- Theme presets, dark mode, microphone selection, and progress feedback during analysis
-- Breed-aware expression icon presentation for top candidates
+## 主な内容
+- 犬の鳴き声解析に特化した Windows デスクトップ版を公開
+- プロフィール管理、履歴再生、検索、絞り込み、ダッシュボード集計に対応
+- Dog2vec ローカル runtime を任意で利用可能。利用できない場合は標準ヒューリスティック推論へ自動フォールバック
+- テーマ切り替え、ダークモード、入力マイク選択、解析中の進捗表示に対応
+- 推論候補のトップ結果に応じて、犬種別の表情アイコンを表示
 
-## Installer Behavior
-- The Windows installer provisions the desktop app first
-- Dog2vec runtime assets are then downloaded and configured automatically
-- Uninstall removes installer-created runtime settings and downloaded model/runtime files
+## インストーラの動作
+- Windows インストーラがまずアプリ本体を導入
+- その後、Dog2vec runtime に必要なデータと設定を自動で取得・構成
+- アンインストール時には、インストーラが作成した runtime 設定とダウンロード済みデータを削除
 
-## Important Notes
-- DogTranslator is an interpretation tool, not a validated literal translator
-- The first install may take time because runtime dependencies and the Dog2vec model are downloaded
-- If Dog2vec local runtime cannot be prepared, the app can still use heuristic inference
+## 補足
+- DogTranslator は厳密な翻訳アプリではなく、犬の鳴き声をもとに感情や意図の傾向を推定するアプリです
+- 初回インストール時は、runtime 依存関係や Dog2vec モデルの取得により時間がかかる場合があります
+- Dog2vec ローカル runtime の準備に失敗しても、アプリは標準ヒューリスティック推論で利用できます
 
-## Known Limitations
-- Dog2vec integration currently relies on the base embedding model plus app-side mapping, not a product-specific trained classifier head
-- Installer and uninstaller smoke validation passed on a clean Windows profile
-- Reverse text-to-dog playback remains hidden from the release UI
+## 既知の制約
+- Dog2vec 連携は、現時点では base 埋め込みモデルとアプリ側マッピングを組み合わせた構成であり、製品専用に学習した classifier head はまだ含みません
+- インストーラとアンインストーラのスモークテストは、クリーンな Windows プロファイルで成功を確認済みです
+- 人の言葉を犬っぽい声に変換する reverse 機能は、実装を保持したままリリース UI からは非表示です
