@@ -51,11 +51,37 @@ class LocalInferenceRuntimeConfigLoader {
   }
 
   List<String> _candidatePaths() {
-    final exeDir = File(Platform.resolvedExecutable).parent.path;
-    return <String>[
-      '${Directory.current.path}${Platform.pathSeparator}dog2vec_runtime.json',
-      '$exeDir${Platform.pathSeparator}dog2vec_runtime.json',
-      '${Directory.current.path}${Platform.pathSeparator}.dog2vec${Platform.pathSeparator}dog2vec_runtime.json',
-    ];
+    final candidateDirs = <String>{
+      Directory.current.path,
+      File(Platform.resolvedExecutable).parent.path,
+    };
+
+    for (final root in candidateDirs.toList()) {
+      candidateDirs.addAll(_ancestorDirectories(root, maxDepth: 8));
+    }
+
+    final paths = <String>[];
+    for (final dir in candidateDirs) {
+      paths.add('$dir${Platform.pathSeparator}dog2vec_runtime.json');
+      paths.add(
+        '$dir${Platform.pathSeparator}.dog2vec${Platform.pathSeparator}dog2vec_runtime.json',
+      );
+    }
+    return paths;
+  }
+
+  Iterable<String> _ancestorDirectories(
+    String startPath, {
+    int maxDepth = 8,
+  }) sync* {
+    var current = Directory(startPath).absolute;
+    for (var depth = 0; depth < maxDepth; depth++) {
+      final parent = current.parent;
+      if (parent.path == current.path) {
+        break;
+      }
+      yield parent.path;
+      current = parent;
+    }
   }
 }
