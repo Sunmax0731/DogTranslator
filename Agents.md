@@ -1,60 +1,60 @@
 # Agents.md
 
-## Purpose
-This repository builds a dog-voice translation application that starts on Windows and later expands to Android and iPhone.
-Agents working in this repository must prioritize traceability, small task units, and delivery that can be merged cleanly to `main`.
+## 目的
+このリポジトリは、犬の鳴き声を解釈するアプリケーションを Windows から開始し、将来的に Android と iPhone へ拡張する前提で構築します。
+このリポジトリで作業するエージェントは、追跡可能性、小さなタスク単位、`main` に安全にマージできる進め方を優先してください。
 
-## Working Principles
-- Treat the repository as task-driven: every meaningful unit of work should be reflected in `ToDo.md` and the relevant phase folder.
-- Keep documentation current while work progresses. Do not defer process updates until the end of a phase.
-- Optimize for a Windows-first MVP, but avoid choices that block later mobile expansion.
-- Distinguish clearly between validated capability and exploratory ideas. Do not describe speculative behavior as if it already works.
-- For dog-language claims, use careful wording. Default to "emotion/intention estimation" unless stronger evidence exists.
+## 基本原則
+- このリポジトリはタスク駆動で運用します。意味のある作業単位は `ToDo.md` と該当工程フォルダに反映します。
+- 作業中にドキュメントを更新し、工程の最後まで先送りしません。
+- Windows 先行の MVP を最優先にしつつ、将来のモバイル展開を塞ぐ設計は避けます。
+- 検証済みの機能と、まだ探索段階のアイデアを明確に分けます。
+- 犬語に関する表現は慎重に行い、強い根拠が無い限り `感情・意図の推定` と表現します。
 
-## Standard Delivery Flow
-1. Confirm the active phase and target task in `ToDo.md` and the relevant phase folder.
-2. Sync `main` before starting new work.
-3. Create one short-lived task branch, usually `codex/<phase>-<task-summary>`.
-4. Complete the task end-to-end in that branch: docs, implementation, validation, and task status updates.
-5. Merge the branch back into `main` after validation.
-6. Delete or retire the merged branch before opening the next one.
+## 標準的な進行手順
+1. `ToDo.md` と対象工程フォルダで、現在の工程と作業対象タスクを確認する。
+2. 新規作業前に `main` を同期する。
+3. `codex/<phase>-<task-summary>` 形式の短命ブランチを 1 本作る。
+4. そのブランチで、ドキュメント、実装、検証、タスク状態更新までを完了する。
+5. 検証後に `main` へマージする。
+6. マージ済みブランチは削除または退役させてから次の作業へ進む。
 
-## Branch Rules
-- Use `main` as the stable branch.
-- Use one branch per task.
-- Avoid having more than two active non-`main` branches at the same time.
-- If two branches already exist, merge or close one before starting another unless the user explicitly asks for parallel work.
-- Prefer small branches that map to one task file or one tightly-related task cluster.
-- Rebase or merge from updated `main` early if drift appears, instead of letting conflicts accumulate.
+## ブランチ運用ルール
+- 安定ブランチは `main` を使う。
+- タスクごとに 1 ブランチを切る。
+- `main` 以外の同時稼働ブランチは 2 本以内を目安にする。
+- すでに 2 本ある場合は、明示的な並列作業指示がない限り、先に 1 本を片付ける。
+- 1 つの task ファイル、または密接に関連する小さな作業群に対応する小さなブランチを優先する。
+- 差分がずれ始めたら、コンフリクトが大きくなる前に `main` を取り込む。
 
-## GitHub Project Management Rules
-- Use GitHub as the source of truth for task tracking once the repository is connected.
-- Mirror each task in the relevant phase `ToDo.md`.
-- Keep task titles consistent across local docs, branch names, commits, and GitHub Issues when possible.
-- When a task is completed, update local docs and merge to `main` in the same delivery cycle.
-- If a task reveals new work, add it immediately to the appropriate phase backlog instead of leaving it only in chat.
+## GitHub 運用ルール
+- GitHub 接続後は、タスク追跡の正本を GitHub とする。
+- 各タスクは該当工程の `ToDo.md` にも反映する。
+- 可能な限り、ローカル文書、ブランチ名、コミット、GitHub Issue のタイトルを揃える。
+- タスク完了時は、ローカル文書更新と `main` へのマージを同一サイクルで行う。
+- 新しい作業が見つかったら、会話だけに残さず、その場で適切な工程バックログへ追加する。
 
-## Documentation Set
-- Root `ToDo.md`: project index and milestone overview.
-- `01-requirements` through `06-release`: one folder per phase.
-- Each phase folder should contain:
+## ドキュメント構成
+- ルート `ToDo.md`: プロジェクト全体の索引とマイルストーン概要
+- `01-requirements` から `06-release`: 工程ごとのフォルダ
+- 各工程フォルダに含めるもの:
   - `ToDo.md`
-  - the phase aggregate deliverable
-  - task files for that phase
-  - phase-specific `Skill.md`
+  - 工程集約文書
+  - task ファイル群
+  - 工程専用 `Skill.md`
 
-## Release Packaging Rules
-- Treat the Windows installer as part of the product, not as an afterthought.
-- When release packaging changes, update `README.md`, `06-release/release-plan.md`, and the relevant phase aggregates in the same task.
-- If runtime or model assets are intentionally excluded from the base installer, document exactly how and when they are provisioned.
-- If installer-created settings or environment variables exist, define both install-time creation and uninstall-time cleanup.
+## リリース/パッケージング方針
+- Windows インストーラも製品の一部として扱う。
+- パッケージングが変わるタスクでは、`README.md`、`06-release/release-plan.md`、該当工程の集約文書を同時更新する。
+- runtime やモデルアセットをベースインストーラから除外する場合は、いつ・どうやって取得されるかを明記する。
+- インストーラが作成する設定や環境変数がある場合は、インストール時の作成とアンインストール時の削除の両方を定義する。
 
-## Engineering Expectations
-- Keep platform-dependent code isolated from reusable domain logic.
-- Prefer interfaces around audio capture, TTS, and inference so mobile ports can replace adapters without rewriting core flows.
-- Record technical decisions with rationale, especially around inference method, model hosting, privacy, and offline behavior.
-- Treat microphone permission, audio retention, and user privacy as first-class concerns.
+## 技術上の期待値
+- プラットフォーム依存コードは、再利用可能なドメインロジックから分離する。
+- 音声入力、TTS、推論はインターフェースで囲い、モバイル移植時にアダプタ差し替えで済むようにする。
+- 推論手法、モデル配置、プライバシー、オフライン挙動の判断は理由付きで記録する。
+- マイク権限、録音保持、ユーザープライバシーは常に重視する。
 
-## Current Constraint
-- Git is available locally and branch-based task flow is active.
-- Do not claim remote publication or GitHub sync unless a remote operation was actually executed.
+## 現在の前提
+- Git はローカルで利用可能で、ブランチベースのタスクフローも有効です。
+- GitHub リモートとリリース公開は実施済みです。今後もリモート更新を行った場合だけ、その事実を文書や報告に記載してください。

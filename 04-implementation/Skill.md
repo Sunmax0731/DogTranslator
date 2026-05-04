@@ -1,33 +1,34 @@
 # Skill.md
 
-## Implementation Phase Skill
-Use this phase to build the approved design in small, mergeable tasks with repeatable validation.
+## 実装フェーズ用スキル
+この工程では、仕様と設計に基づいて、UI、ドメイン、サービス、配布基盤を実装します。
 
-## Goals
-- Implement the Windows MVP incrementally.
-- Keep the branch size small and traceable to tasks.
-- Preserve clean separation between core logic and device/platform adapters.
+## 目的
+- Windows アプリを実際に動く形にする。
+- 文書とコードを同期させる。
+- 将来の差し替えに耐える責務分離を守る。
 
-## Work Style
-- One task branch per implementation unit.
-- Update docs and task status during the work, not after.
-- Prefer testable modules over monolithic UI logic.
+## 進め方
+- 小さなタスク単位で進め、完了ごとに `ToDo.md` と実装レポートを更新する。
+- 推論、録音、永続化、UI は責務を跨いで肥大化させない。
+- 大きな差分は検証とセットで閉じる。
 
-## Required Outputs
+## 必須出力
 - `implementation-report.md`
 - `ToDo.md`
-- task files for each implementation unit
-- source code and validation evidence
+- 実装タスクごとの task 文書
 
-## Required Sections
-- implementation scope
-- completed modules
-- pending modules
-- technical notes
-- validation summary
+## 必須セクション
+- 実装概要
+- 実装済み機能
+- 重要判断
+- 構成要素
+- 解析フロー
+- Dog2vec 連携状態
+- UI / UX 実装方針
+- 永続化方針
 
-## Phase Questions
-- Is the current task small enough for one branch and one merge?
-- Did the work preserve cross-platform seams?
-- Were logging, error paths, and fallback behavior handled?
-- Was validation captured in a way another person can rerun?
+## この工程で答えること
+- どの機能が実装済みで、どこにあるのか。
+- どの判断が保守性や品質に効いているのか。
+- どのリスクが残っているのか。

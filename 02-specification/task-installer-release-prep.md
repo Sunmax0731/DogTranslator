@@ -1,18 +1,13 @@
-# Task: Installer Release Preparation
+﻿# タスク: インストーラ前提のリリース準備
 
-## Objective
-Specify the installation, runtime bootstrap, configuration discovery, and uninstall behavior for the Windows release package.
+## 目的
+Dog2vec の重いモデルデータをベースパッケージへ含めず、Windows インストーラ経由で安全に配布できる状態へ整える。
 
-## Specification Points
-- Installer copies Flutter desktop build output.
-- Installer bundles bootstrap-only Dog2vec runtime sources, not model weights.
-- Post-install script downloads:
-  - Python runtime if needed by the packaged runtime flow
-  - Python dependencies
-  - upstream Dog2vec helper code
-  - Dog2vec weight file
-- Post-install script writes runtime config JSON and any required environment variables.
-- Uninstaller removes runtime config, downloaded runtime assets, and installer-created environment settings.
+## 主要論点
+- インストール時に runtime とモデルデータを取得する。
+- 設定作成と環境変数設定を自動化する。
+- アンインストーラで取得済みデータと特殊設定を削除できるようにする。
 
-## Acceptance
-- Aggregate specification document lists install/runtime/uninstall behavior and expected paths.
+## 完了条件
+- リリース計画に installer/bootstrap 方針が反映されている。
+- インストーラとアンインストーラの責務が明文化されている。

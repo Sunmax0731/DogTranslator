@@ -1,14 +1,13 @@
-# Task: Installer Release Preparation
+﻿# タスク: インストーラ前提のリリース準備
 
-## Objective
-Choose and document the release packaging architecture for a Windows-first DogTranslator installer.
+## 目的
+Dog2vec の重いモデルデータをベースパッケージへ含めず、Windows インストーラ経由で安全に配布できる状態へ整える。
 
-## Design Decision
-- Chosen installer technology: Inno Setup
-- Chosen deployment mode: per-user install under LocalAppData
-- Chosen runtime strategy: bootstrap Dog2vec local runtime after app install
+## 主要論点
+- インストール時に runtime とモデルデータを取得する。
+- 設定作成と環境変数設定を自動化する。
+- アンインストーラで取得済みデータと特殊設定を削除できるようにする。
 
-## Why
-- Avoids requiring admin rights for the default install path.
-- Keeps the installer lighter than bundling model weights.
-- Allows runtime-specific settings and downloaded assets to be cleaned up by the uninstaller.
+## 完了条件
+- リリース計画に installer/bootstrap 方針が反映されている。
+- インストーラとアンインストーラの責務が明文化されている。

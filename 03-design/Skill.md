@@ -1,34 +1,34 @@
 # Skill.md
 
-## Design Phase Skill
-Use this phase to decide the technical architecture, component boundaries, and UI/UX structure that satisfy the specification and preserve future portability.
+## 設計フェーズ用スキル
+この工程では、仕様を実現するための責務分割、技術選定、UI 構成、runtime 境界を決定します。
 
-## Goals
-- Choose the Windows-first stack.
-- Define reusable core modules versus platform-specific adapters.
-- Design screens, flows, and state transitions.
+## 目的
+- UI、状態管理、ドメイン、サービスの責務を分離する。
+- Windows 先行でもモバイル展開可能な構造を保つ。
+- Dog2vec 連携やインストーラ bootstrap を実装可能な構成へ落とす。
 
-## Work Style
-- Compare multiple architecture candidates before selecting one.
-- Keep future Android/iPhone support visible in every major design choice.
-- Document why alternatives were rejected.
+## 進め方
+- 候補比較では `選択肢 -> 判断基準 -> 採用案 -> 理由` の順で書く。
+- UI は情報設計、状態設計、再利用単位の 3 観点で分ける。
+- 重い依存や platform 依存は境界の後ろへ寄せる。
 
-## Required Outputs
+## 必須出力
 - `design.md`
 - `ToDo.md`
-- task files for architecture or UX decisions
+- 設計論点ごとの task 文書
 
-## Required Sections
-- architecture options
-- decision criteria
-- selected architecture and rationale
-- module boundaries
-- data model
-- UI flow
-- portability strategy
+## 必須セクション
+- UX 候補と採用判断
+- 採用デザインパターン
+- レイヤ構成
+- 状態責務
+- runtime 境界
+- installer / 配布アーキテクチャ
+- モバイル展開準備
 
-## Phase Questions
-- Which stack best serves Windows now without blocking mobile later?
-- What belongs in shared core logic?
-- Which interfaces isolate microphone, TTS, and playback differences?
-- How should the app communicate uncertainty and experimental status to users?
+## この工程で答えること
+- どこで状態を持ち、どこで副作用を扱うのか。
+- Dog2vec や音声 I/O をどう差し替え可能にするのか。
+- WinUI3 に沿った Windows UX をどう保つのか。
+- モデルや runtime をどう配布するのか。

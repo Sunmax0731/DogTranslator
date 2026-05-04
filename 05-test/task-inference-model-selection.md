@@ -1,12 +1,13 @@
-# Inference Model Selection Task
+﻿# タスク: 推論モデル選択
 
-## Coverage
-- Added factory tests for:
-  - auto -> heuristic fallback without local runtime
-  - Dog2vec-local activation with runtime config
-- Existing widget and build validation confirm the app still launches and functions with the new selection flow.
+## 目的
+ユーザーが推論方式を選べるようにし、runtime の有無に応じた有効モデル解決とフォールバックを制御する。
 
-## Result
-- `flutter analyze`: passed
-- `flutter test`: passed
-- `flutter build windows`: passed
+## 主要論点
+- `auto` / `heuristic` / `dog2vec_local` を選択可能にする。
+- 設定に選択結果を保存する。
+- 実際に使われたモデルとフォールバック状況を UI へ反映する。
+
+## 完了条件
+- 推論モデル選択仕様が文書に反映されている。
+- runtime 不在時のフォールバックが定義されている。

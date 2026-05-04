@@ -1,16 +1,13 @@
-# Forward-Only UI And Runtime Hardening Task
+﻿# タスク: forward 中心 UI と runtime 安定化
 
-## Completed Work
-- Hid reverse mode from the active UI while preserving its code.
-- Reworked the home shell into a forward-focused Windows workspace with Forward, Dashboard, and Settings.
-- Added parameter tooltips, candidate pie chart, and radio-button feedback input.
-- Added history search, date display, and replay for saved forward recordings.
-- Added theme selection plus profile add/edit/delete inside Settings while preserving the existing add-profile shortcut.
-- Added profile calibration aggregation and integrated it into forward scoring.
-- Added `dog_voice_local/`, downloaded the Dog2vec base model, cloned the upstream helper repo, and created `dog2vec_runtime.json`.
+## 目的
+公開 UI を forward 解釈中心に整理し、runtime 依存の失敗や未設定時でも利用しやすい状態へ整える。
 
-## Validation
-- `flutter analyze`
-- `flutter test`
-- `flutter build windows`
-- `python dog_voice_local/app/infer.py --input dog_voice_local/sample_test.wav`
+## 主要論点
+- reverse UI を非表示にしつつ実装を保持する。
+- runtime 状態やフォールバックをユーザーに分かる形で表示する。
+- 履歴、設定、解析フローを forward 中心の導線へ再整理する。
+
+## 完了条件
+- 公開 UI が Forward / Dashboard / Settings 中心になっている。
+- runtime 状態に応じて安全なフォールバック挙動を確認できる。

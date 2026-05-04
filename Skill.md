@@ -1,29 +1,29 @@
 # Skill.md
 
-## Repository Skill
-This repository is operated as a docs-first, task-driven Windows application project with future mobile expansion in scope.
+## リポジトリ運用スキル
+このリポジトリは、ドキュメント先行・タスク駆動の Windows アプリ開発プロジェクトとして運用し、将来的なモバイル展開も見据えます。
 
-## Core Objective
-- Build a Windows MVP that accepts dog vocal audio from a microphone, estimates meaning or emotional intent, and returns text plus optional speech output.
-- Evaluate a reverse path where human text is converted into dog-like vocal playback.
-- Preserve architectural seams so Android and iPhone versions can reuse core logic later.
+## 中核目的
+- マイクから犬の鳴き声を受け取り、意味や感情の傾向を推定し、テキストとして返す Windows MVP を構築する。
+- 人の言葉を犬っぽい声へ変換する reverse 経路は将来再公開できるよう実装を保持する。
+- Android と iPhone で後から共通ロジックを再利用できるよう、アーキテクチャの継ぎ目を保つ。
 
-## Default Operating Mode
-- Work from milestone and task documents, not from ad hoc chat memory.
-- Prefer small, reviewable tasks with clear completion criteria.
-- Update the relevant phase documentation while doing the work.
-- Keep conclusions evidence-based. Where the domain is uncertain, document assumptions explicitly.
+## 基本運用
+- 作業は会話の記憶ではなく、マイルストーン文書と task 文書を基準に進める。
+- 小さくレビューしやすいタスクと、明確な完了条件を優先する。
+- 作業中に該当工程の文書も更新する。
+- 結論は根拠ベースで書く。不確実な領域では前提や制約を明示する。
 
-## Delivery Milestones
-1. Requirements
-2. Specification
-3. Design
-4. Implementation
-5. Test
-6. Release
+## 開発マイルストーン
+1. 要件定義
+2. 仕様検討
+3. 設計
+4. 実装
+5. テスト
+6. リリース
 
-## Required Artifacts
-- Root `ToDo.md`
+## 必須成果物
+- ルート `ToDo.md`
 - `01-requirements/requirements-definition.md`
 - `02-specification/specification.md`
 - `03-design/design.md`
@@ -31,37 +31,37 @@ This repository is operated as a docs-first, task-driven Windows application pro
 - `05-test/test-plan.md`
 - `06-release/release-plan.md`
 - `Agents.md`
-- Root `Skill.md`
-- Phase-specific `Skill.md` files
+- ルート `Skill.md`
+- 工程ごとの `Skill.md`
 
-## Task-Driven Rules
-- Each phase should have its own `ToDo.md`.
-- Each actionable task should have its own Markdown file when the work is large enough to require context, decisions, or acceptance criteria.
-- Aggregate phase documents should explain the overall judgment and structure so readers do not need to open every task file.
-- Newly discovered work must be added to the backlog immediately.
+## タスク駆動ルール
+- 各工程に専用の `ToDo.md` を置く。
+- 判断理由、前提、受け入れ条件が必要な作業は task ごとに Markdown を切る。
+- 工程集約文書では、全体判断と構造が分かるようにし、task 文書を全部開かなくても要点が読めるようにする。
+- 新しく見つかった作業は、その場でバックログへ追加する。
 
-## Git and Branch Discipline
-- Use `main` as the integration branch.
-- Start each task from up-to-date `main`.
-- Create a dedicated task branch named `codex/<phase>-<task-summary>`.
-- Merge each completed task back into `main` before starting too many additional branches.
-- Keep simultaneous active task branches to at most two whenever possible.
+## Git / ブランチ規律
+- 統合ブランチは `main`。
+- 各タスクは最新の `main` から始める。
+- `codex/<phase>-<task-summary>` 形式で専用ブランチを作る。
+- 完了したタスクは `main` に戻してから次へ進む。
+- 同時に開くタスクブランチはなるべく 2 本以内に抑える。
 
-## Product-Specific Guidance
-- Phrase the feature honestly. Early versions should present outputs as interpretation or estimation, not scientific fact.
-- Separate domain concepts:
-  - dog audio capture and preprocessing
-  - inference or rule-based interpretation
-  - human-readable text generation
-  - TTS and dog-sound playback
-  - cross-platform adapters
-- Prefer designs that allow replacement of the inference engine without rewriting the UI or audio layers.
-- For release work, assume the Windows installer is a first-class deliverable and keep runtime bootstrap behavior documented and testable.
-- If large model data is excluded from the base package, document the post-install bootstrap flow and cleanup flow explicitly.
+## 製品固有の指針
+- 機能表現は誠実に行う。初期版の出力は科学的事実ではなく、解釈や推定として扱う。
+- ドメインを分離する:
+  - 犬音声の収録と前処理
+  - 推論またはルールベース解釈
+  - 人が読めるテキスト生成
+  - TTS や犬っぽい音声再生
+  - クロスプラットフォーム用アダプタ
+- 推論エンジンだけを後から差し替えられる設計を優先し、UI や音声層を巻き込んで作り直さない。
+- リリース関連では、Windows インストーラを第一級成果物として扱い、runtime ブートストラップの挙動を文書化しテスト可能に保つ。
+- 大きなモデルデータをベースパッケージから外す場合は、インストール後の取得フローと削除フローを明記する。
 
-## Definition of Done
-- The target task document is updated.
-- The relevant phase `ToDo.md` is updated.
-- The aggregate phase document reflects important decisions.
-- Validation steps and results are recorded.
-- The task branch is ready to merge, or merged if Git is configured.
+## 完了の定義
+- 対象 task 文書が更新されている。
+- 該当工程の `ToDo.md` が更新されている。
+- 工程集約文書に重要な判断が反映されている。
+- 検証手順と結果が記録されている。
+- ブランチはマージ可能状態、またはマージ済みである。

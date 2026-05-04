@@ -1,28 +1,13 @@
-# Pre-release Expansion Task
+﻿# タスク: リリース前拡張整理
 
-## Goal
-Extend the Windows release scope beyond the initial MVP with user-visible audio and control improvements while keeping the product shippable.
+## 目的
+リリース前に追加したい改善機能を整理し、優先順位と実現可能性を明確にする。
 
-## Requested Features
-1. Show live waveform while recording.
-2. Allow microphone input device selection.
-3. Express dog-to-human interpretation using Japanese emotional phrases such as `遊びたい`, `さみしい`, `ねむたい`.
-4. Improve human-to-dog conversion quality and allow breed selection.
+## 主要論点
+- 波形表示、入力マイク選択、日本語感情表現強化の扱いを決める。
+- reverse 側の高精度化要求を別トラックとして分離する。
+- 既存 MVP を壊さずに取り込める順序を定義する。
 
-## Delivery Classification
-### Pre-release candidates
-- Live waveform during recording
-- Input microphone selection
-- Richer Japanese emotional labels for forward interpretation
-
-### Separate expansion track
-- Higher-fidelity dog-voice rendering
-- Breed-specific dog-voice selection
-
-## Why This Split
-- Items 1 to 3 strengthen the current Windows product without changing the core architecture drastically.
-- Item 4 changes the reverse-generation model, asset strategy, and UX depth enough that it should be treated as a dedicated expansion phase unless a very small placeholder version is explicitly chosen.
-
-## Done Condition
-- Requirements, specification, design, and release plan all reflect the new scope split.
-- The implementation backlog is updated in actionable order.
+## 完了条件
+- リリース前に入れる機能と後回しにする機能が区別されている。
+- 優先度順が文書に反映されている。

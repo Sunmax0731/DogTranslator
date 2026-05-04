@@ -1,9 +1,13 @@
-# MVP+ Feature Suite Design Task
+﻿# タスク: MVP+ 機能拡張
 
-## Design Tasks
-- [x] Add persistence architecture
-- [x] Add inference-provider abstraction
-- [x] Add profile / scene / feedback data model design
-- [x] Add dashboard and comparison UI design
-- [x] Add reverse preset parameter design
-- [x] Add responsive layout strategy
+## 目的
+MVP 以降の価値を高めるため、保存履歴、プロフィール、ダッシュボード、候補順位付け、補正機能などの拡張を整理し、実装可能な単位へ落とし込む。
+
+## 主要論点
+- 継続利用につながる履歴 / 比較 / 集計機能を加える。
+- 個体差を扱うプロフィールと補正導線を整える。
+- 推論候補の見せ方を改善し、利用価値を上げる。
+
+## 完了条件
+- MVP+ の追加機能が要件 / 仕様 / 設計へ反映されている。
+- 実装対象と将来課題が区別されている。

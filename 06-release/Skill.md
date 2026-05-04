@@ -1,36 +1,36 @@
 # Skill.md
 
-## Release Phase Skill
-Use this phase to package, document, version, and publish a validated build without overstating readiness.
+## リリースフェーズ用スキル
+この工程では、検証済みビルドを誇張せずに配布可能な形へまとめ、公開します。
 
-## Goals
-- Produce a clear Windows installer package.
-- Publish user-facing guidance and limitations.
-- Prepare the backlog for post-release and mobile expansion.
+## 目的
+- 明確な Windows インストーラを用意する。
+- ユーザー向けの説明と制約を整理する。
+- リリース後のバックログを切り分ける。
 
-## Work Style
-- Release only from validated `main`.
-- Ensure release notes align with what has actually been tested.
-- Treat known limitations and disclaimers as mandatory content.
+## 進め方
+- 検証済みの `main` からのみリリースする。
+- リリースノートは実際に確認した内容だけを書く。
+- 制約、免責、既知の限界を必須情報として含める。
 
-## Required Outputs
+## 必須出力
 - `release-plan.md`
 - `ToDo.md`
-- task files for packaging, versioning, and publication work
+- パッケージング、版数、公開作業の task 文書
 
-## Required Sections
-- release scope
-- versioning
-- packaging format
-- installation steps
-- runtime bootstrap steps
-- uninstall cleanup behavior
-- known limitations
-- release notes
-- post-release backlog
+## 必須セクション
+- リリーススコープ
+- バージョン
+- 配布形式
+- インストール手順
+- runtime bootstrap
+- アンインストール cleanup
+- 既知の制約
+- リリースノート
+- リリース後バックログ
 
-## Phase Questions
-- What exactly is being shipped in this release?
-- What user setup is required on Windows, and what is automated by the installer?
-- How are privacy, audio retention, and experimental accuracy disclosed?
-- What work should remain explicitly deferred to Android/iPhone phases?
+## この工程で答えること
+- このリリースで何を出荷するのか。
+- Windows ユーザーに必要なセットアップと、自動化される部分は何か。
+- プライバシー、録音保持、推論精度の限界をどう説明するか。
+- Android / iPhone 向けへ何を明示的に後送りするか。

@@ -1,15 +1,16 @@
-# Release ToDo
+# リリース ToDo
 
-## Deliverable
+## 成果物
 - `release-plan.md`
 
-## Tasks
-- [x] Define release scope and packaging assumptions
-- [x] Finalize versioning scheme
-- [x] Prepare installer-based packaging steps
-- [x] Draft user-facing release notes
-- [x] Define post-release backlog for mobile expansion
-- [x] Complete Windows build prerequisite task before packaging
-- [x] Add automatic Dog2vec runtime bootstrap and uninstall cleanup behavior
-- [x] Compile a local Windows installer artifact
-- [x] Execute end-to-end installer smoke validation on a clean Windows profile
+## タスク
+- [x] リリーススコープと配布前提を定義
+- [x] バージョニング方針を確定
+- [x] インストーラ前提のパッケージング手順を整備
+- [x] ユーザー向けリリースノートを作成
+- [x] リリース後バックログを整理
+- [x] Windows ビルド前提タスクを解消
+- [x] Dog2vec runtime bootstrap とアンインストール cleanup を追加
+- [x] ローカル Windows インストーラ成果物をコンパイル
+- [x] クリーン Windows プロファイルで install / uninstall スモークテストを完了
+- [x] GitHub リポジトリ公開と `v1.0.0` リリース公開を完了

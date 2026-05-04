@@ -1,17 +1,13 @@
-# Accuracy Improvements Task
+﻿# タスク: 解析精度改善
 
-## Design Summary
-- Preserve the existing `InferenceProvider` boundary.
-- Improve the fallback heuristic path rather than coupling UI to a model runtime.
-- Treat handcrafted audio features as a fast calibration layer that remains useful even when Dog2vec is unavailable.
+## 目的
+forward 推論の精度と安定性を改善し、弱い入力や曖昧な入力でもより妥当な候補順位を返せるようにする。
 
-## Applied Pattern
-1. `AudioFeatureExtractor` produces a richer feature vector.
-2. `DogIntentInterpreter` performs:
-   - dog-vocal detection
-   - vocal-type inference
-   - context inference
-   - raw scoring
-   - consistency adjustment
-   - softmax probability ranking
-3. UI consumes the same `TranslationResult` contract without further changes.
+## 主要論点
+- 音声特徴量を拡張する。
+- スコアリングと候補順位付けを見直す。
+- 不確実なケースの表現を改善する。
+
+## 完了条件
+- 特徴量拡張とスコア調整方針が反映されている。
+- 候補順位と確信度の扱いが以前より明確になっている。

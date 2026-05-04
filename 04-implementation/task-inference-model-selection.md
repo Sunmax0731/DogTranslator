@@ -1,12 +1,13 @@
-# Inference Model Selection Task
+﻿# タスク: 推論モデル選択
 
-## Completed Work
-- Added persisted `selectedInferenceModel` setting.
-- Refactored startup and screen wiring to use `InferenceProviderFactory` instead of a single fixed provider.
-- Added UI for selecting `auto`, `heuristic`, and `Dog2vec ローカル`.
-- Added runtime-aware status messaging for requested-vs-active model resolution.
+## 目的
+ユーザーが推論方式を選べるようにし、runtime の有無に応じた有効モデル解決とフォールバックを制御する。
 
-## Validation
-- `flutter analyze`
-- `flutter test`
-- `flutter build windows`
+## 主要論点
+- `auto` / `heuristic` / `dog2vec_local` を選択可能にする。
+- 設定に選択結果を保存する。
+- 実際に使われたモデルとフォールバック状況を UI へ反映する。
+
+## 完了条件
+- 推論モデル選択仕様が文書に反映されている。
+- runtime 不在時のフォールバックが定義されている。

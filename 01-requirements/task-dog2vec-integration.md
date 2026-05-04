@@ -1,24 +1,13 @@
-# Dog2vec Integration Requirements Task
+﻿# タスク: Dog2vec 連携
 
-## Goal
-Define how a Dog2vec-oriented local inference pipeline fits the current Windows-first app.
+## 目的
+Dog2vec を既存の forward 推論へ統合できるようにし、ヒューリスティック推論だけに依存しない拡張経路を整える。
 
-## Decisions
-- Keep the product framed as `interpretation`, not literal translation.
-- Add support for a local model pipeline without making cloud access mandatory.
-- Treat Dog2vec as a feature extractor plus downstream classifiers, not as a direct text generator.
+## 主要論点
+- ローカル runtime との連携方法を明確にする。
+- Dog2vec 未設定時の安全なフォールバックを定義する。
+- 推論結果を既存 UI / ドメインモデルへ正規化して取り込む。
 
-## Requirement Additions
-- Forward inference must support raw-audio-aware providers in addition to heuristic feature-only providers.
-- The app must remain usable when the local model runtime is missing or fails.
-- Forward output should include:
-  - vocal type
-  - inferred context
-  - valence / arousal hints
-  - provider label
-- The app should accept a local process JSON response contract for external inference.
-
-## Constraints
-- Windows release must still work offline.
-- Dog2vec weights are too large to bundle by default in the Flutter app.
-- Python / PyTorch runtime remains optional and external in this phase.
+## 完了条件
+- アプリ側に Dog2vec 連携方針が反映されている。
+- runtime 不在時もアプリが落ちず、ヒューリスティックへ戻る。

@@ -1,15 +1,13 @@
-# Task: Installer Release Preparation
+﻿# タスク: インストーラ前提のリリース準備
 
-## Objective
-Define release requirements for shipping DogTranslator as a Windows installer while keeping Dog2vec model weights out of the base app payload.
+## 目的
+Dog2vec の重いモデルデータをベースパッケージへ含めず、Windows インストーラ経由で安全に配布できる状態へ整える。
 
-## Requirements
-- The installer must place the Windows app in a standard per-user location.
-- The installer must automatically provision Dog2vec runtime prerequisites without manual editing of config files.
-- Large model data must be downloaded during install instead of being bundled in the app payload.
-- Runtime-specific settings must be removable by the uninstaller.
-- The app must still degrade safely to heuristic inference when the runtime is unavailable.
+## 主要論点
+- インストール時に runtime とモデルデータを取得する。
+- 設定作成と環境変数設定を自動化する。
+- アンインストーラで取得済みデータと特殊設定を削除できるようにする。
 
-## Acceptance
-- Aggregate requirements document includes installer/bootstrap constraints.
-- Release plan reflects installer-first packaging rather than zip-only packaging.
+## 完了条件
+- リリース計画に installer/bootstrap 方針が反映されている。
+- インストーラとアンインストーラの責務が明文化されている。

@@ -1,15 +1,13 @@
-# Accuracy Improvements Task
+﻿# タスク: 解析精度改善
 
-## Goal
-Raise forward interpretation quality before a full external Dog2vec runtime is attached.
+## 目的
+forward 推論の精度と安定性を改善し、弱い入力や曖昧な入力でもより妥当な候補順位を返せるようにする。
 
-## Specification Decisions
-- Extend local WAV analysis with `crestFactor`, `activityRatio`, and `pitchHz`.
-- Use calibrated candidate probabilities instead of exposing raw heuristic scores.
-- Feed vocal-type and context estimates back into final intent ranking.
-- Keep weak or noisy input paths biased toward `uncertain`.
+## 主要論点
+- 音声特徴量を拡張する。
+- スコアリングと候補順位付けを見直す。
+- 不確実なケースの表現を改善する。
 
-## Acceptance
-- Extended features are part of the internal analysis result.
-- Forward candidate ranking remains stable under existing tests.
-- Japanese labels and explanations are readable in app output.
+## 完了条件
+- 特徴量拡張とスコア調整方針が反映されている。
+- 候補順位と確信度の扱いが以前より明確になっている。

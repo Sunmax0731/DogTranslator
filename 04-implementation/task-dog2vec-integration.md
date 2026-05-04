@@ -1,18 +1,13 @@
-# Dog2vec Integration Implementation Task
+﻿# タスク: Dog2vec 連携
 
-## Completed Work
-- Converted inference provider contract to async.
-- Added local runtime config loader.
-- Added local process inference provider.
-- Added resilient fallback provider.
-- Added startup inference provider factory.
-- Extended translation result schema with:
-  - detected dog vocal
-  - vocal type
-  - context
-  - valence
-  - arousal
-  - raw confidence
-  - provider label
-- Reworked heuristic forward inference into a staged pipeline aligned with Dog2vec-side output structure.
-- Updated forward UI to show richer inference details.
+## 目的
+Dog2vec を既存の forward 推論へ統合できるようにし、ヒューリスティック推論だけに依存しない拡張経路を整える。
+
+## 主要論点
+- ローカル runtime との連携方法を明確にする。
+- Dog2vec 未設定時の安全なフォールバックを定義する。
+- 推論結果を既存 UI / ドメインモデルへ正規化して取り込む。
+
+## 完了条件
+- アプリ側に Dog2vec 連携方針が反映されている。
+- runtime 不在時もアプリが落ちず、ヒューリスティックへ戻る。

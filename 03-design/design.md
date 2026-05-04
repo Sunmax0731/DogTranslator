@@ -1,28 +1,28 @@
-# DogTranslator Design
+# DogTranslator 設計書
 
-## 1. Candidate UX Directions
-### Option A: Hero-led multi-mode landing layout
-- Pros: strong first impression
-- Cons: wastes vertical space and over-emphasizes the hidden reverse feature
+## 1. UX 候補
+### Option A: Hero 主導のマルチモード着地画面
+- 長所: 初見の印象が強い
+- 短所: 縦空間を消費し、非表示 reverse 機能を過剰に目立たせる
 
-### Option B: WinUI3-style utility workspace
-- Pros: calmer hierarchy, better for repeated use, closer to Windows app conventions
-- Cons: less promotional
+### Option B: WinUI3 風の実用ワークスペース
+- 長所: 落ち着いた情報階層、繰り返し利用に向く、Windows アプリ慣習に近い
+- 短所: 宣伝的な派手さは弱い
 
-### Option C: Dense analytics-first console
-- Pros: strong for power users
-- Cons: intimidating for casual users
+### Option C: 高密度な分析コンソール
+- 長所: パワーユーザー向き
+- 短所: カジュアルユーザーには圧が強い
 
-## 2. UX Decision
-- Chosen direction: Option B
-- Reason: the app is now a forward-focused utility, so it benefits more from a practical Windows workspace than a hero-first landing surface.
+## 2. UX 判断
+- 採用方針: Option B
+- 理由: このアプリは forward 中心のユーティリティになったため、Hero 起点の見せ方より実用ワークスペースの方が適している。
 
-## 3. Adopted Design Patterns
+## 3. 採用デザインパターン
 ### Presentation Controller
-- `HomeController` owns screen state, async flows, persistence triggers, and runtime resolution.
+- `HomeController` が画面状態、非同期フロー、永続化トリガ、runtime 解決を持つ。
 
 ### Widget Composition
-- Home UI is split into focused widgets:
+- Home UI は以下の小さい widget に分割する。
   - `ForwardTranslatorTab`
   - `DashboardTab`
   - `SettingsTab`
@@ -32,14 +32,14 @@
   - `CandidatePieChart`
 
 ### Hidden Feature Preservation
-- Reverse-mode widgets and services remain compiled and reusable, but routing does not expose them.
+- reverse 向け widget / service はコンパイル対象に残すが、ルーティングで公開しない。
 
 ### Barrel Export for Domain Models
-- `lib/domain/models.dart` exports smaller files under `lib/domain/models/`.
+- `lib/domain/models.dart` から、`lib/domain/models/` 下の小さなモデル群を export する。
 
-## 4. Layered Architecture
+## 4. レイヤードアーキテクチャ
 - Presentation layer:
-  - Flutter pages and widgets
+  - Flutter pages / widgets
 - Application layer:
   - `HomeController`
 - Domain layer:
@@ -54,76 +54,76 @@
   - playback service
   - local process inference bridge
 
-## 5. WinUI3-Oriented UI Structure
-- Remove the hero banner.
-- Use surface-separated cards with quiet contrast and rounded corners.
-- Keep navigation persistent and explicit.
-- Keep key actions near the data they affect.
-- Reserve accent color for action and state, not large decorative regions.
-- Move configuration into a dedicated Settings surface.
+## 5. WinUI3 指向の UI 構成
+- Hero バナーは排除する。
+- 静かなコントラストと角丸を持つ surface 分離カードを使う。
+- ナビゲーションは常時見える形で明示する。
+- 主要アクションは対象データの近くに置く。
+- アクセントカラーは装飾ではなく操作と状態表示に使う。
+- 設定は専用の Settings 画面に寄せる。
 
-## 6. Navigation Design
-### Wide Layout
-- left navigation rail card
-- center content card stack
-- right session history card
+## 6. ナビゲーション設計
+### 広いレイアウト
+- 左ナビゲーションレールカード
+- 中央コンテンツカード群
+- 右 Session History カード
 
-### Narrow Layout
-- bottom `NavigationBar`
-- content first, history later in the scroll
+### 狭いレイアウト
+- 下部 `NavigationBar`
+- 先にコンテンツ、後に履歴をスクロールへ積む
 
-### Visible Pages
+### 公開ページ
 - Forward
 - Dashboard
 - Settings
 
-## 7. Inference Architecture
-- `InferenceProvider` stays async and raw-audio aware.
-- Default path:
+## 7. 推論アーキテクチャ
+- `InferenceProvider` は非同期かつ raw-audio aware を維持する。
+- 既定経路:
   - `DogIntentInterpreter`
-- Optional enriched path:
+- 拡張経路:
   - `LocalProcessInferenceProvider`
-- Resilience wrapper:
+- 耐障害 wrapper:
   - `ResilientInferenceProvider`
-- Startup selection:
+- 起動時解決:
   - `InferenceProviderFactory`
 
-## 8. Dog2vec Integration Strategy
-### Option A: direct Dog2vec runtime inside Flutter app
-- Pros: single process
-- Cons: large footprint and difficult packaging
+## 8. Dog2vec 統合戦略
+### Option A: Flutter アプリ内部へ直接組み込む
+- 長所: 単一プロセス
+- 短所: サイズが重く、配布が難しい
 
-### Option B: local Python / model process bridge
-- Pros: pragmatic for Windows, keeps Flutter app light, aligns with the provided design memo
-- Cons: requires external dependencies and model assets
+### Option B: ローカル Python / モデルプロセス連携
+- 長所: Windows では現実的、Flutter 本体を軽く保てる、設計メモと整合する
+- 短所: 外部依存とモデルアセットが必要
 
-### Option C: cloud inference service
-- Pros: thin client
-- Cons: privacy and offline tradeoffs
+### Option C: クラウド推論サービス
+- 長所: クライアントが薄い
+- 短所: プライバシーとオフライン性で不利
 
-### Chosen Option
+### 採用案
 - Option B
 
-## 9. Local Runtime Boundary
-- Flutter does not bundle Dog2vec weights inside app code.
-- Runtime assets live under `dog_voice_local/`.
-- Config lives in `dog2vec_runtime.json`.
-- Runtime may operate in:
+## 9. ローカル runtime 境界
+- Flutter は Dog2vec 重みをアプリコード内へ同梱しない。
+- runtime アセットは `dog_voice_local/` に置く。
+- 設定は `dog2vec_runtime.json` で持つ。
+- runtime は以下の動作モードを取りうる。
   - bootstrap heuristic mode
   - Dog2vec-enhanced embedding mode
-- Flutter only consumes normalized JSON output.
+- Flutter 側は正規化済み JSON 出力だけを消費する。
 
-## 10. Personalization Design
-- Dog-specific calibration is modeled as aggregate profile statistics:
+## 10. 個体補正設計
+- 個体補正はプロフィール集計値として保持する。
   - average pitch
   - average RMS
   - average activity ratio
   - sample count
-- `DogIntentInterpreter` uses similarity to the active profile calibration as a small scoring bias.
-- This keeps personalization cheap and local while avoiding live retraining complexity.
+- `DogIntentInterpreter` は、選択中プロフィールとの類似度を小さなスコア補正として利用する。
+- これにより、完全な再学習を避けつつ、ローカルで安価なパーソナライズを実現する。
 
-## 11. State Ownership
-- `HomeController` owns:
+## 11. 状態の責務分担
+- `HomeController` が持つ状態:
   - selected inference model
   - effective active inference model
   - inference runtime status message
@@ -136,42 +136,42 @@
   - saved history
   - dashboard comparison selection
 
-## 12. History Interaction Design
-- History focuses on forward records in the visible UI.
-- Each item is clickable and replayable.
-- Search is local, client-side, and lightweight.
-- Date + time are shown to support longer-lived usage.
+## 12. 履歴操作設計
+- 公開 UI の履歴は forward レコード中心で扱う。
+- 各履歴項目はクリックで結果再表示、再生も可能。
+- 検索はローカル・クライアント側で軽量に行う。
+- 長期利用に備え、日付 + 時刻を表示する。
 
-## 13. Settings Design
-- Common settings and profile management are grouped together intentionally.
-- Existing add-profile flow from recording remains as a convenience shortcut.
-- Settings should not be a dumping ground; only app-wide or durable profile actions belong there.
+## 13. Settings 設計
+- 共通設定とプロフィール管理は意図的にまとめる。
+- 録音画面側のプロフィール追加導線はショートカットとして残す。
+- Settings は何でも置き場にせず、アプリ全体に関わる設定と durable なプロフィール操作だけを入れる。
 
-## 14. Mobile Readiness
-- Hidden reverse code remains isolated and can be restored later.
-- Inference stays behind a contract so Python runtime can later be replaced by ONNX / Sentis / TFLite compatible execution.
-- UI state flow avoids tight coupling to desktop-only navigation patterns.
+## 14. モバイル展開準備
+- 非表示 reverse コードは将来戻せるよう分離を維持する。
+- 推論は契約の後ろに置き、将来 ONNX / Sentis / TFLite 互換実行へ差し替えられるようにする。
+- UI 状態フローは、デスクトップ専用ナビゲーションへ強く結合しない。
 
-## 15. Release Packaging Architecture
-### Option A: zip-only desktop build
-- Pros: very simple
-- Cons: no guided runtime provisioning
+## 15. リリース/パッケージング設計
+### Option A: zip 単体のデスクトップビルド
+- 長所: 単純
+- 短所: runtime セットアップを案内しにくい
 
-### Option B: installer plus post-install runtime bootstrap
-- Pros: model weights stay out of the base package, runtime setup can be automated, uninstall cleanup can be explicit
-- Cons: install depends on internet access
+### Option B: インストーラ + post-install runtime bootstrap
+- 長所: モデル重みをベースパッケージから外せる、セットアップを自動化できる、アンインストール削除も明示できる
+- 短所: インストール時にネット接続が必要
 
-### Option C: fully bundled offline installer
-- Pros: offline after download
-- Cons: very large package
+### Option C: 完全同梱のオフラインインストーラ
+- 長所: ダウンロード後はオフラインで完結
+- 短所: パッケージが大きい
 
-### Chosen Option
+### 採用案
 - Option B
 
-### Release Runtime Design
-- Desktop app files live under the install directory.
-- Dog2vec runtime files live under LocalAppData so model data and Python assets are writable without admin privileges.
-- Runtime discovery supports:
-  - explicit environment config path
-  - explicit environment runtime root
-  - LocalAppData `DogTranslator` fallback paths
+### リリース runtime 配置
+- アプリ本体はインストールディレクトリ配下に置く。
+- Dog2vec runtime は LocalAppData 配下に置き、管理者権限なしで書き込み可能にする。
+- runtime 探索は以下を優先順でサポートする。
+  - 明示的な環境変数による config path
+  - 明示的な環境変数による runtime root
+  - LocalAppData `DogTranslator` の既定パス

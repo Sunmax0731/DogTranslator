@@ -1,14 +1,13 @@
-# Task: Installer Release Preparation
+﻿# タスク: インストーラ前提のリリース準備
 
-## Objective
-Prepare a releasable Windows installer package with automated Dog2vec runtime bootstrap.
+## 目的
+Dog2vec の重いモデルデータをベースパッケージへ含めず、Windows インストーラ経由で安全に配布できる状態へ整える。
 
-## Deliverables
-- Inno Setup installer definition
-- Local installer artifact in `dist/installer/`
-- Release plan updated for installer-first shipping
-- Release notes draft
-- Installer/uninstaller behavior documented
+## 主要論点
+- インストール時に runtime とモデルデータを取得する。
+- 設定作成と環境変数設定を自動化する。
+- アンインストーラで取得済みデータと特殊設定を削除できるようにする。
 
-## Remaining Check
-- Clean-machine installer smoke validation before public distribution
+## 完了条件
+- リリース計画に installer/bootstrap 方針が反映されている。
+- インストーラとアンインストーラの責務が明文化されている。

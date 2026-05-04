@@ -1,35 +1,35 @@
 # Skill.md
 
-## Specification Phase Skill
-Use this phase to convert approved requirements into concrete product behavior, interfaces, rules, and acceptance conditions.
+## 仕様検討フェーズ用スキル
+この工程では、要件で決めた方向を、画面挙動、入力、出力、例外時の振る舞いまで落とし込みます。
 
-## Goals
-- Define exact input/output behavior.
-- Remove ambiguity around recording, inference, result rendering, and playback.
-- Prepare implementation-ready module and API expectations.
+## 目的
+- 画面ごとの具体挙動を定義する。
+- forward 解釈、履歴、設定、ダッシュボードの入出力を固める。
+- 受け入れシナリオと失敗時挙動を明文化する。
 
-## Work Style
-- Use explicit option comparison when choices are still open.
-- Prefer "3 options -> criteria -> chosen option -> why" for major decisions.
-- Record edge cases and error handling, not only the happy path.
+## 進め方
+- `何が起きるか` をユーザーから見える単位で書く。
+- 候補比較が必要な箇所は、選択肢、判断基準、採用案、理由の順に整理する。
+- エラーハンドリングとフォールバックは明示する。
 
-## Required Outputs
+## 必須出力
 - `specification.md`
 - `ToDo.md`
-- task files for unresolved specifications
+- 仕様論点ごとの task 文書
 
-## Required Sections
-- feature behavior
-- user flow details
-- audio input rules
-- translation output rules
-- TTS behavior
-- human-text-to-dog-sound behavior
-- error handling
-- acceptance tests
+## 必須セクション
+- 機能セット
+- 画面遷移 / ナビゲーション
+- 入力 / 出力仕様
+- 解析フロー
+- エラー仕様
+- 受け入れシナリオ
+- runtime 契約
+- installer / bootstrap の挙動
 
-## Phase Questions
-- How long can recording run, and how does it stop?
-- How are uncertainty and confidence expressed?
-- What exact data shape moves between UI, audio, and inference modules?
-- What counts as a valid first implementation for reverse translation?
+## この工程で答えること
+- ユーザー操作に対して、どの画面で何を表示するのか。
+- フォールバック時に何をどう説明するのか。
+- ローカル runtime との JSON 契約はどうするのか。
+- 設定や履歴の永続化に何を含めるのか。

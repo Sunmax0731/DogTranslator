@@ -1,24 +1,24 @@
-# Specification ToDo
+# 仕様検討 ToDo
 
-## Deliverable
+## 成果物
 - `specification.md`
 
-## Tasks
-- [x] Define forward translation behavior
-- [x] Define reverse translation behavior
-- [x] Define audio input and analysis rules
-- [x] Define error handling and confidence presentation
-- [x] Define acceptance-oriented scenarios
-- [x] Define pre-release expansion behavior for waveform, microphone selection, and richer labels
-- [x] Define staged forward inference behavior and local model JSON contract
-- [x] Define richer audio-feature inputs and calibrated heuristic scoring rules
-- [x] Define user-selectable inference model behavior and fallback rules
-- [x] Define forward-only visible navigation while preserving hidden reverse implementation
-- [x] Define settings-tab behavior for themes, inference selection, and profile management
-- [x] Define history replay/search behavior and tooltip explanations
-- [x] Define profile calibration aggregation and Dog2vec runtime asset expectations
-- [x] Define installer/bootstrap behavior for local runtime download, configuration, and uninstall cleanup
+## タスク
+- [x] forward 解釈の挙動を定義
+- [x] reverse 実装の保持方針を定義
+- [x] 音声入力と解析ルールを定義
+- [x] エラーハンドリングと確信度表現を定義
+- [x] 受け入れシナリオを定義
+- [x] 波形、入力マイク、リッチなラベルの事前拡張挙動を定義
+- [x] 段階的 forward 推論とローカルモデル JSON 契約を定義
+- [x] 拡張音声特徴量と個体補正ヒューリスティックの仕様を定義
+- [x] ユーザー選択式推論モデルとフォールバックルールを定義
+- [x] reverse 実装を保ったまま forward 中心の公開ナビゲーションを定義
+- [x] Settings のテーマ、推論選択、プロフィール管理挙動を定義
+- [x] 履歴再生 / 検索挙動とツールチップ仕様を定義
+- [x] 個体補正集計と Dog2vec runtime アセット前提を定義
+- [x] ローカル runtime 取得、設定、アンインストール削除を含む installer/bootstrap 仕様を定義
 
-## Follow-up Candidates
-- [ ] Replace heuristic thresholds with learned model interface
-- [ ] Formalize localization resource structure
+## 将来候補
+- [ ] ヒューリスティック閾値を学習済みモデル I/F へ置き換える
+- [ ] ローカライズ用リソース構造を明文化する

@@ -1,80 +1,62 @@
-# DogTranslator Specification
+# DogTranslator 仕様書
 
-## 1. Feature Set
-- Forward mode: microphone audio -> staged analysis -> ranked interpretation candidates
-- Dashboard: local summaries and comparison support
-- Settings: global app preferences and profile management
-- Session history: persistent local forward history with search and replay
-- Live waveform / level trace during recording
-- Input microphone selection for Windows
-- Inference model selection between auto, heuristic, and Dog2vec-local preference
-- Optional Dog2vec local runtime via Python process
-- Hidden reverse implementation retained in codebase, but not surfaced in the release UI
+## 1. 機能セット
+- Forward モード: マイク音声 -> 段階解析 -> 候補順位付きの解釈結果
+- Dashboard: ローカル集計と比較支援
+- Settings: アプリ共通設定とプロフィール管理
+- Session History: ローカル永続化された forward 履歴の検索と再生
+- 録音中のライブ波形 / レベル表示
+- Windows 用の入力マイク選択
+- 推論モデル選択: auto / heuristic / dog2vec_local
+- Python プロセス経由の任意の Dog2vec ローカル runtime
+- reverse 実装はコードベースに残すが、公開 UI には出さない
 
-## 2. Visible Navigation
-- Wide layout:
-  - left navigation card
-  - main content
-  - right-side history panel
-- Narrow layout:
-  - bottom navigation
-  - stacked history section
-- Visible destinations:
+## 2. 画面遷移 / ナビゲーション
+- 広いレイアウト:
+  - 左ナビゲーションカード
+  - 中央メインコンテンツ
+  - 右側履歴パネル
+- 狭いレイアウト:
+  - 下部ナビゲーション
+  - 縦積みの履歴セクション
+- 表示対象:
   - `Forward`
   - `Dashboard`
   - `Settings`
 
-## 3. Forward Mode Behavior
-### Input
-- The user starts recording manually.
-- The user stops recording manually.
-- The user can choose a microphone input before recording.
-- The user can optionally choose a dog profile and scene mode before recording.
+## 3. Forward モードの挙動
+### 入力
+- ユーザーが録音を手動開始する。
+- ユーザーが録音を手動停止する。
+- 録音前に入力マイクを選べる。
+- 必要に応じて犬プロフィールとシーンモードを選べる。
 
-### Analysis Pipeline
-1. Load recorded PCM audio.
-2. Compute duration, RMS, peak level, zero-crossing rate, dynamic range, spectral centroid, high-band ratio, crest factor, activity ratio, and estimated pitch.
-3. Generate recording-quality hints.
-4. Run dog-vocal detection gate.
-5. Run the active inference provider.
-6. Apply profile-calibration similarity when a selected profile has voice calibration data.
-7. Produce:
-   - primary interpretation
-   - ranked candidate list
-   - vocal type
-   - context hint
-   - valence / arousal
-   - explanation
-   - confidence
-   - provider label
+### 解析パイプライン
+1. 録音した PCM 音声を読み込む。
+2. 録音長、RMS、Peak、Zero Crossing Rate、Dynamic Range、Spectral Centroid、High-band Ratio、Crest Factor、Activity Ratio、Pitch 推定を計算する。
+3. 録音品質ヒントを生成する。
+4. 犬音声検出ゲートを通す。
+5. 選択中の推論 provider を実行する。
+6. 選択プロフィールに補正データがある場合は類似度補正をかける。
+7. 主解釈、候補順位、鳴き方種別、文脈ヒント、valence / arousal、説明文、確信度、推論方式ラベルを生成する。
 
-### Output
-- Primary intent label
-- Japanese emotional label
-- Explanation sentence
-- Confidence: `high`, `medium`, or `low`
-- Ranked candidates
-- Candidate pie chart
-- Vocal type
-- Context hint
-- Valence / arousal hint values
-- Feature summary
-- Quality hints
+### 出力
+- 主解釈ラベル
+- 日本語の感情ラベル
+- 説明文
+- 確信度: `high` / `medium` / `low`
+- 候補順位
+- 候補円グラフ
+- 鳴き方種別
+- 文脈ヒント
+- valence / arousal 数値
+- 特徴量サマリ
+- 品質ヒント
 
-## 4. Result Parameter Help
-- Hovering result chips should show tooltips for:
-  - confidence
-  - provider
-  - vocal type
-  - context
-  - duration
-  - RMS
-  - peak
-  - pitch
-  - valence
-  - arousal
+## 4. 結果パラメータの説明
+結果カードでホバー時に、confidence、provider、vocal type、context、duration、RMS、peak、pitch、valence、arousal の説明を出す。
 
-## 5. Forward Emotion Categories
+## 5. forward 感情カテゴリ
 - `excited_greeting`
 - `attention_seeking`
 - `warning_alert`
@@ -85,8 +67,8 @@
 - `bored`
 - `uncertain`
 
-## 6. Additional Forward Classification Axes
-### Vocal Types
+## 6. 追加分類軸
+### 鳴き方種別
 - `bark`
 - `growl`
 - `whine`
@@ -96,7 +78,7 @@
 - `mixed`
 - `unknown`
 
-### Context Hints
+### 文脈ヒント
 - `stranger_or_noise`
 - `owner_return`
 - `food_or_attention`
@@ -107,69 +89,75 @@
 - `conflict`
 - `unknown`
 
-## 7. Recording Visualization and Quality
-- While recording is active, the app should show a live waveform or bar-trace style meter.
-- The visualization should reset when a new recording session starts.
-- Quality hints may include:
-  - recording too short
-  - level too weak
-  - peak too spiky
-  - likely noisy / unstable input
+## 7. 録音可視化と品質
+- 録音中はライブ波形、またはバー状のレベル表示を出す。
+- 新しい録音開始時に可視化をリセットする。
+- 品質ヒントの例:
+  - 録音が短すぎる
+  - レベルが弱すぎる
+  - Peak が尖りすぎている
+  - ノイズ混入または不安定入力の可能性
 
-## 8. Profiles and Calibration
-### Dog Profile Fields
+## 8. プロフィールと個体補正
+### 犬プロフィール項目
 - profile id
-- display name
-- breed
-- age stage
-- size class
-- notes
-- optional voice calibration aggregate:
-  - sample count
-  - average pitch
-  - average RMS
-  - average activity ratio
-  - last calibration timestamp
+- 表示名
+- 犬種
+- 年齢ステージ
+- サイズ区分
+- メモ
+- 任意の個体補正集計:
+  - サンプル数
+  - 平均 pitch
+  - 平均 RMS
+  - 平均 activity ratio
+  - 最終補正日時
 
-### Calibration Rule
-- The user can add the latest saved forward recording as a calibration sample for a profile.
-- Calibration updates aggregate statistics only in this phase.
-- Calibration influences heuristic scoring as a personalization bias, not as full retraining.
+### 個体補正ルール
+- 最新の保存済み forward 録音をプロフィールへ補正サンプルとして追加できる。
+- 現フェーズでは、個体補正は集計値更新のみ行う。
+- 個体補正は、完全な再学習ではなく、ヒューリスティックの小さなバイアスとして作用させる。
 
-### Supported Breeds
-- include existing breeds plus `Pomeranian`
+### 対応犬種
+- 既存犬種に加え `Pomeranian` を含む
 
-## 9. Feedback Input
-- Saved forward records can store a manual feedback label.
-- The visible input control should use radio buttons, not a dropdown.
+## 9. フィードバック入力
+- 保存済み forward レコードに手動フィードバックラベルを保存できる。
+- 可視 UI ではドロップダウンではなくラジオボタンを使う。
 
-## 10. Settings Tab Behavior
-### Common Settings
-- Theme preset selection:
+## 10. Settings タブの挙動
+### 共通設定
+- テーマプリセット:
   - default
   - ocean
   - sunset
   - forest
   - graphite
-- Inference model selection:
+  - dark
+- 推論モデル:
   - `auto`
   - `heuristic`
   - `dog2vec_local`
+- 入力マイク選択
 
-### Profile Management
-- Add profile
-- Edit profile
-- Delete profile
-- Add latest recording as calibration sample
+### プロフィール管理
+- 追加
+- 編集
+- 削除
+- 最新録音を個体補正サンプルとして追加
 
 ## 11. Session History
-- Persist forward and reverse interactions locally, but the visible history panel should focus on forward sessions.
-- History panel behavior:
-  - search box
-  - date + time display
-  - replay saved forward recording
-  - compare selection toggle
-- Visible metadata:
+- forward / reverse の内部履歴は保持できるが、公開 UI の履歴パネルは forward 中心とする。
+- 履歴パネルの機能:
+  - 検索ボックス
+  - 日付 + 時刻表示
+  - 保存済み forward 録音の再生
+  - 比較対象選択トグル
+  - 感情タグ絞り込み
+  - プロフィール絞り込み
+  - 個別削除
+  - 一括削除
+- 表示メタデータ:
   - timestamp
   - profile name
   - scene mode
@@ -177,24 +165,28 @@
   - short explanation
 
 ## 12. Dashboard
-- Total forward sessions
-- Feedback coverage
-- Profile count
-- Comparison summary for selected forward records
+- forward 総セッション数
+- フィードバック入力数
+- プロフィール数
+- 感情カテゴリ別集計
+- シーン別集計
+- 比較対象サマリ
+- プロフィールごとの絞り込み
+- 感情クリックによる履歴フィルタ連動
 
-## 13. Local Process Inference Contract
-### Invocation
-- The app loads optional runtime config from JSON.
-- It launches the configured command with its configured args.
-- It appends `--input <wavPath>` to the invocation.
+## 13. ローカルプロセス推論契約
+### 実行方法
+- アプリは JSON から任意の runtime 設定を読み込む。
+- 設定された command と args でプロセスを起動する。
+- 呼び出し時に `--input <wavPath>` を付与する。
 
-### Runtime Files
-- `dog2vec_runtime.json` at repo root or deployed working directory
-- `dog_voice_local/` runtime folder
-- optional upstream helper repo under `dog_voice_local/vendor/dog2vec`
-- optional weight file under `dog_voice_local/models/dog2vec/dog2vec_130k_9.pt`
+### runtime ファイル
+- repo root または配布先に置く `dog2vec_runtime.json`
+- `dog_voice_local/` runtime フォルダ
+- 必要に応じて `dog_voice_local/vendor/dog2vec` の補助コード
+- 必要に応じて `dog_voice_local/models/dog2vec/dog2vec_130k_9.pt`
 
-### Expected stdout JSON
+### 期待する stdout JSON
 ```json
 {
   "detected": true,
@@ -204,65 +196,65 @@
   "valence": -0.22,
   "arousal": 0.81,
   "confidence": 0.68,
-  "message": "警戒に近い鳴き方として解釈しました。"
+  "message": "警戒に近い声の傾向として解釈しました。"
 }
 ```
 
-### Fallback Rules
-- No config: use heuristic provider.
-- Process failure: use heuristic provider.
-- Weak or likely non-dog input: return uncertain with guidance.
+### フォールバックルール
+- 設定ファイル無し: heuristic provider を使う。
+- プロセス失敗: heuristic provider を使う。
+- 犬音声でない、または弱すぎる入力: uncertain と品質ガイドを返す。
 
-### Model Selection Rules
-- `auto`: prefer Dog2vec local runtime when configured, otherwise heuristic.
-- `heuristic`: always use the in-app heuristic pipeline.
-- `dog2vec_local`: prefer the local Dog2vec runtime; if unavailable, fall back to heuristic and surface that fallback in UI status text.
+### モデル選択ルール
+- `auto`: Dog2vec runtime が構成されていれば優先し、なければ heuristic。
+- `heuristic`: 常にアプリ内ヒューリスティックを使う。
+- `dog2vec_local`: ローカル Dog2vec runtime を優先し、利用不可時は heuristic へフォールバックし、その状態を UI メッセージで見せる。
 
-## 14. Hidden Reverse Feature Rule
-- Reverse implementation remains in source control.
-- The release UI must not expose:
-  - reverse tab
-  - reverse history view
-  - reverse dashboard emphasis
-- Future reactivation should require UI wiring only, not full reimplementation.
+## 14. 非表示 reverse 機能の扱い
+- reverse 実装はソース管理に残す。
+- 公開 UI では以下を出さない:
+  - reverse タブ
+  - reverse 履歴ビュー
+  - reverse 中心のダッシュボード導線
+- 将来の再有効化は、再実装ではなく UI 配線で戻せる状態を保つ。
 
-## 15. Error Handling
-- No microphone available: show device guidance and disable recording action.
-- Recording too short: return low-confidence output plus quality hint.
-- File parse failure: show analysis error and keep the session alive.
-- Playback failure: keep the result visible and show failure without blocking the UI.
-- Selected microphone unavailable: fall back to default input and show a message.
-- Persistence read failure: reset to empty local state and show a warning.
-- Local inference process failure: fall back to heuristic inference without crashing.
+## 15. エラーハンドリング
+- マイク未接続: ガイダンスを表示し、録音操作を無効化する。
+- 録音が短い: 低確信度 + 品質ヒント付きで返す。
+- ファイル解析失敗: セッションは維持しつつ解析エラー表示。
+- 再生失敗: 結果は保持し、UI を止めずに失敗だけ通知。
+- 選択マイクが使えない: デフォルト入力へ戻し、メッセージを出す。
+- 永続化読み込み失敗: ローカル状態を空で再初期化し、警告を出す。
+- ローカル推論プロセス失敗: 落ちずに heuristic 推論へフォールバックする。
 
-## 16. Acceptance Scenarios
-1. User records a short loud bark -> app returns ranked alert/greeting candidates with quality guidance.
-2. User records near silence -> app returns uncertain with low confidence.
-3. User hovers a feature chip -> app shows a tooltip explaining the parameter.
-4. User changes the microphone device and records successfully from the selected input.
-5. User opens Settings and changes the theme preset.
-6. User adds, edits, and deletes profiles from Settings.
-7. User replays a saved forward recording from history.
-8. User searches history and sees date + time on results.
-9. User adds the latest forward recording as a calibration sample for a profile.
-10. Local Dog2vec runtime returns JSON -> app maps it into the forward result structure.
-11. Reverse implementation remains present in code, but the release UI shows only Forward, Dashboard, and Settings.
+## 16. 受け入れシナリオ
+1. 短く大きな吠え声を録音すると、警戒/挨拶などの候補順位と品質ガイドが出る。
+2. ほぼ無音を録音すると、uncertain と低確信度で返る。
+3. feature chip にホバーすると説明ツールチップが出る。
+4. 入力マイクを切り替えて、選択したデバイスから録音できる。
+5. Settings でテーマを切り替えられる。
+6. Settings でプロフィールの追加 / 編集 / 削除ができる。
+7. 履歴から保存済み forward 録音を再生できる。
+8. 履歴検索結果に日付と時刻が表示される。
+9. 最新の forward 録音をプロフィールへ補正サンプル追加できる。
+10. Dog2vec runtime が JSON を返すと、forward 結果へマッピングされる。
+11. reverse 実装は残っているが、公開 UI は Forward / Dashboard / Settings のみを表示する。
 
-## 17. Installer and Runtime Bootstrap Behavior
-### Install
-- Install target: `%LocalAppData%\\Programs\\DogTranslator`
-- Post-install bootstrap target:
-  - runtime root: `%LocalAppData%\\DogTranslator\\dog2vec-runtime`
-  - config root: `%LocalAppData%\\DogTranslator\\.dog2vec`
-- Installer bootstrap downloads:
-  - embedded Python runtime
-  - Python dependencies for Dog2vec local inference
-  - Dog2vec helper source archive
-  - Dog2vec model weight file
-- Installer bootstrap writes runtime JSON and user environment variables automatically.
+## 17. インストーラと runtime bootstrap の挙動
+### インストール
+- インストール先: `%LocalAppData%\Programs\DogTranslator`
+- post-install bootstrap 先:
+  - runtime root: `%LocalAppData%\DogTranslator\dog2vec-runtime`
+  - config root: `%LocalAppData%\DogTranslator\.dog2vec`
+- インストーラ bootstrap が取得するもの:
+  - 組み込み Python runtime
+  - Dog2vec ローカル推論用 Python パッケージ
+  - Dog2vec 補助ソースアーカイブ
+  - Dog2vec モデル重みファイル
+- runtime JSON とユーザー環境変数を自動作成する。
 
-### Uninstall
-- Uninstall removes:
+### アンインストール
+- 削除対象:
   - runtime root
   - config root
   - `DOG_TRANSLATOR_RUNTIME_ROOT`

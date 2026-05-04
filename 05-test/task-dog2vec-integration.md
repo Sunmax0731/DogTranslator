@@ -1,21 +1,13 @@
-# Dog2vec Integration Test Task
+﻿# タスク: Dog2vec 連携
 
-## Automated Coverage
-- Heuristic interpreter:
-  - alert mapping
-  - low-energy mapping
-  - weak-input fallback
-- Local process provider:
-  - JSON response mapping into app model
-- Widget flow:
-  - reverse flow still works after inference contract change
+## 目的
+Dog2vec を既存の forward 推論へ統合できるようにし、ヒューリスティック推論だけに依存しない拡張経路を整える。
 
-## Validation Commands
-- `flutter analyze`
-- `flutter test`
-- `flutter build windows`
+## 主要論点
+- ローカル runtime との連携方法を明確にする。
+- Dog2vec 未設定時の安全なフォールバックを定義する。
+- 推論結果を既存 UI / ドメインモデルへ正規化して取り込む。
 
-## Expected Result
-- App builds without requiring a Dog2vec runtime.
-- If runtime config is missing, heuristic inference still works.
-- If runtime is later configured, JSON contract can populate richer forward output.
+## 完了条件
+- アプリ側に Dog2vec 連携方針が反映されている。
+- runtime 不在時もアプリが落ちず、ヒューリスティックへ戻る。

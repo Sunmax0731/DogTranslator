@@ -1,112 +1,102 @@
-# DogTranslator Requirements Definition
+# DogTranslator 要件定義
 
-## 1. Product Vision
-DogTranslator is a Windows-first application that records dog vocalizations, estimates likely emotional intent, and presents that interpretation as readable text. The product is positioned as an `interpretation` and `emotion estimation` tool, not a scientifically validated literal translator.
+## 1. 製品ビジョン
+DogTranslator は、犬の鳴き声を録音し、感情や意図の傾向を推定して、人が読める日本語テキストとして提示する Windows 先行アプリです。製品の位置づけは、科学的に検証済みの厳密翻訳ではなく、`解釈` と `感情推定` です。
 
-## 2. Current Product Direction
-- Primary experience: dog voice -> human-readable interpretation
-- Reverse mode status: implementation retained internally, but hidden from the main UI until quality improves
-- Model direction: heuristic inference remains the safe fallback, while Dog2vec-backed local runtime is added as an optional higher-fidelity path
+## 2. 現在の製品方針
+- 主体となる体験: 犬の声 -> 人が読める解釈
+- reverse モードの扱い: 実装は内部保持するが、品質向上までメイン UI では非表示
+- モデル方針: 標準ではヒューリスティック推論を安全なフォールバックとして維持しつつ、Dog2vec ベースのローカル runtime を任意の高精度経路として追加する
 
-## 3. Target Users
-- Dog owners who want a practical and playful interpretation tool
-- Early testers interested in local audio AI
-- Users who want to keep histories, compare sessions, and refine interpretation per individual dog
+## 3. 対象ユーザー
+- 実用性と楽しさの両方を求める犬の飼い主
+- ローカル音声 AI を試したい初期ユーザー
+- 履歴比較や個体ごとの傾向調整をしたいユーザー
 
-## 4. Priority User Scenarios
-1. A user records a bark and gets a Japanese emotional interpretation such as `遊びたい`, `さみしい`, or `警戒している`.
-2. A user wants to hover each result parameter and understand what it means.
-3. A user wants to manage dog profiles and shared app settings from one dedicated settings surface.
-4. A user wants to search past sessions, confirm when they were recorded, and replay a saved recording.
-5. A user wants the app to remember an individual dog's vocal tendency and use that as a personalization signal.
-6. A user wants to try Dog2vec local inference when the runtime is available, but still use the app safely when it is not.
+## 4. 優先ユーザーシナリオ
+1. ユーザーが犬の鳴き声を録音し、`遊びたい`、`さみしい / 甘えたい`、`警戒している` のような日本語の解釈を得る。
+2. 結果の各パラメータにカーソルを当て、その意味をツールチップで理解する。
+3. 犬プロフィールと共通設定を、専用の設定画面からまとめて管理する。
+4. 過去のセッションを検索し、記録日時を確認し、保存した録音を再生する。
+5. 特定の犬の鳴き方傾向を記録し、個体補正として利用する。
+6. Dog2vec ローカル推論を試しつつ、利用できない場合でも安全にアプリを使う。
 
-## 5. Scope After Forward-Only UI Refresh
-### In Scope
-- Windows desktop application
-- Microphone audio capture
-- Manual start / stop recording
-- Forward interpretation only in the visible UI
-- Session history with local persistence, search, date display, and replay
-- Tooltips for displayed interpretation parameters
-- Live recording waveform
-- Microphone device selection
-- Dog profile registration, editing, deletion, and selection
-- Shared settings tab
-- Theme preset selection
-- Dog-specific calibration samples from recorded forward sessions
-- Candidate probability pie chart
-- Feedback input via radio buttons
-- Optional Dog2vec local runtime with external Python process
-- Pomeranian breed support
+## 5. forward 中心 UI への再整理後のスコープ
+### スコープ内
+- Windows デスクトップアプリ
+- マイク音声入力
+- 手動の録音開始 / 停止
+- 公開 UI では forward 解釈のみ表示
+- ローカル永続化されたセッション履歴、検索、日付表示、再生
+- 解釈パラメータのツールチップ
+- 録音中の波形表示
+- 入力マイク選択
+- 犬プロフィールの登録、編集、削除、選択
+- 共通設定タブ
+- テーマ選択
+- 保存済み forward セッションを使った個体補正サンプル追加
+- 候補確率の円グラフ表示
+- ラジオボタンによるフィードバック入力
+- 外部 Python プロセスによる任意の Dog2vec ローカル runtime
+- ポメラニアン犬種サポート
 
-### Out of Scope
-- Scientifically validated dog-language translation
-- Public cloud inference as a requirement
-- Mobile shipping in the current phase
-- Reverse mode as a user-facing release feature in the current UI
-- Learned per-breed bark synthesis with validated datasets
+### スコープ外
+- 科学的に検証済みの犬語翻訳
+- クラウド推論必須の構成
+- 現フェーズでのモバイル公開
+- 現在の公開 UI における reverse 機能
+- 学習済み犬種別 bark synthesis を前提にした高精度 reverse 音声生成
 
-## 6. Functional Requirements
-1. The app must allow the user to start and stop microphone recording.
-2. The app must analyze the latest recorded audio and produce:
-   - a primary interpretation
-   - ranked candidates
-   - confidence wording
-   - vocal type
-   - context hint
-   - valence / arousal hints
-   - provider label
-3. The app must show explanatory tooltips for displayed interpretation parameters.
-4. The app must show a live waveform while recording.
-5. The app must allow microphone device selection on Windows.
-6. The app must persist profiles, forward history, settings, and feedback locally.
-7. The app must offer a settings tab for:
-   - theme selection
-   - inference model selection
-   - profile management
-8. The app must still allow profile creation from the existing recording-side flow.
-9. The app must allow replaying a saved forward recording from history.
-10. The app must allow searching saved forward sessions.
-11. The app must show session timestamps with date and time.
-12. The app must allow attaching a recorded forward sample to a selected dog profile as a calibration hint.
-13. The app must hide the reverse interpretation feature from the visible UI while keeping its implementation in the codebase.
-14. The app must support an optional Dog2vec local runtime and fall back gracefully when it is unavailable or fails.
+## 6. 機能要件
+1. ユーザーがマイク録音を開始 / 停止できること。
+2. 最新の録音音声を解析し、主解釈、候補順位、確信度表現、鳴き方種別、文脈ヒント、valence / arousal 指標、推論方式ラベルを返すこと。
+3. 表示中の解釈パラメータに説明ツールチップを出すこと。
+4. 録音中にライブ波形を表示すること。
+5. Windows 上で入力マイクを選択できること。
+6. プロフィール、forward 履歴、設定、フィードバックをローカル保存すること。
+7. Settings タブでテーマ選択、推論モデル選択、プロフィール管理を行えること。
+8. 既存の録音側導線からもプロフィール追加できること。
+9. 履歴から保存済み forward 録音を再生できること。
+10. 保存済み forward セッションを検索できること。
+11. セッションの日時を表示できること。
+12. 保存済み forward 録音を個体補正サンプルとしてプロフィールへ追加できること。
+13. reverse 機能はコードベースに残しつつ、公開 UI からは隠すこと。
+14. Dog2vec ローカル runtime を任意で利用でき、未設定や失敗時は安全にフォールバックすること。
 
-## 7. Non-Functional Requirements
-- Responsiveness: forward results should appear within a few seconds after recording stops.
-- Privacy: recordings, profiles, and histories stay local in this phase.
-- Resilience: missing microphone, missing runtime, or replay failure should not crash the app.
-- Maintainability: hidden reverse functionality should remain isolated enough to be restored later.
-- Portability: inference runtime must stay behind a boundary that can later be replaced for mobile.
-- UX quality: the Windows UI should follow a calmer, WinUI3-aligned information hierarchy rather than a hero-centric marketing layout.
+## 7. 非機能要件
+- 応答性: 録音停止後、数秒以内に結果を出すこと。
+- プライバシー: 録音、プロフィール、履歴は現フェーズではローカル保持とする。
+- 耐障害性: マイク未接続、runtime 未準備、再生失敗でもアプリが落ちないこと。
+- 保守性: 非表示の reverse 機能は将来復帰しやすい粒度で分離すること。
+- 可搬性: 推論 runtime は、将来モバイル向け実装に置き換えられる境界の後ろに置くこと。
+- UX 品質: Hero 主体の見せ方ではなく、WinUI3 に寄せた落ち着いた情報階層を持つこと。
 
-## 8. Risks and Assumptions
-### Risks
-- Dog2vec runtime requires a large model file and Python dependencies.
-- Downstream classifier quality still depends on heuristics or separately trained heads.
-- User-provided calibration samples may be sparse or noisy.
-- Windows audio-device behavior can still vary by hardware.
+## 8. リスクと前提
+### リスク
+- Dog2vec runtime は大きなモデルファイルと Python 依存を必要とする。
+- 下流分類器の品質は、ヒューリスティックや別学習済み head の出来に依存する。
+- ユーザー提供の個体補正サンプルは少量・ノイズ混入の可能性がある。
+- Windows の音声デバイス挙動はハードウェア差異が大きい。
 
-### Assumptions
-- The core product remains an interpretation tool.
-- Dog-specific calibration is a personalization hint, not full supervised retraining.
-- Reverse mode should remain hidden until fidelity improves enough for public use.
-- Dog2vec integration in this phase is local-process based, not embedded directly into Flutter.
+### 前提
+- コア製品は翻訳ツールではなく解釈ツールである。
+- 個体補正は、完全な再学習ではなくパーソナライズのヒントである。
+- reverse モードは、品質が十分に上がるまで非表示を維持する。
+- Dog2vec 連携は、現フェーズでは Flutter 直埋め込みではなくローカルプロセス連携で行う。
 
-## 9. Acceptance Criteria
-- A Windows user can record audio and receive a forward interpretation.
-- The visible UI contains Forward, Dashboard, and Settings flows only.
-- The user can inspect parameter meanings via tooltips.
-- The user can search and replay saved forward sessions from history.
-- The user can manage profiles from Settings and still add them from the recording flow.
-- The user can choose a theme preset and inference model in Settings.
-- The user can add a calibration sample from a saved forward recording to a profile.
-- The app works with or without Dog2vec local runtime configuration.
+## 9. 受け入れ条件
+- Windows ユーザーが録音し、forward 解釈結果を受け取れること。
+- 公開 UI が Forward / Dashboard / Settings のみで構成されること。
+- ユーザーがツールチップで各パラメータの意味を確認できること。
+- ユーザーが履歴から検索・再生できること。
+- Settings からプロフィール管理し、録音側からも追加できること。
+- Settings でテーマと推論モデルを選べること。
+- 保存済み録音を個体補正サンプルとしてプロフィールへ追加できること。
+- Dog2vec runtime の有無にかかわらず動作すること。
 
-## 10. Release Packaging Requirements
-- The primary Windows distribution format must be an installer rather than a raw zip-only package.
-- The base installer must not require the Dog2vec weight file to be bundled inside the desktop app payload.
-- The installer must provision runtime configuration automatically without requiring users to hand-edit JSON or environment settings.
-- The installer must download Dog2vec runtime assets during installation.
-- The uninstaller must remove installer-created runtime settings and downloaded model/runtime assets.
+## 10. リリース/配布要件
+- Windows 配布形式は、zip 単体ではなくインストーラを主とすること。
+- ベースインストーラに Dog2vec 重みファイルを直接同梱しないこと。
+- インストーラが JSON 手編集や環境変数の手設定を要求しないこと。
+- Dog2vec runtime アセットはインストール中に取得すること。
+- アンインストーラが、インストーラ作成の runtime 設定とダウンロード済みアセットを削除すること。

@@ -1,63 +1,63 @@
 # DogTranslator ToDo
 
-## Project Overview
-- Product: DogTranslator
-- Goal: Build a Windows MVP for dog-voice interpretation, then expand to Android and iPhone with shared core logic.
-- Delivery style: task-driven development with phase-specific documents and task files.
+## プロジェクト概要
+- 製品名: DogTranslator
+- 目的: 犬の鳴き声を解釈する Windows MVP を構築し、その後 Android / iPhone へ共通コアを広げる。
+- 進め方: 工程ごとの文書と task ファイルを使うタスク駆動開発。
 
-## Milestones
-1. `01-requirements`: define MVP scope and constraints
-2. `02-specification`: define exact behaviors and acceptance conditions
-3. `03-design`: select stack and architecture
-4. `04-implementation`: build the Windows MVP
-5. `05-test`: validate behavior and document evidence
-6. `06-release`: prepare packaging and release planning
+## マイルストーン
+1. `01-requirements`: MVP の範囲と制約を定義
+2. `02-specification`: 具体的な挙動と受け入れ条件を定義
+3. `03-design`: 技術選定とアーキテクチャを定義
+4. `04-implementation`: Windows MVP を実装
+5. `05-test`: 挙動を検証し、根拠を記録
+6. `06-release`: 配布形式を整備し、リリースを公開
 
-## Current Status
-- `01-requirements`: complete
-- `02-specification`: complete
-- `03-design`: complete
-- `04-implementation`: complete
-- `05-test`: complete
-- `06-release`: in progress
+## 現在の状態
+- `01-requirements`: 完了
+- `02-specification`: 完了
+- `03-design`: 完了
+- `04-implementation`: 完了
+- `05-test`: 完了
+- `06-release`: 完了
 
-## Active Tasks
-- [x] Create repository operating documents (`Agents.md`, root `Skill.md`, phase `Skill.md`)
-- [x] Create milestone and phase documentation skeleton
-- [x] Implement Windows MVP using Flutter
-- [x] Execute automated validation
-- [x] Resolve Windows build environment prerequisites and run desktop build
-- [x] Expand pre-release scope with waveform, mic selection, and richer Japanese emotion labels
-- [x] Add breed-aware reverse mode controls and synthesis presets
-- [x] Implement MVP+ persistence, profiles, dashboard, ranked candidates, and inference abstraction
-- [x] Rework forward inference for Dog2vec-ready staged interpretation
-- [x] Add local process inference bridge and resilient fallback path
-- [x] Improve forward accuracy with richer audio features, calibrated scoring, and clean Japanese labels
-- [x] Add selectable inference model settings with runtime-aware fallback
-- [x] Refocus the visible product on forward interpretation and hide reverse mode UI
-- [x] Add settings tab, theme presets, richer history controls, and result tooltips
-- [x] Add profile calibration support and candidate pie-chart visualization
-- [x] Acquire Dog2vec local runtime assets and validate the Python runtime entrypoint
-- [x] Expand analysis progress UI with more stages, ETA, and dimmed stale results
-- [x] Add history tag filters, selection-driven result recall, and GUI delete actions
-- [x] Add dashboard-driven history filtering and profile-scoped analytics
-- [x] Move microphone selection into Settings and add dark mode theme
-- [x] Define installer-based release packaging with post-install Dog2vec bootstrap
-- [x] Build local installer artifact and runtime cleanup scripts
-- [ ] Finalize release notes and publishable distribution checklist
+## 主な実施タスク
+- [x] リポジトリ運用文書 (`Agents.md`, ルート `Skill.md`, 工程別 `Skill.md`) を整備
+- [x] マイルストーン文書と工程別スケルトンを作成
+- [x] Flutter ベースの Windows MVP を実装
+- [x] 自動検証を実施
+- [x] Windows ビルド環境の前提を解消し、デスクトップビルドを完了
+- [x] 波形表示、入力マイク選択、日本語感情ラベル強化などのリリース前拡張を実施
+- [x] 犬種考慮の reverse 制御と音声合成プリセットを実装
+- [x] 永続化、プロフィール、ダッシュボード、候補順位付け、推論抽象化を追加
+- [x] Dog2vec 導入を見据えた forward 推論の段階化を実施
+- [x] ローカルプロセス推論ブリッジと安全なフォールバックを追加
+- [x] 音声特徴量拡張とスコア調整で forward 精度を改善
+- [x] 推論モデル選択 UI と runtime 状態に応じた切替を追加
+- [x] 公開 UI を forward 中心へ整理し、reverse UI を非表示化
+- [x] 設定タブ、テーマ切替、履歴操作、結果ツールチップを追加
+- [x] プロフィール補正、候補円グラフ、犬種別表情表示を追加
+- [x] Dog2vec ローカル runtime アセットを取得し、Python runtime 経路を検証
+- [x] 解析進捗 UI を段階表示、残り時間、半透明化で強化
+- [x] 履歴タグ絞り込み、結果再表示、GUI 削除導線を追加
+- [x] ダッシュボードからの履歴絞り込みとプロフィール別集計を追加
+- [x] 入力マイク選択を Settings へ移し、ダークモードを追加
+- [x] インストーラ前提のリリース設計と Dog2vec bootstrap 方式を定義
+- [x] ローカルインストーラ成果物と runtime クリーンアップスクリプトを作成
+- [x] GitHub リポジトリ公開と `v1.0.0` リリースを完了
 
-## Branch Policy
-- Base branch: `main`
-- Task branches: `codex/<phase>-<task-summary>`
-- Keep active non-`main` branches to at most two whenever possible.
-- Merge completed task branches back to `main` before starting too many parallel tasks.
+## ブランチ方針
+- ベースブランチ: `main`
+- タスクブランチ: `codex/<phase>-<task-summary>`
+- 同時稼働する `main` 以外のブランチは原則 2 本以内
+- 完了したタスクブランチは `main` へ戻してから次へ進む
 
-## Current Delivery Sequence
-1. `codex/docs-foundation`: documentation and planning artifacts
-2. `codex/flutter-mvp`: Windows MVP implementation and testing
-3. `codex/release-prep-installer`: installer-oriented release preparation and runtime bootstrap
+## これまでの主な進行順序
+1. `codex/docs-foundation`: 文書基盤と計画の整備
+2. `codex/flutter-mvp`: Windows MVP の実装と検証
+3. `codex/release-prep-installer`: インストーラ中心のリリース準備と runtime bootstrap
 
-## Notes
-- Branch and merge operations are currently local unless a remote is configured and used explicitly.
-- Early "translation" results must be framed as interpretation or estimation, not scientific fact.
-- Release packaging now targets a per-user Windows installer that bootstraps Dog2vec runtime assets after app files are installed.
+## メモ
+- 公開済み GitHub リポジトリ: [DogTranslator](https://github.com/Sunmax0731/DogTranslator)
+- 初期の「翻訳」表現は、科学的事実ではなく解釈・推定として扱う。
+- 現在の配布形式は、アプリ本体導入後に Dog2vec runtime アセットを取得する Windows インストーラです。

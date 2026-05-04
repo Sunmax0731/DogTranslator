@@ -1,21 +1,21 @@
-# Requirements ToDo
+# 要件定義 ToDo
 
-## Deliverable
+## 成果物
 - `requirements-definition.md`
 
-## Tasks
-- [x] Define product objective and scope
-- [x] Define primary user scenarios
-- [x] Define MVP functional requirements
-- [x] Define non-functional requirements and risks
-- [x] Define explicit out-of-scope items for the first release
-- [x] Define pre-release expansion scope split for requested features
-- [x] Define Dog2vec-ready local inference requirements and constraints
-- [x] Re-scope the visible product around forward-only UI while retaining reverse implementation internally
-- [x] Define settings, history replay/search, theme selection, and calibration requirements
-- [x] Define Dog2vec local runtime asset and dependency expectations
-- [x] Define installer-based release requirements for runtime bootstrap, model download, and uninstall cleanup
+## タスク
+- [x] 製品目的とスコープを定義
+- [x] 主要ユーザーシナリオを定義
+- [x] MVP の機能要件を定義
+- [x] 非機能要件とリスクを定義
+- [x] 初回リリースのスコープ外項目を明示
+- [x] 要望機能の事前拡張スコープ分割を定義
+- [x] Dog2vec 対応ローカル推論の要件と制約を定義
+- [x] reverse 実装を内部保持したまま、公開製品を forward 中心へ再整理
+- [x] 設定、履歴再生 / 検索、テーマ選択、個体補正の要件を定義
+- [x] Dog2vec runtime アセットと依存の前提を定義
+- [x] runtime bootstrap、モデル取得、アンインストール削除を含むインストーラ要件を定義
 
-## Follow-up Candidates
-- [ ] Interview-based refinement with real dog owners
-- [ ] Legal and ethics review for product claims
+## 将来候補
+- [ ] 実際の飼い主ヒアリングに基づく再調整
+- [ ] 製品表現に関する法務 / 倫理レビュー

@@ -1,18 +1,13 @@
-# Task: Installer Release Preparation
+﻿# タスク: インストーラ前提のリリース準備
 
-## Objective
-Implement the release bootstrap assets and build helper needed to produce a Windows installer.
+## 目的
+Dog2vec の重いモデルデータをベースパッケージへ含めず、Windows インストーラ経由で安全に配布できる状態へ整える。
 
-## Implementation Scope
-- Add installer definition file.
-- Add post-install runtime bootstrap PowerShell script.
-- Add uninstall cleanup PowerShell script.
-- Add release build helper script for Windows + installer compilation.
-- Add app-side runtime config discovery for installed deployments.
-- Add pinned runtime dependency manifest for installer bootstrap.
+## 主要論点
+- インストール時に runtime とモデルデータを取得する。
+- 設定作成と環境変数設定を自動化する。
+- アンインストーラで取得済みデータと特殊設定を削除できるようにする。
 
-## Validation
-- `flutter analyze`
-- `flutter test`
-- `flutter build windows`
-- `powershell -ExecutionPolicy Bypass -NoProfile -File tools/build_release_installer.ps1`
+## 完了条件
+- リリース計画に installer/bootstrap 方針が反映されている。
+- インストーラとアンインストーラの責務が明文化されている。

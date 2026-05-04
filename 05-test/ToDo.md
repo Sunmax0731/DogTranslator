@@ -1,29 +1,16 @@
-# Test ToDo
+# テスト ToDo
 
-## Deliverable
+## 成果物
 - `test-plan.md`
 
-## Tasks
-- [x] Define automated test scope
-- [x] Define manual test scenarios
-- [x] Execute unit tests
-- [x] Execute widget tests
-- [x] Execute Windows build validation
-- [x] Record observed results and residual risks
-- [x] Document Windows build environment blocker and manual resolution path
-- [x] Add persistence, dashboard, and comparison automated tests
-- [x] Add reverse preset variation tests
-- [x] Add manual regression checklist for profiles and feedback labeling
-- [x] Add automated tests for local process inference mapping
-- [x] Extend tests for richer audio features and recalibrated inference outputs
-- [x] Add automated tests for inference model selection and runtime fallback
-- [x] Update regression scope for forward-only visible navigation
-- [x] Add manual checks for tooltips, settings, history replay, and theme switching
-- [x] Validate Dog2vec local runtime entrypoint with downloaded model assets
-- [x] Re-run analyze, test, and Windows build after progress/history/settings UI expansion
-- [x] Extend manual checklist for history filters, dashboard drilldown, and dark mode
-- [x] Validate installer compile path and runtime-config discovery updates
+## タスク
+- [x] 自動テストを整備し実行
+- [x] Windows ビルド検証を実施
+- [x] 手動回帰観点を整理
+- [x] Dog2vec runtime 連携を検証
+- [x] インストーラ生成を検証
+- [x] クリーン Windows プロファイルでのインストール / アンインストールを確認
 
-## Follow-up Candidates
-- [ ] Real microphone regression pack with curated sample audio
-- [ ] Device-matrix validation on multiple Windows machines
+## 将来候補
+- [ ] 追加端末でのインストーラ回帰
+- [ ] Dog2vec classifier head 導入後の評価セット整備

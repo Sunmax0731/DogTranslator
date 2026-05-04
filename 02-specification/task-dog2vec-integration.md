@@ -1,38 +1,13 @@
-# Dog2vec Integration Specification Task
+﻿# タスク: Dog2vec 連携
 
-## Forward Inference Stages
-1. Record WAV audio.
-2. Extract lightweight audio features.
-3. Run dog-vocal detection gate.
-4. Run active inference provider.
-5. Produce:
-   - emotion intent
-   - vocal type
-   - context
-   - valence
-   - arousal
-   - confidence
-   - message text
+## 目的
+Dog2vec を既存の forward 推論へ統合できるようにし、ヒューリスティック推論だけに依存しない拡張経路を整える。
 
-## Local Process Contract
-- Invocation:
-  - external command plus configured args
-  - app appends `--input <wavPath>`
-- Expected stdout JSON:
-```json
-{
-  "detected": true,
-  "vocal_type": "bark",
-  "emotion": { "top": "alert", "score": 0.74 },
-  "context": { "top": "stranger_or_noise", "score": 0.62 },
-  "valence": -0.22,
-  "arousal": 0.81,
-  "confidence": 0.68,
-  "message": "来客や物音に反応して警戒している可能性があります。"
-}
-```
+## 主要論点
+- ローカル runtime との連携方法を明確にする。
+- Dog2vec 未設定時の安全なフォールバックを定義する。
+- 推論結果を既存 UI / ドメインモデルへ正規化して取り込む。
 
-## Fallback Rules
-- If local runtime config is absent: use heuristic pipeline.
-- If local process fails: use heuristic pipeline.
-- If recording is too weak or likely non-dog: return uncertain result with quality guidance.
+## 完了条件
+- アプリ側に Dog2vec 連携方針が反映されている。
+- runtime 不在時もアプリが落ちず、ヒューリスティックへ戻る。

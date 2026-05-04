@@ -1,36 +1,36 @@
 # Skill.md
 
-## Requirements Phase Skill
-Use this phase to define what problem the product solves, for whom, under what constraints, and what is explicitly out of scope.
+## 要件定義フェーズ用スキル
+この工程では、製品が何の問題を解くのか、誰のためのものか、どの制約下で動くのか、何を明示的にスコープ外とするのかを定義します。
 
-## Goals
-- Clarify the Windows MVP boundary.
-- Define the user value of dog audio to text/TTS translation.
-- Define the experimental scope of human text to dog-sound playback.
-- Surface legal, ethical, and scientific limitations early.
+## 目的
+- Windows MVP の境界を明確にする。
+- 犬音声からテキスト / 解釈を返す価値を定義する。
+- 人の言葉を犬っぽい音へ変換する reverse 実装の扱いを定義する。
+- 法務、倫理、科学的限界を早い段階で表に出す。
 
-## Work Style
-- Prefer interviews, assumptions, constraints, and acceptance-oriented statements over technical detail.
-- Write requirements in user and system terms, not implementation terms.
-- Separate must-have, should-have, and future scope.
+## 進め方
+- 技術詳細よりも、ヒアリング、前提、制約、受け入れ条件を優先する。
+- 実装用語ではなく、ユーザーとシステムの観点で要件を書く。
+- must / should / future scope を分ける。
 
-## Required Outputs
+## 必須出力
 - `requirements-definition.md`
 - `ToDo.md`
-- task files for open requirement topics
+- 未解決の要件テーマに対する task 文書
 
-## Required Sections
-- product vision
-- target users
-- user scenarios
-- in-scope / out-of-scope
-- functional requirements
-- non-functional requirements
-- risks and assumptions
-- acceptance criteria for MVP
+## 必須セクション
+- 製品ビジョン
+- 対象ユーザー
+- ユーザーシナリオ
+- スコープ内 / スコープ外
+- 機能要件
+- 非機能要件
+- リスクと前提
+- MVP の受け入れ条件
 
-## Phase Questions
-- What exact experience should a Windows user get from the first release?
-- Is the output framed as translation, estimation, or entertainment?
-- What latency, privacy, and offline expectations matter?
-- What data or model constraints could block delivery?
+## この工程で答えること
+- 初回リリースで Windows ユーザーにどの体験を届けるのか。
+- 出力は翻訳なのか、推定なのか、エンタメなのか。
+- 応答速度、プライバシー、オフライン性で何を重視するのか。
+- どのデータやモデル制約が開発の妨げになりうるのか。

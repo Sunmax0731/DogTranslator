@@ -1,24 +1,18 @@
-# Design ToDo
+# 設計 ToDo
 
-## Deliverable
+## 成果物
 - `design.md`
 
-## Tasks
-- [x] Compare candidate stacks
-- [x] Select MVP stack
-- [x] Define architecture and module boundaries
-- [x] Define state flow and portability strategy
-- [x] Define UI surface structure
-- [x] Define pre-release expansion approach for waveform, device selection, and richer labels
-- [x] Define Dog2vec local-process integration architecture and fallback strategy
-- [x] Define feature-extraction and score-calibration refinements for accuracy improvements
-- [x] Define requested-vs-active inference model selection and fallback behavior
-- [x] Redesign the visible UI around a WinUI3-style forward-focused workspace
-- [x] Define hidden-feature preservation strategy for reverse mode
-- [x] Define settings-tab ownership and history replay/search behavior
-- [x] Define profile-calibration personalization approach
-- [x] Define installer/bootstrap architecture for shipping the app without bundling model weights
+## タスク
+- [x] Windows 先行かつモバイル展開を妨げない構成を選定
+- [x] HomeController 中心の責務分離を整理
+- [x] forward / dashboard / settings の UI 構成を設計
+- [x] Dog2vec ローカル推論ブリッジの境界を設計
+- [x] 個体補正、履歴、設定の永続化構成を設計
+- [x] forward 中心 UI と非表示 reverse 保持の両立方針を設計
+- [x] WinUI3 指向の情報設計とテーマ戦略を設計
+- [x] インストーラ + runtime bootstrap の配布アーキテクチャを設計
 
-## Follow-up Candidates
-- [ ] Plugin architecture for future ML model providers
-- [ ] Persistent storage abstraction for session history
+## 将来候補
+- [ ] モバイル向け navigation / state 置換方針の具体化
+- [ ] Dog2vec classifier head 追加時の学習 / 配布境界を設計

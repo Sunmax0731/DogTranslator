@@ -1,11 +1,13 @@
-# MVP+ Feature Suite Implementation Task
+﻿# タスク: MVP+ 機能拡張
 
-## Implementation Tasks
-- [x] Create persistence models and repository
-- [x] Persist profiles, interactions, and settings
-- [x] Expand audio feature extraction and inference output
-- [x] Add ranked candidates and quality hints to forward mode
-- [x] Add profile selection, scene mode, and feedback labeling UI
-- [x] Add reverse controls for age stage, size class, and tension
-- [x] Add dashboard tab and compare flow
-- [x] Keep layout responsive for future mobile work
+## 目的
+MVP 以降の価値を高めるため、保存履歴、プロフィール、ダッシュボード、候補順位付け、補正機能などの拡張を整理し、実装可能な単位へ落とし込む。
+
+## 主要論点
+- 継続利用につながる履歴 / 比較 / 集計機能を加える。
+- 個体差を扱うプロフィールと補正導線を整える。
+- 推論候補の見せ方を改善し、利用価値を上げる。
+
+## 完了条件
+- MVP+ の追加機能が要件 / 仕様 / 設計へ反映されている。
+- 実装対象と将来課題が区別されている。

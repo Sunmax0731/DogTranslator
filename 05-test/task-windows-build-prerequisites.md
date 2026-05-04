@@ -1,39 +1,22 @@
-# Task: Windows Build Prerequisites
+﻿# タスク: Windows ビルド前提解消
 
-## Goal
-Unblock `flutter build windows` on this machine.
+## 目的
+この環境で `flutter build windows` を通せるように、Visual Studio の不足コンポーネントを特定し、解消手順を整理する。
 
-## Current Failure
-- `flutter build windows` fails because Flutter cannot find a suitable Visual Studio C++ toolchain.
-- `flutter doctor -v` reports that Visual Studio Community 2026 at `C:\Program Files\Microsoft Visual Studio\18\Community` is missing:
-  - `Desktop development with C++`
-  - `MSVC v142 - VS 2019 C++ x64/x86 build tools`
-  - `C++ CMake tools for Windows`
-  - `Windows 10 SDK`
+## 現在の問題
+- Flutter が必要な Visual Studio C++ toolchain を見つけられない。
+- 必要な workload / component が不足している。
 
-## Evidence
+## 根拠
 - `flutter doctor -v`
-- Installer log: `%TEMP%\dd_installer_20260503221043.log`
-- Key installer message:
-  - commands with `--quiet` or `--passive` must be run elevated from the beginning
-  - exit code `5007`
+- Visual Studio Installer ログ
 
-## Blocking Constraint
-- This Codex session can invoke the Visual Studio Installer, but it cannot complete the required elevated modification flow in the current environment.
-- Attempts to use scheduled tasks for silent elevation also failed with access denied.
+## 手動解決手順
+1. Visual Studio Installer を管理者として起動する。
+2. 対象の Visual Studio を変更する。
+3. `Desktop development with C++` と必要 component を追加する。
+4. `flutter doctor -v` と `flutter build windows` を再実行する。
 
-## Manual Resolution Path
-1. Open Visual Studio Installer as administrator.
-2. Modify `Visual Studio Community 2026`.
-3. Add the `Desktop development with C++` workload.
-4. Ensure these individual components are present:
-   - `MSVC v142 - VS 2019 C++ x64/x86 build tools`
-   - `C++ CMake tools for Windows`
-   - `Windows 10 SDK`
-5. Re-run:
-   - `flutter doctor -v`
-   - `flutter build windows`
-
-## Done Condition
-- `flutter doctor -v` shows Visual Studio as healthy for Windows desktop development.
-- `flutter build windows` completes successfully.
+## 完了条件
+- `flutter doctor -v` が Windows desktop 開発に必要な Visual Studio 構成を認識する。
+- `flutter build windows` が成功する。

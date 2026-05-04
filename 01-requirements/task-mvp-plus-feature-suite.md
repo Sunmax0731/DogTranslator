@@ -1,28 +1,13 @@
-# MVP+ Feature Suite Task
+﻿# タスク: MVP+ 機能拡張
 
-## Goal
-Expand DogTranslator beyond the MVP into a stronger single-user companion app with persistence, customization, analytics, and future-proof inference boundaries.
+## 目的
+MVP 以降の価値を高めるため、保存履歴、プロフィール、ダッシュボード、候補順位付け、補正機能などの拡張を整理し、実装可能な単位へ落とし込む。
 
-## Requirement Tasks
-- [x] Define saved-history and comparison requirement
-- [x] Define expanded emotion taxonomy requirement
-- [x] Define recording quality guidance requirement
-- [x] Define reverse-mode parameter controls requirement
-- [x] Define dog profile requirement
-- [x] Define scene-mode requirement
-- [x] Define analytics dashboard requirement
-- [x] Define user feedback labeling requirement
-- [x] Define advanced feature extraction and pluggable inference requirement
-- [x] Define responsive layout / mobile-readiness requirement
+## 主要論点
+- 継続利用につながる履歴 / 比較 / 集計機能を加える。
+- 個体差を扱うプロフィールと補正導線を整える。
+- 推論候補の見せ方を改善し、利用価値を上げる。
 
-## Feature Inventory
-1. Saved recordings and comparison
-2. Expanded emotion categories and multiple candidates
-3. Input quality guidance
-4. Reverse controls for breed, age, size, and tension
-5. Dog profiles
-6. Scene modes
-7. Analytics dashboard
-8. User feedback labels for forward results
-9. Advanced audio features and inference abstraction
-10. Mobile-ready responsive layout
+## 完了条件
+- MVP+ の追加機能が要件 / 仕様 / 設計へ反映されている。
+- 実装対象と将来課題が区別されている。

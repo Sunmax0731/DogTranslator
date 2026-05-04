@@ -1,34 +1,33 @@
 # Skill.md
 
-## Test Phase Skill
-Use this phase to verify behavior against requirements and specification using explicit commands, environments, and expected results.
+## テストフェーズ用スキル
+この工程では、実装済み機能の正当性を自動テストと手動検証の両方で確認し、その根拠を残します。
 
-## Goals
-- Confirm the Windows MVP actually works in realistic environments.
-- Distinguish automated coverage from manual audio-device verification.
-- Record known limitations honestly.
+## 目的
+- 主要機能の回帰を防ぐ。
+- Windows 実行、Dog2vec 連携、インストーラ配布までを確認する。
+- 実測結果を次工程へ渡せる形で残す。
 
-## Work Style
-- Every test item should state command, working directory, required environment, and expected result.
-- Keep manual and automated test coverage separate but linked.
-- Prioritize audio-device, microphone, noise, and permission edge cases.
+## 進め方
+- 実行コマンド、作業ディレクトリ、期待結果を明記する。
+- 自動テストと手動確認を分けて記録する。
+- 実際に起きたエラーや注意点を Known Risk として残す。
 
-## Required Outputs
+## 必須出力
 - `test-plan.md`
 - `ToDo.md`
-- task files for test gaps, regressions, and evidence capture
+- テスト task 文書
 
-## Required Sections
-- test scope
-- environment matrix
-- automated tests
-- manual tests
-- edge cases
-- defect log
-- exit criteria
+## 必須セクション
+- 対象範囲
+- 自動テスト
+- 手動回帰チェックリスト
+- 実行コマンド
+- 期待結果
+- リスク領域
+- 実測結果
 
-## Phase Questions
-- Which behavior is unit-testable and which requires a real microphone/device?
-- How is translation uncertainty verified?
-- What happens when audio input quality is poor?
-- What minimum evidence is needed before release?
+## この工程で答えること
+- どのコマンドをどこで実行したか。
+- 手動で何を確認し、どうだったか。
+- インストーラや runtime 配布に問題が残っていないか。

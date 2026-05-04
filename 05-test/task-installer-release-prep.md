@@ -1,13 +1,13 @@
-# Task: Installer Release Preparation
+﻿# タスク: インストーラ前提のリリース準備
 
-## Objective
-Record the validation performed for installer-oriented release prep.
+## 目的
+Dog2vec の重いモデルデータをベースパッケージへ含めず、Windows インストーラ経由で安全に配布できる状態へ整える。
 
-## Validation Scope
-- Runtime-config discovery tests for explicit env config and LocalAppData fallback
-- Flutter analyze/test/build success after installer-related code changes
-- Inno Setup compile success for the local installer artifact
-- PowerShell syntax check for install/uninstall scripts
+## 主要論点
+- インストール時に runtime とモデルデータを取得する。
+- 設定作成と環境変数設定を自動化する。
+- アンインストーラで取得済みデータと特殊設定を削除できるようにする。
 
-## Remaining Gap
-- End-to-end install on a clean Windows profile remains a final manual release check.
+## 完了条件
+- リリース計画に installer/bootstrap 方針が反映されている。
+- インストーラとアンインストーラの責務が明文化されている。

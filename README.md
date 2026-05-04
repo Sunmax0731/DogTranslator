@@ -1,50 +1,50 @@
 # DogTranslator
 
-DogTranslator is a Windows-first Flutter desktop application that records dog vocalizations and estimates likely emotional intent in Japanese. The visible product is intentionally focused on `forward interpretation` rather than literal translation.
+DogTranslator は、犬の鳴き声を録音し、感情や意図の傾向を日本語で推定表示する Windows 先行の Flutter デスクトップアプリです。公開 UI は、厳密な翻訳ではなく `犬の声 -> 人が読める解釈` に集中しています。
 
-## Current Product Scope
-- Windows desktop app
-- Dog voice recording and staged interpretation
-- Local profile, history, replay, and dashboard features
-- Theme, microphone, and inference model settings
-- Optional Dog2vec local runtime through an external Python process
-- Breed-aware expression icons for the top candidate
+## 現在の製品スコープ
+- Windows デスクトップアプリ
+- 犬の鳴き声の録音と段階的な解析
+- プロフィール、履歴、再生、ダッシュボードのローカル管理
+- テーマ、入力マイク、推論モデルの設定
+- 外部 Python プロセスを介した任意の Dog2vec ローカル runtime
+- トップ候補に応じた犬種別表情アイコン表示
 
-## Product Framing
-- This app is an `interpretation` and `emotion estimation` tool.
-- It does **not** claim scientifically validated literal translation of dog language.
-- Reverse text-to-dog playback code remains in the repository, but the release UI does not expose it.
+## 製品の位置づけ
+- このアプリは `解釈` と `感情推定` のためのツールです。
+- 科学的に検証済みの厳密な犬語翻訳をうたうものではありません。
+- 人の言葉を犬っぽい声に変換する reverse 機能の実装は残していますが、公開 UI では非表示です。
 
-## Release Packaging
-The release target is a Windows installer, not a plain zip-only drop.
+## リリース形式
+配布対象は zip 配布ではなく、Windows インストーラです。
 
-### Installer behavior
-- Installs the desktop app under `%LocalAppData%\Programs\DogTranslator`
-- Bundles the Flutter app plus bootstrap-only Dog2vec runtime sources
-- Downloads Dog2vec runtime assets during installation:
-  - embedded Python runtime
-  - Python dependencies
-  - Dog2vec helper code
-  - Dog2vec model weight file
-- Writes runtime configuration automatically
-- Removes runtime configuration and downloaded runtime assets on uninstall
+### インストーラの動作
+- デスクトップアプリ本体を `%LocalAppData%\Programs\DogTranslator` に配置
+- Flutter アプリ本体と、Dog2vec runtime のブートストラップに必要な最小ソースを同梱
+- インストール時に Dog2vec runtime 用アセットを自動取得
+  - 組み込み Python runtime
+  - Python 依存パッケージ
+  - Dog2vec 補助コード
+  - Dog2vec モデル重み
+- runtime 設定を自動作成
+- アンインストール時に runtime 設定とダウンロード済み runtime アセットを削除
 
-### Current installer artifact
-- Local build output: [dist/installer](D:/AI/WinApp/DogTranslator/dist/installer)
-- Expected filename pattern: `DogTranslator-Setup-<version>.exe`
+### 現在のインストーラ成果物
+- ローカル出力先: [dist/installer](D:/AI/WinApp/DogTranslator/dist/installer)
+- 想定ファイル名: `DogTranslator-Setup-<version>.exe`
 
-## Developer Commands
-- Analyze: `flutter analyze`
-- Test: `flutter test`
-- Windows build: `flutter build windows`
-- Build installer: `powershell -ExecutionPolicy Bypass -NoProfile -File tools/build_release_installer.ps1`
+## 開発用コマンド
+- 解析: `flutter analyze`
+- テスト: `flutter test`
+- Windows ビルド: `flutter build windows`
+- インストーラ作成: `powershell -ExecutionPolicy Bypass -NoProfile -File tools/build_release_installer.ps1`
 
-## Dog2vec Runtime Notes
-- Development runtime bootstrap lives under [dog_voice_local](D:/AI/WinApp/DogTranslator/dog_voice_local)
-- Release installer bootstrap scripts live under [installer/scripts](D:/AI/WinApp/DogTranslator/installer/scripts)
-- App-side runtime config discovery is handled in [local_inference_runtime.dart](D:/AI/WinApp/DogTranslator/lib/services/local_inference_runtime.dart)
+## Dog2vec runtime 関連
+- 開発用ローカル runtime: [dog_voice_local](D:/AI/WinApp/DogTranslator/dog_voice_local)
+- リリース向けブートストラップスクリプト: [installer/scripts](D:/AI/WinApp/DogTranslator/installer/scripts)
+- アプリ側の runtime 設定探索: [local_inference_runtime.dart](D:/AI/WinApp/DogTranslator/lib/services/local_inference_runtime.dart)
 
-## Project Documents
+## 主要ドキュメント
 - [ToDo.md](D:/AI/WinApp/DogTranslator/ToDo.md)
 - [01-requirements/requirements-definition.md](D:/AI/WinApp/DogTranslator/01-requirements/requirements-definition.md)
 - [02-specification/specification.md](D:/AI/WinApp/DogTranslator/02-specification/specification.md)
