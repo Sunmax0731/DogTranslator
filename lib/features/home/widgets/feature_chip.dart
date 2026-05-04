@@ -47,6 +47,11 @@ class FeatureChip extends StatelessWidget {
     if (tooltip == null || tooltip!.isEmpty) {
       return content;
     }
-    return Tooltip(message: tooltip!, child: content);
+    return Tooltip(
+      message: tooltip!,
+      waitDuration: const Duration(milliseconds: 250),
+      showDuration: const Duration(seconds: 4),
+      child: MouseRegion(cursor: SystemMouseCursors.click, child: content),
+    );
   }
 }

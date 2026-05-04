@@ -189,7 +189,7 @@ class ForwardTranslatorTab extends StatelessWidget {
                             FeatureChip(
                               label: '推論方式',
                               value: result!.providerLabel,
-                              tooltip: 'どの推論方式で結果を出したかを表示します。',
+                              tooltip: 'どの推論方式で結果を算出したかを示します。',
                             ),
                             FeatureChip(
                               label: '確信度',
@@ -205,12 +205,12 @@ class ForwardTranslatorTab extends StatelessWidget {
                             FeatureChip(
                               label: '鳴き方',
                               value: result!.vocalType.labelJa,
-                              tooltip: '犬の声の種類を推定した結果です。',
+                              tooltip: '犬の声の出し方を分類した結果です。',
                             ),
                             FeatureChip(
                               label: '文脈',
                               value: result!.context.labelJa,
-                              tooltip: 'どのような状況に近いかの推定です。',
+                              tooltip: 'どのような場面に近いかの推定です。',
                             ),
                             FeatureChip(
                               label: '録音長',
@@ -243,7 +243,7 @@ class ForwardTranslatorTab extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         if (result!.qualityIssues.isEmpty)
-                          const Text('大きな録音品質上の注意は見つかりませんでした。')
+                          const Text('大きな録音品質上の問題は見つかりませんでした。')
                         else
                           ...result!.qualityIssues.map(
                             (issue) => Padding(
@@ -316,33 +316,64 @@ class _MetricRangePanel extends StatelessWidget {
       children: [
         Text('主要パラメータ', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),
-        _MetricBar(
-          label: 'RMS',
-          valueLabel: result.features.rms.toStringAsFixed(3),
-          normalizedValue: result.features.rms.clamp(0.0, 1.0),
-          minLabel: '0.0',
-          maxLabel: '1.0',
-        ),
-        _MetricBar(
-          label: 'Peak',
-          valueLabel: result.features.peak.toStringAsFixed(3),
-          normalizedValue: result.features.peak.clamp(0.0, 1.0),
-          minLabel: '0.0',
-          maxLabel: '1.0',
-        ),
-        _MetricBar(
-          label: 'Arousal',
-          valueLabel: result.arousal.toStringAsFixed(2),
-          normalizedValue: result.arousal.clamp(0.0, 1.0),
-          minLabel: '0.0',
-          maxLabel: '1.0',
-        ),
-        _MetricBar(
-          label: 'Valence',
-          valueLabel: result.valence.toStringAsFixed(2),
-          normalizedValue: ((result.valence + 1) / 2).clamp(0.0, 1.0),
-          minLabel: '-1.0',
-          maxLabel: '1.0',
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final gap = 12.0;
+            final cardWidth = constraints.maxWidth > 560
+                ? (constraints.maxWidth - gap) / 2
+                : constraints.maxWidth;
+            return Wrap(
+              spacing: gap,
+              runSpacing: gap,
+              children: [
+                SizedBox(
+                  width: cardWidth,
+                  child: _MetricBar(
+                    label: 'RMS',
+                    tooltip: '音量エネルギーの平均的な強さです。0 に近いほど小さく、1 に近いほど強い入力です。',
+                    valueLabel: result.features.rms.toStringAsFixed(3),
+                    normalizedValue: result.features.rms.clamp(0.0, 1.0),
+                    minLabel: '0.0',
+                    maxLabel: '1.0',
+                  ),
+                ),
+                SizedBox(
+                  width: cardWidth,
+                  child: _MetricBar(
+                    label: 'Peak',
+                    tooltip: '録音内の最大瞬間音量です。突発的な強い鳴き声やノイズで上がります。',
+                    valueLabel: result.features.peak.toStringAsFixed(3),
+                    normalizedValue: result.features.peak.clamp(0.0, 1.0),
+                    minLabel: '0.0',
+                    maxLabel: '1.0',
+                  ),
+                ),
+                SizedBox(
+                  width: cardWidth,
+                  child: _MetricBar(
+                    label: 'Arousal',
+                    tooltip: '興奮や活発さの推定値です。0 に近いほど落ち着き、1 に近いほど高ぶり傾向です。',
+                    valueLabel: result.arousal.toStringAsFixed(2),
+                    normalizedValue: result.arousal.clamp(0.0, 1.0),
+                    minLabel: '0.0',
+                    maxLabel: '1.0',
+                  ),
+                ),
+                SizedBox(
+                  width: cardWidth,
+                  child: _MetricBar(
+                    label: 'Valence',
+                    tooltip: '感情の快不快傾向です。負側は不快・警戒寄り、正側は快・親和寄りです。',
+                    valueLabel: result.valence.toStringAsFixed(2),
+                    normalizedValue: ((result.valence + 1) / 2).clamp(0.0, 1.0),
+                    minLabel: '-1.0',
+                    maxLabel: '1.0',
+                    showZeroMarker: true,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ],
     );
@@ -352,48 +383,154 @@ class _MetricRangePanel extends StatelessWidget {
 class _MetricBar extends StatelessWidget {
   const _MetricBar({
     required this.label,
+    required this.tooltip,
     required this.valueLabel,
     required this.normalizedValue,
     required this.minLabel,
     required this.maxLabel,
+    this.showZeroMarker = false,
   });
 
   final String label;
+  final String tooltip;
   final String valueLabel;
   final double normalizedValue;
   final String minLabel;
   final String maxLabel;
+  final bool showZeroMarker;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(child: Text(label)),
-              Text(valueLabel, style: Theme.of(context).textTheme.titleSmall),
-            ],
-          ),
-          const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(
-              minHeight: 10,
-              value: normalizedValue,
+    final theme = Theme.of(context);
+    final indicatorColor = Color.lerp(
+      const Color(0xFFDC2626),
+      const Color(0xFF16A34A),
+      normalizedValue,
+    )!;
+
+    return Tooltip(
+      message: tooltip,
+      waitDuration: const Duration(milliseconds: 250),
+      showDuration: const Duration(seconds: 4),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest.withValues(
+              alpha: 0.45,
             ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: theme.colorScheme.outlineVariant),
           ),
-          const SizedBox(height: 4),
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(minLabel, style: Theme.of(context).textTheme.labelSmall),
-              const Spacer(),
-              Text(maxLabel, style: Theme.of(context).textTheme.labelSmall),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(label, style: theme.textTheme.titleSmall),
+                  ),
+                  Text(valueLabel, style: theme.textTheme.titleSmall),
+                ],
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 16,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final markerLeft = constraints.maxWidth * normalizedValue;
+                    final zeroLeft = constraints.maxWidth * 0.5;
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFFDC2626),
+                                Color(0xFFF59E0B),
+                                Color(0xFF16A34A),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: markerLeft,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            gradient: LinearGradient(
+                              colors: [
+                                indicatorColor.withValues(alpha: 0.55),
+                                indicatorColor,
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (showZeroMarker)
+                          Positioned(
+                            left: (zeroLeft - 1.5).clamp(
+                              0.0,
+                              constraints.maxWidth - 3,
+                            ),
+                            top: -3,
+                            bottom: -3,
+                            child: Container(
+                              width: 3,
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.onSurface,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                            ),
+                          ),
+                        Positioned(
+                          left: (markerLeft - 7).clamp(
+                            0.0,
+                            constraints.maxWidth - 14,
+                          ),
+                          top: -3,
+                          child: Container(
+                            width: 14,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surface,
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(
+                                color: indicatorColor,
+                                width: 2,
+                              ),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x22000000),
+                                  blurRadius: 6,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Text(minLabel, style: theme.textTheme.labelSmall),
+                  if (showZeroMarker) ...[
+                    const Spacer(),
+                    Text('0', style: theme.textTheme.labelSmall),
+                    const Spacer(),
+                  ] else
+                    const Spacer(),
+                  Text(maxLabel, style: theme.textTheme.labelSmall),
+                ],
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
