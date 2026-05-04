@@ -18,14 +18,18 @@ class FeatureChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = backgroundColor ?? const Color(0xFFF1F5F9);
-    final fg = foregroundColor ?? Theme.of(context).colorScheme.onSurface;
+    final colorScheme = Theme.of(context).colorScheme;
+    final bg =
+        backgroundColor ??
+        colorScheme.surfaceContainerHighest.withValues(alpha: 0.72);
+    final fg = foregroundColor ?? colorScheme.onSurface;
 
     final content = Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
