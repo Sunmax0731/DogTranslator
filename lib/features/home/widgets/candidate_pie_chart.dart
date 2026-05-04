@@ -4,9 +4,14 @@ import 'package:dog_translator/domain/models.dart';
 import 'package:flutter/material.dart';
 
 class CandidatePieChart extends StatelessWidget {
-  const CandidatePieChart({required this.candidates, super.key});
+  const CandidatePieChart({
+    required this.candidates,
+    required this.breed,
+    super.key,
+  });
 
   final List<TranslationCandidate> candidates;
+  final DogBreed breed;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +39,7 @@ class CandidatePieChart extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _ExpressionCard(candidate: topCandidate),
+              _ExpressionCard(candidate: topCandidate, breed: breed),
               const SizedBox(height: 14),
               ...List.generate(candidates.length, (index) {
                 final candidate = candidates[index];
@@ -67,9 +72,10 @@ class CandidatePieChart extends StatelessWidget {
 }
 
 class _ExpressionCard extends StatelessWidget {
-  const _ExpressionCard({required this.candidate});
+  const _ExpressionCard({required this.candidate, required this.breed});
 
   final TranslationCandidate candidate;
+  final DogBreed breed;
 
   @override
   Widget build(BuildContext context) {
@@ -93,9 +99,18 @@ class _ExpressionCard extends StatelessWidget {
               color: expression.backgroundColor,
               borderRadius: BorderRadius.circular(22),
             ),
-            child: CustomPaint(
-              painter: _DogFacePainter(expression: expression),
-              child: const SizedBox.expand(),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: Image.asset(
+                _expressionAssetPath(breed, candidate.intent),
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return CustomPaint(
+                    painter: _DogFacePainter(expression: expression),
+                    child: const SizedBox.expand(),
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -121,6 +136,36 @@ class _ExpressionCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _expressionAssetPath(DogBreed breed, DogIntent intent) {
+  return 'assets/expression_icons/${_breedKey(breed)}_${_intentKey(intent)}.png';
+}
+
+String _breedKey(DogBreed breed) {
+  return switch (breed) {
+    DogBreed.mixed => 'mixed',
+    DogBreed.shiba => 'shiba',
+    DogBreed.chihuahua => 'chihuahua',
+    DogBreed.toyPoodle => 'toy_poodle',
+    DogBreed.goldenRetriever => 'golden_retriever',
+    DogBreed.husky => 'husky',
+    DogBreed.pomeranian => 'pomeranian',
+  };
+}
+
+String _intentKey(DogIntent intent) {
+  return switch (intent) {
+    DogIntent.excitedGreeting => 'excited_greeting',
+    DogIntent.attentionSeeking => 'attention_seeking',
+    DogIntent.happyRelaxed => 'happy_relaxed',
+    DogIntent.warningAlert => 'warning_alert',
+    DogIntent.anxiousWhine => 'anxious_whine',
+    DogIntent.sleepy => 'sleepy',
+    DogIntent.restlessEnergy => 'restless_energy',
+    DogIntent.bored => 'bored',
+    DogIntent.uncertain => 'uncertain',
+  };
 }
 
 class _ExpressionVisual {

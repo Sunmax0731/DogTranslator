@@ -69,6 +69,7 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
               ForwardTranslatorTab(
                 result: _controller.translationResult,
                 latestRecord: _controller.latestForwardRecord,
+                expressionBreed: _controller.displayedBreed,
                 isRecording: _controller.isRecording,
                 busy: _controller.recordingBusy,
                 analysisInProgress: _controller.analysisInProgress,

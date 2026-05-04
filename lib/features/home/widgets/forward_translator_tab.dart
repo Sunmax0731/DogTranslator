@@ -8,6 +8,7 @@ class ForwardTranslatorTab extends StatelessWidget {
   const ForwardTranslatorTab({
     required this.result,
     required this.latestRecord,
+    required this.expressionBreed,
     required this.isRecording,
     required this.busy,
     required this.analysisInProgress,
@@ -29,6 +30,7 @@ class ForwardTranslatorTab extends StatelessWidget {
 
   final TranslationResult? result;
   final ForwardRecord? latestRecord;
+  final DogBreed expressionBreed;
   final bool isRecording;
   final bool busy;
   final bool analysisInProgress;
@@ -235,7 +237,10 @@ class ForwardTranslatorTab extends StatelessWidget {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 12),
-                        CandidatePieChart(candidates: result!.candidates),
+                        CandidatePieChart(
+                          candidates: result!.candidates,
+                          breed: expressionBreed,
+                        ),
                         const SizedBox(height: 20),
                         Text(
                           '録音品質ガイド',

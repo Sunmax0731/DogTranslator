@@ -157,6 +157,18 @@ class HomeController extends ChangeNotifier {
     return null;
   }
 
+  DogBreed get displayedBreed {
+    final profileId = selectedForwardRecord?.profileId ?? _selectedProfileId;
+    if (profileId != null) {
+      for (final profile in _profiles) {
+        if (profile.id == profileId) {
+          return profile.breed;
+        }
+      }
+    }
+    return _selectedBreed;
+  }
+
   Map<String, String> get profileNameById => <String, String>{
     for (final profile in _profiles) profile.id: profile.name,
   };
@@ -788,6 +800,12 @@ class HomeController extends ChangeNotifier {
     _translationResult = record.translation;
     _selectedProfileId = record.profileId;
     _selectedSceneMode = record.sceneMode;
+    final profile = selectedProfile;
+    if (profile != null) {
+      _selectedBreed = profile.breed;
+      _selectedAgeStage = profile.ageStage;
+      _selectedSizeClass = profile.sizeClass;
+    }
     _forwardStatusMessage = '履歴の解析結果を表示しています。';
     notifyListeners();
   }
