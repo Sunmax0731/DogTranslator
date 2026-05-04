@@ -21,7 +21,10 @@ class CandidatePieChart extends StatelessWidget {
           width: 164,
           height: 164,
           child: CustomPaint(
-            painter: _PiePainter(candidates),
+            painter: _PiePainter(
+              candidates,
+              Theme.of(context).colorScheme.surface,
+            ),
             child: const Center(child: SizedBox.shrink()),
           ),
         ),
@@ -59,9 +62,10 @@ class CandidatePieChart extends StatelessWidget {
 }
 
 class _PiePainter extends CustomPainter {
-  _PiePainter(this.candidates);
+  _PiePainter(this.candidates, this.innerColor);
 
   final List<TranslationCandidate> candidates;
+  final Color innerColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -83,13 +87,14 @@ class _PiePainter extends CustomPainter {
       startAngle += sweep;
     }
 
-    final innerPaint = Paint()..color = Colors.white;
+    final innerPaint = Paint()..color = innerColor;
     canvas.drawCircle(center, radius - 24, innerPaint);
   }
 
   @override
   bool shouldRepaint(covariant _PiePainter oldDelegate) {
-    return oldDelegate.candidates != candidates;
+    return oldDelegate.candidates != candidates ||
+        oldDelegate.innerColor != innerColor;
   }
 }
 

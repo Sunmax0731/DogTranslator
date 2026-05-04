@@ -207,11 +207,13 @@ class _ProfileTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final calibration = profile.voiceCalibration;
     final detailStyle = Theme.of(context).textTheme.bodySmall;
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7FA),
+        color: colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
