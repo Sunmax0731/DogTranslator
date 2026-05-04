@@ -19,5 +19,5 @@
 
 ## Known Limitations
 - Dog2vec integration currently relies on the base embedding model plus app-side mapping, not a product-specific trained classifier head
-- Installer smoke validation still needs one clean-profile Windows pass before broader external distribution
+- Installer and uninstaller smoke validation passed on a clean Windows profile
 - Reverse text-to-dog playback remains hidden from the release UI
