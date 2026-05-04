@@ -69,6 +69,11 @@ Ship DogTranslator as a Windows per-user installer that keeps the base app packa
 - `powershell -ExecutionPolicy Bypass -NoProfile -File tools/build_release_installer.ps1`
 - Manual clean-profile install and uninstall smoke test
 
+### Validation status
+- Automated validation commands completed successfully
+- Manual clean-profile install smoke test completed successfully
+- Manual uninstall smoke test completed successfully
+
 ## 10. Known Distribution Constraints
 - Installer requires internet access to provision Dog2vec local runtime
 - First install can take noticeable time because Python dependencies and model assets are downloaded

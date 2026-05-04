@@ -97,3 +97,5 @@ Validate the Windows MVP+ across forward interpretation, settings/profile flows,
 - Dog2vec base weight file downloaded to `dog_voice_local/models/dog2vec/dog2vec_130k_9.pt`
 - Release executable generated at `build/windows/x64/runner/Release/dog_translator.exe`
 - Installer artifact generated at `dist/installer/DogTranslator-Setup-1.0.0.exe`
+- Manual installer smoke test: passed
+- Manual uninstaller smoke test: passed
