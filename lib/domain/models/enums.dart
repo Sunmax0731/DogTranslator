@@ -230,7 +230,7 @@ extension ReverseEmotionStyleText on ReverseEmotionStyle {
   }
 }
 
-enum AppThemePreset { defaultTeal, ocean, sunset, forest, graphite }
+enum AppThemePreset { defaultTeal, ocean, sunset, forest, graphite, darkMode }
 
 extension AppThemePresetText on AppThemePreset {
   String get labelJa {
@@ -245,6 +245,8 @@ extension AppThemePresetText on AppThemePreset {
         return 'Forest';
       case AppThemePreset.graphite:
         return 'Graphite';
+      case AppThemePreset.darkMode:
+        return 'Dark';
     }
   }
 

@@ -1,7 +1,7 @@
 # Implementation Report
 
 ## Scope
-This document tracks the Windows MVP+ implementation status after the forward-only UI refresh and Dog2vec runtime hardening pass.
+This document tracks the Windows MVP+ implementation status after the forward-only UI refresh, Dog2vec runtime hardening pass, and the latest progress/history/settings usability expansion.
 
 ## Planned Modules
 - Flutter application shell
@@ -18,6 +18,9 @@ This document tracks the Windows MVP+ implementation status after the forward-on
 - settings and theme management
 - dashboard and comparison UI
 - history replay/search UI
+- staged analysis progress UI with ETA
+- history tag filtering and delete actions
+- dashboard drilldown filters
 - Dog2vec local runtime assets
 - validation tests
 
@@ -45,11 +48,17 @@ This document tracks the Windows MVP+ implementation status after the forward-on
 - live waveform visualization during recording
 - microphone input selection with device enumeration
 - theme preset selection
+- dark mode theme preset
 - settings tab with profile add/edit/delete controls
+- settings tab microphone selection and refresh controls
 - history search, date display, compare toggle, and forward-record replay
+- history intent/profile tag filters, record selection recall, per-item delete, and bulk delete
 - parameter tooltips in forward result chips
 - candidate pie chart visualization
+- bounded-metric mini graphs for RMS, Peak, Arousal, and Valence
+- confidence color coding and provider-first result metadata layout
 - feedback radio-button input
+- stage-based progress bar, step messaging, ETA, and dimmed stale-result presentation during active analysis
 - Pomeranian breed support in the retained reverse domain implementation
 
 ## Notes
@@ -57,6 +66,7 @@ This document tracks the Windows MVP+ implementation status after the forward-on
 - Reverse mode remains experimental and is intentionally hidden from the visible UI.
 - Dog2vec runtime is integrated as an optional local-process enhancement, not as an in-app embedded model.
 - The current local runtime can execute in bootstrap heuristic mode or Dog2vec-enhanced embedding mode, but high-quality downstream learned classifier heads are still a future refinement area.
+- The visible input-device selector now lives in Settings so the forward recording surface stays focused on recording and result review.
 
 ## Validation Summary
 - `flutter analyze`: passed

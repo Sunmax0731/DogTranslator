@@ -6,14 +6,26 @@ class AnalyticsService {
   AnalyticsSummary summarize(
     List<ForwardRecord> forwardRecords,
     List<ReverseRecord> reverseRecords,
-    List<DogProfile> profiles,
-  ) {
+    List<DogProfile> profiles, {
+    String? profileFilterId,
+  }) {
     final intentCounts = <String, int>{};
     final sceneCounts = <String, int>{};
     final profileCounts = <String, int>{};
     var feedbackCount = 0;
 
-    for (final record in forwardRecords) {
+    final filteredForward = profileFilterId == null
+        ? forwardRecords
+        : forwardRecords
+              .where((record) => record.profileId == profileFilterId)
+              .toList(growable: false);
+    final filteredReverse = profileFilterId == null
+        ? reverseRecords
+        : reverseRecords
+              .where((record) => record.profileId == profileFilterId)
+              .toList(growable: false);
+
+    for (final record in filteredForward) {
       intentCounts.update(
         record.translation.intent.labelJa,
         (value) => value + 1,
@@ -33,7 +45,7 @@ class AnalyticsService {
       }
     }
 
-    for (final record in reverseRecords) {
+    for (final record in filteredReverse) {
       sceneCounts.update(
         record.sceneMode.labelJa,
         (value) => value + 1,
@@ -46,8 +58,8 @@ class AnalyticsService {
     }
 
     return AnalyticsSummary(
-      totalForward: forwardRecords.length,
-      totalReverse: reverseRecords.length,
+      totalForward: filteredForward.length,
+      totalReverse: filteredReverse.length,
       feedbackCount: feedbackCount,
       intentCounts: intentCounts,
       sceneCounts: sceneCounts,

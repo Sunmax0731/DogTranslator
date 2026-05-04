@@ -20,6 +20,8 @@
 - [x] Update regression scope for forward-only visible navigation
 - [x] Add manual checks for tooltips, settings, history replay, and theme switching
 - [x] Validate Dog2vec local runtime entrypoint with downloaded model assets
+- [x] Re-run analyze, test, and Windows build after progress/history/settings UI expansion
+- [x] Extend manual checklist for history filters, dashboard drilldown, and dark mode
 
 ## Follow-up Candidates
 - [ ] Real microphone regression pack with curated sample audio

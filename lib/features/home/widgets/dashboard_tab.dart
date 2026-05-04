@@ -8,6 +8,9 @@ class DashboardTab extends StatelessWidget {
     required this.comparisonRecords,
     required this.profiles,
     required this.forwardRecords,
+    required this.selectedProfileFilterId,
+    required this.onProfileFilterChanged,
+    required this.onIntentEntrySelected,
     super.key,
   });
 
@@ -15,11 +18,46 @@ class DashboardTab extends StatelessWidget {
   final List<ForwardRecord> comparisonRecords;
   final List<DogProfile> profiles;
   final List<ForwardRecord> forwardRecords;
+  final String? selectedProfileFilterId;
+  final ValueChanged<String?> onProfileFilterChanged;
+  final ValueChanged<String> onIntentEntrySelected;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<String?>(
+                    initialValue: selectedProfileFilterId,
+                    decoration: const InputDecoration(
+                      labelText: 'ダッシュボード対象プロフィール',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text('全プロフィール'),
+                      ),
+                      ...profiles.map(
+                        (profile) => DropdownMenuItem<String?>(
+                          value: profile.id,
+                          child: Text(profile.name),
+                        ),
+                      ),
+                    ],
+                    onChanged: onProfileFilterChanged,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
         Wrap(
           spacing: 12,
           runSpacing: 12,
@@ -40,6 +78,7 @@ class DashboardTab extends StatelessWidget {
           title: '感情推定',
           emptyText: 'まだ forward 解析結果がありません。',
           entries: analyticsSummary.intentCounts,
+          onEntryTap: onIntentEntrySelected,
         ),
         const SizedBox(height: 16),
         _SummaryCard(
@@ -83,7 +122,7 @@ class DashboardTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '最近の forward 履歴',
+                  '最新の forward 履歴',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
@@ -111,11 +150,13 @@ class _SummaryCard extends StatelessWidget {
     required this.title,
     required this.emptyText,
     required this.entries,
+    this.onEntryTap,
   });
 
   final String title;
   final String emptyText;
   final Map<String, int> entries;
+  final ValueChanged<String>? onEntryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +174,24 @@ class _SummaryCard extends StatelessWidget {
               ...entries.entries.map(
                 (entry) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: Text('${entry.key}: ${entry.value}'),
+                  child: InkWell(
+                    onTap: onEntryTap == null
+                        ? null
+                        : () => onEntryTap!(entry.key),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(child: Text(entry.key)),
+                          Text(entry.value.toString()),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
           ],

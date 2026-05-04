@@ -1,7 +1,7 @@
 # DogTranslator Test Plan
 
 ## 1. Scope
-Validate the Windows MVP+ across forward interpretation, settings/profile flows, history replay, local inference bridging, and Windows desktop build success.
+Validate the Windows MVP+ across forward interpretation, settings/profile flows, progress feedback, history replay/filter/delete flows, dashboard drilldowns, local inference bridging, and Windows desktop build success.
 
 ## 2. Automated Tests
 ### Unit Tests
@@ -34,15 +34,28 @@ Validate the Windows MVP+ across forward interpretation, settings/profile flows,
    - context
    - valence / arousal hints
    - quality guidance
+9. Start another analysis with Dog2vec local inference and confirm:
+   - multi-step progress text appears
+   - progress bar advances through several stages
+   - estimated remaining time appears
+   - previous result card becomes semi-transparent while analysis is active
 9. Hover each result chip and confirm a tooltip appears.
-10. Apply a feedback label via radio buttons.
-11. Search the history panel and confirm matching items filter correctly.
-12. Confirm history shows date and time.
-13. Click a saved forward session and confirm recording replay starts.
-14. Add the latest recording as a calibration sample to a profile from Settings.
-15. Change the app theme preset in Settings.
-16. Change the inference model in Settings and confirm the status text updates.
-17. Optional: confirm `dog2vec_runtime.json` is present and the provider label resolves to local runtime when enabled.
+10. Confirm confidence colors differ between low / medium / high outputs and that provider label is shown first.
+11. Confirm bounded metrics such as RMS, Peak, Arousal, and Valence render as mini graphs.
+12. Apply a feedback label via radio buttons.
+13. Search the history panel and confirm matching items filter correctly.
+14. Apply history intent/profile tag filters and confirm the list narrows correctly.
+15. Click a saved forward session and confirm its analysis result is restored into the main result area.
+16. Use the history `再生` action and confirm recording replay starts.
+17. Delete one history item from the UI and confirm it disappears.
+18. Use the history bulk-delete action only in a disposable test state and confirm all forward history items are removed.
+19. In Dashboard, click an emotion item and confirm the history intent filter updates accordingly.
+20. In Dashboard, change the profile filter and confirm metrics update for that profile only.
+21. Open Settings and confirm microphone selection is available there instead of the forward tab.
+22. Add the latest recording as a calibration sample to a profile from Settings.
+23. Change the app theme preset in Settings, including dark mode.
+24. Change the inference model in Settings and confirm the status text updates.
+25. Optional: confirm `dog2vec_runtime.json` is present and the provider label resolves to local runtime when enabled.
 
 ## 4. Runtime Validation Commands
 - Working directory: repository root
@@ -57,6 +70,9 @@ Validate the Windows MVP+ across forward interpretation, settings/profile flows,
 - Visible UI is forward-focused and no reverse tab appears.
 - The app persists profiles, history, and settings locally.
 - The app replays saved forward recordings from history.
+- The app restores a clicked history record into the main analysis result surface.
+- The app supports history filtering by search text, inferred emotion, and profile.
+- The app shows meaningful staged progress feedback during analysis.
 - The app handles missing or weak audio gracefully.
 - The local Dog2vec runtime can execute when configured.
 

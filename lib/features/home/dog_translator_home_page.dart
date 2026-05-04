@@ -74,11 +74,10 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
                 analysisInProgress: _controller.analysisInProgress,
                 analysisProgress: _controller.analysisProgress,
                 analysisStageMessage: _controller.analysisStageMessage,
-                loadingInputDevices: _controller.loadingInputDevices,
+                analysisEstimatedRemainingLabel:
+                    _controller.analysisEstimatedRemainingLabel,
                 statusMessage: _controller.forwardStatusMessage,
                 waveformSamples: _controller.waveformSamples,
-                inputDevices: _controller.inputDevices,
-                selectedInputDeviceId: _controller.selectedInputDeviceId,
                 profiles: _controller.profiles,
                 selectedProfileId: _controller.selectedProfileId,
                 selectedSceneMode: _controller.selectedSceneMode,
@@ -86,8 +85,6 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
                 onCreateProfilePressed: () =>
                     _controller.createProfile(context),
                 onSceneModeChanged: _controller.setSceneMode,
-                onInputDeviceSelected: _controller.selectInputDevice,
-                onRefreshInputDevices: _controller.loadInputDevices,
                 onRecordPressed: _controller.toggleRecording,
                 onFeedbackChanged: _controller.applyFeedback,
               ),
@@ -95,16 +92,25 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
                 analyticsSummary: _controller.analyticsSummary,
                 comparisonRecords: _controller.comparisonRecords,
                 profiles: _controller.profiles,
-                forwardRecords: _controller.forwardRecords,
+                forwardRecords: _controller.dashboardForwardRecords,
+                selectedProfileFilterId: _controller.dashboardProfileFilterId,
+                onProfileFilterChanged: _controller.setDashboardProfileFilter,
+                onIntentEntrySelected:
+                    _controller.selectHistoryIntentFromDashboard,
               ),
               SettingsTab(
                 selectedThemePreset: _controller.selectedThemePreset,
                 selectedInferenceModel: _controller.selectedInferenceModel,
                 inferenceStatusMessage: _controller.inferenceStatusMessage,
+                inputDevices: _controller.inputDevices,
+                selectedInputDeviceId: _controller.selectedInputDeviceId,
+                loadingInputDevices: _controller.loadingInputDevices,
                 profiles: _controller.profiles,
                 latestForwardRecord: _controller.latestForwardRecord,
                 onThemeChanged: _controller.setThemePreset,
                 onInferenceModelChanged: _controller.setInferenceModel,
+                onInputDeviceChanged: _controller.selectInputDevice,
+                onRefreshInputDevices: _controller.loadInputDevices,
                 onCreateProfilePressed: () =>
                     _controller.createProfile(context),
                 onEditProfilePressed: (profile) =>
@@ -115,21 +121,29 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
               ),
             ];
 
-            final profileNameById = <String, String>{
-              for (final profile in _controller.profiles)
-                profile.id: profile.name,
-            };
-
             final content = _controller.loadingAppData
                 ? const Center(child: CircularProgressIndicator())
                 : pages[_selectedIndex];
 
             final historyPanel = HistoryPanel(
-              forwardRecords: _controller.forwardRecords,
-              profileNameById: profileNameById,
+              forwardRecords: _controller.filteredHistoryRecords,
+              profileNameById: _controller.profileNameById,
               compareSelection: _controller.comparisonSelection,
+              searchQuery: _controller.historySearchQuery,
+              selectedIntentLabel: _controller.historyIntentFilterLabel,
+              selectedProfileFilterId: _controller.historyProfileFilterId,
+              availableIntentLabels: _controller.availableHistoryIntentLabels,
+              availableProfileFilters:
+                  _controller.availableHistoryProfileFilters,
+              onSearchChanged: _controller.setHistorySearchQuery,
+              onIntentFilterChanged: _controller.setHistoryIntentFilter,
+              onProfileFilterChanged: _controller.setHistoryProfileFilter,
+              onClearFilters: _controller.clearHistoryFilters,
               onToggleCompare: _controller.toggleCompareSelection,
+              onSelectForwardRecord: _controller.selectForwardRecord,
               onPlayForwardRecord: _controller.playForwardRecord,
+              onDeleteForwardRecord: _controller.deleteForwardRecord,
+              onDeleteAllForwardRecords: _controller.deleteAllForwardRecords,
             );
 
             if (constraints.maxWidth > 1180) {
@@ -160,7 +174,7 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        SizedBox(width: 380, child: historyPanel),
+                        SizedBox(width: 420, child: historyPanel),
                       ],
                     ),
                   ),
@@ -180,7 +194,7 @@ class _DogTranslatorHomePageState extends State<DogTranslatorHomePage> {
                   children: [
                     Expanded(child: content),
                     const SizedBox(height: 16),
-                    SizedBox(height: 300, child: historyPanel),
+                    SizedBox(height: 360, child: historyPanel),
                   ],
                 ),
               ),
