@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections import Counter
+import re
+from dataclasses import dataclass
 from pathlib import Path
-from statistics import median
 
 import numpy as np
 from PIL import Image, ImageDraw
@@ -20,24 +20,33 @@ BREEDS = [
     "pomeranian",
 ]
 
-EXPRESSIONS = [
+# The new green-screen sheet provided by the user is arranged in this order.
+SOURCE_COLUMNS = [
     "excited_greeting",
     "attention_seeking",
-    "happy_relaxed",
     "warning_alert",
     "anxious_whine",
     "sleepy",
     "restless_energy",
+    "happy_relaxed",
     "bored",
     "uncertain",
 ]
 
 
+@dataclass(frozen=True)
+class CropBounds:
+    left: int
+    top: int
+    right: int
+    bottom: int
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Mechanically crop a 7x9 dog expression sheet into app assets.",
+        description="Crop a 7x9 dog expression sheet and remove green-screen backgrounds.",
     )
-    parser.add_argument("input", type=Path, help="Path to the source sheet image.")
+    parser.add_argument("input", help="Path to the source sheet image, directory, or glob pattern.")
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -56,156 +65,250 @@ def parse_args() -> argparse.Namespace:
         default=Path("tmp_expression_debug.json"),
         help="Optional metadata output path.",
     )
+    parser.add_argument(
+        "--canvas-size",
+        type=int,
+        default=192,
+        help="Square canvas size for each transparent icon.",
+    )
+    parser.add_argument(
+        "--cell-inset",
+        type=int,
+        default=8,
+        help="Inset applied inside each detected cell before chroma-key extraction.",
+    )
+    parser.add_argument(
+        "--content-padding",
+        type=int,
+        default=10,
+        help="Padding between extracted content and the square canvas edge.",
+    )
+    parser.add_argument(
+        "--source-mode",
+        choices=["auto", "sheet", "numbered-icons"],
+        default="auto",
+        help="How to interpret the input. 'numbered-icons' expects 63 files like dogsEmotion001.png.",
+    )
     return parser.parse_args()
 
 
-def sample_background_colors(rgb: np.ndarray, border: int = 64) -> np.ndarray:
-    h, w, _ = rgb.shape
-    border = min(border, h // 4, w // 4)
-    samples = np.concatenate(
-        [
-            rgb[:border, :, :].reshape(-1, 3),
-            rgb[h - border :, :, :].reshape(-1, 3),
-            rgb[:, :border, :].reshape(-1, 3),
-            rgb[:, w - border :, :].reshape(-1, 3),
-        ],
-        axis=0,
+def build_green_mask(rgb: np.ndarray) -> np.ndarray:
+    red = rgb[:, :, 0].astype(np.int16)
+    green = rgb[:, :, 1].astype(np.int16)
+    blue = rgb[:, :, 2].astype(np.int16)
+    max_other = np.maximum(red, blue)
+    return (green >= 110) & ((green - max_other) >= 28)
+
+
+def compute_grid_bounds(image: Image.Image) -> tuple[list[int], list[int]]:
+    width, height = image.size
+    col_bounds = [round(width * i / len(SOURCE_COLUMNS)) for i in range(len(SOURCE_COLUMNS) + 1)]
+    row_bounds = [round(height * i / len(BREEDS)) for i in range(len(BREEDS) + 1)]
+    return col_bounds, row_bounds
+
+
+def extract_content_bbox(alpha: np.ndarray) -> CropBounds | None:
+    ys, xs = np.where(alpha > 0)
+    if len(xs) == 0 or len(ys) == 0:
+        return None
+    return CropBounds(
+        left=int(xs.min()),
+        top=int(ys.min()),
+        right=int(xs.max()) + 1,
+        bottom=int(ys.max()) + 1,
     )
-    quantized = (samples // 8).astype(np.int16)
-    counts = Counter(map(tuple, quantized))
-    top_bins = [np.array(key) for key, _ in counts.most_common(2)]
-    colors = []
-    for bin_key in top_bins:
-        matches = np.all(quantized == bin_key, axis=1)
-        colors.append(samples[matches].mean(axis=0))
-    return np.array(colors, dtype=np.float32)
 
 
-def build_foreground_mask(rgb: np.ndarray, background_colors: np.ndarray) -> np.ndarray:
-    distances = ((rgb[:, :, None, :].astype(np.float32) - background_colors[None, None, :, :]) ** 2).sum(axis=3)
-    min_distance = distances.min(axis=2)
-    return min_distance > 120.0
+def remove_green_background(cell: Image.Image) -> Image.Image:
+    rgba = np.array(cell.convert("RGBA"))
+    rgb = rgba[:, :, :3]
+    alpha = rgba[:, :, 3]
+    green_mask = build_green_mask(rgb)
+    alpha[green_mask] = 0
+    rgba[:, :, 3] = alpha
+    return Image.fromarray(rgba, mode="RGBA")
 
 
-def moving_average(values: np.ndarray, radius: int) -> np.ndarray:
-    window = radius * 2 + 1
-    kernel = np.ones(window, dtype=np.float32) / float(window)
-    return np.convolve(values.astype(np.float32), kernel, mode="same")
+def fit_on_square_canvas(content: Image.Image, canvas_size: int, padding: int) -> Image.Image:
+    target = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+    inner = canvas_size - padding * 2
+    scale = min(inner / content.width, inner / content.height)
+    resized = content.resize(
+        (
+            max(1, int(round(content.width * scale))),
+            max(1, int(round(content.height * scale))),
+        ),
+        Image.Resampling.LANCZOS,
+    )
+    x = (canvas_size - resized.width) // 2
+    y = (canvas_size - resized.height) // 2
+    target.alpha_composite(resized, (x, y))
+    return target
 
 
-def contiguous_runs(mask: np.ndarray) -> list[tuple[int, int]]:
-    runs: list[tuple[int, int]] = []
-    start: int | None = None
-    for index, is_active in enumerate(mask.tolist()):
-        if is_active and start is None:
-            start = index
-        elif not is_active and start is not None:
-            runs.append((start, index - 1))
-            start = None
-    if start is not None:
-        runs.append((start, len(mask) - 1))
-    return runs
-
-
-def merge_close_runs(runs: list[tuple[int, int]], max_gap: int = 3) -> list[tuple[int, int]]:
-    merged: list[list[int]] = []
-    for start, end in runs:
-        if not merged or start - merged[-1][1] > max_gap:
-            merged.append([start, end])
-        else:
-            merged[-1][1] = end
-    return [(start, end) for start, end in merged]
-
-
-def detect_row_cuts(mask: np.ndarray) -> list[int]:
-    projection = mask.sum(axis=1)
-    smooth = moving_average(projection, radius=3)
-    low_rows = smooth <= 2.5
-    gap_runs = merge_close_runs(contiguous_runs(low_rows))
-    if len(gap_runs) < 8:
-        raise RuntimeError(f"Expected at least 8 horizontal background runs, found {len(gap_runs)}.")
-
-    foreground_rows = np.where(projection > 5)[0]
-    top = int(foreground_rows[0])
-    bottom = int(foreground_rows[-1])
-    internal_runs = gap_runs[1:-1]
-    row_cuts = [top] + [int(round((start + end) / 2)) for start, end in internal_runs] + [bottom]
-    if len(row_cuts) != 8:
-        raise RuntimeError(f"Expected 8 horizontal cuts, found {len(row_cuts)}: {row_cuts}")
-    return row_cuts
-
-
-def detect_col_cuts(mask: np.ndarray, row_cuts: list[int]) -> list[int]:
-    full_projection = mask.sum(axis=0)
-    foreground_columns = np.where(full_projection > 5)[0]
-    left = int(foreground_columns[0])
-    right = int(foreground_columns[-1])
-
-    internal_cuts: list[int] = []
-    for index in range(1, len(EXPRESSIONS)):
-        expected = left + (right - left) * index / len(EXPRESSIONS)
-        search_radius = int((right - left) / (len(EXPRESSIONS) * 2.7))
-        picks: list[int] = []
-        for row_index in range(len(BREEDS)):
-            band = mask[row_cuts[row_index] : row_cuts[row_index + 1], :]
-            projection = band.sum(axis=0)
-            smooth = moving_average(projection, radius=4)
-            low = max(0, int(expected - search_radius))
-            high = min(mask.shape[1] - 1, int(expected + search_radius))
-            picks.append(low + int(np.argmin(smooth[low : high + 1])))
-        internal_cuts.append(int(round(median(picks))))
-
-    col_cuts = [left] + internal_cuts + [right]
-    if len(col_cuts) != 10:
-        raise RuntimeError(f"Expected 10 vertical cuts, found {len(col_cuts)}: {col_cuts}")
-    return col_cuts
-
-
-def write_debug_artifacts(image: Image.Image, row_cuts: list[int], col_cuts: list[int], debug_image: Path, metadata_json: Path) -> None:
+def write_debug_artifacts(
+    image: Image.Image,
+    row_bounds: list[int],
+    col_bounds: list[int],
+    debug_image: Path,
+    metadata_json: Path,
+) -> None:
     overlay = image.convert("RGBA")
     draw = ImageDraw.Draw(overlay)
-    for x in col_cuts:
-        draw.line((x, 0, x, overlay.height), fill=(0, 180, 255, 255), width=2)
-    for y in row_cuts:
-        draw.line((0, y, overlay.width, y), fill=(255, 80, 80, 255), width=2)
+    for x in col_bounds:
+        draw.line((x, 0, x, overlay.height), fill=(255, 255, 255, 220), width=2)
+    for y in row_bounds:
+        draw.line((0, y, overlay.width, y), fill=(255, 255, 255, 220), width=2)
     debug_image.parent.mkdir(parents=True, exist_ok=True)
     overlay.save(debug_image)
 
     metadata = {
-        "row_cuts": row_cuts,
-        "col_cuts": col_cuts,
+        "row_bounds": row_bounds,
+        "col_bounds": col_bounds,
         "rows": BREEDS,
-        "columns": EXPRESSIONS,
+        "columns": SOURCE_COLUMNS,
     }
     metadata_json.parent.mkdir(parents=True, exist_ok=True)
     metadata_json.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
-def crop_sheet(source_path: Path, output_dir: Path, debug_image: Path, metadata_json: Path) -> None:
-    image = Image.open(source_path).convert("RGBA")
-    rgb = np.array(image.convert("RGB"))
-    background_colors = sample_background_colors(rgb)
-    mask = build_foreground_mask(rgb, background_colors)
+def write_icon_debug_artifacts(
+    files: list[Path],
+    output_dir: Path,
+    metadata_json: Path,
+) -> None:
+    metadata = {
+        "source_files": [str(file) for file in files],
+        "rows": BREEDS,
+        "columns": SOURCE_COLUMNS,
+        "output_dir": str(output_dir),
+    }
+    metadata_json.parent.mkdir(parents=True, exist_ok=True)
+    metadata_json.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
 
-    row_cuts = detect_row_cuts(mask)
-    col_cuts = detect_col_cuts(mask, row_cuts)
+
+def natural_key(path: Path) -> tuple[int, str]:
+    match = re.search(r"(\d+)$", path.stem)
+    return (int(match.group(1)) if match else 0, path.name)
+
+
+def resolve_input_files(input_value: str) -> list[Path]:
+    if "*" in input_value or "?" in input_value:
+        path = Path(input_value)
+        base = path.parent if str(path.parent) not in ("", ".") else Path(".")
+        return sorted(base.glob(path.name), key=natural_key)
+    path = Path(input_value)
+    if path.is_dir():
+        return sorted(path.glob("*.png"), key=natural_key)
+    if path.is_file():
+        return [path]
+    return []
+
+
+def crop_sheet(
+    source_path: Path,
+    output_dir: Path,
+    debug_image: Path,
+    metadata_json: Path,
+    canvas_size: int,
+    cell_inset: int,
+    content_padding: int,
+) -> None:
+    image = Image.open(source_path).convert("RGBA")
+    col_bounds, row_bounds = compute_grid_bounds(image)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    for row_index, breed in enumerate(BREEDS):
+        cell_top = row_bounds[row_index]
+        cell_bottom = row_bounds[row_index + 1]
+        for col_index, expression in enumerate(SOURCE_COLUMNS):
+            cell_left = col_bounds[col_index]
+            cell_right = col_bounds[col_index + 1]
+            inset_bounds = CropBounds(
+                left=min(cell_left + cell_inset, cell_right - 1),
+                top=min(cell_top + cell_inset, cell_bottom - 1),
+                right=max(cell_left + cell_inset + 1, cell_right - cell_inset),
+                bottom=max(cell_top + cell_inset + 1, cell_bottom - cell_inset),
+            )
+            cell = image.crop(
+                (
+                    inset_bounds.left,
+                    inset_bounds.top,
+                    inset_bounds.right,
+                    inset_bounds.bottom,
+                ),
+            )
+            keyed = remove_green_background(cell)
+            bbox = extract_content_bbox(np.array(keyed)[:, :, 3])
+            if bbox is None:
+                final_icon = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+            else:
+                content = keyed.crop((bbox.left, bbox.top, bbox.right, bbox.bottom))
+                final_icon = fit_on_square_canvas(content, canvas_size, content_padding)
+            final_icon.save(output_dir / f"{breed}_{expression}.png")
+
+    write_debug_artifacts(image, row_bounds, col_bounds, debug_image, metadata_json)
+
+
+def convert_numbered_icons(
+    source_files: list[Path],
+    output_dir: Path,
+    metadata_json: Path,
+    canvas_size: int,
+    content_padding: int,
+) -> None:
+    expected_count = len(BREEDS) * len(SOURCE_COLUMNS)
+    if len(source_files) < expected_count:
+        raise RuntimeError(f"Expected at least {expected_count} source icons, found {len(source_files)}.")
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    ordered_files = source_files[:expected_count]
     for row_index, breed in enumerate(BREEDS):
-        top = row_cuts[row_index]
-        bottom = row_cuts[row_index + 1]
-        for col_index, expression in enumerate(EXPRESSIONS):
-            left = col_cuts[col_index]
-            right = col_cuts[col_index + 1]
-            crop = image.crop((left, top, right, bottom))
-            crop.save(output_dir / f"{breed}_{expression}.png")
+        for col_index, expression in enumerate(SOURCE_COLUMNS):
+            file_index = row_index * len(SOURCE_COLUMNS) + col_index
+            source = ordered_files[file_index]
+            keyed = remove_green_background(Image.open(source).convert("RGBA"))
+            bbox = extract_content_bbox(np.array(keyed)[:, :, 3])
+            if bbox is None:
+                final_icon = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+            else:
+                content = keyed.crop((bbox.left, bbox.top, bbox.right, bbox.bottom))
+                final_icon = fit_on_square_canvas(content, canvas_size, content_padding)
+            final_icon.save(output_dir / f"{breed}_{expression}.png")
 
-    write_debug_artifacts(image, row_cuts, col_cuts, debug_image, metadata_json)
+    write_icon_debug_artifacts(ordered_files, output_dir, metadata_json)
 
 
 def main() -> None:
     args = parse_args()
-    crop_sheet(args.input, args.output_dir, args.debug_image, args.metadata_json)
+    source_mode = args.source_mode
+    input_value = str(args.input)
+    resolved_files = resolve_input_files(input_value)
+    if source_mode == "auto":
+        if len(resolved_files) >= len(BREEDS) * len(SOURCE_COLUMNS):
+            source_mode = "numbered-icons"
+        else:
+            source_mode = "sheet"
+
+    if source_mode == "numbered-icons":
+        convert_numbered_icons(
+            source_files=resolved_files,
+            output_dir=args.output_dir,
+            metadata_json=args.metadata_json,
+            canvas_size=args.canvas_size,
+            content_padding=args.content_padding,
+        )
+        return
+
+    crop_sheet(
+        source_path=Path(input_value),
+        output_dir=args.output_dir,
+        debug_image=args.debug_image,
+        metadata_json=args.metadata_json,
+        canvas_size=args.canvas_size,
+        cell_inset=args.cell_inset,
+        content_padding=args.content_padding,
+    )
 
 
 if __name__ == "__main__":

@@ -50,3 +50,7 @@ app.*.map.json
 /dog_voice_local/__pycache__/
 /dog_voice_local/stderr_check.txt
 /dog_voice_local/stdout_check.txt
+
+# Local source art dropped in for expression-icon conversion
+/assets/expression_icons/dogsEmotion*.png
+/assets/item_*.png
